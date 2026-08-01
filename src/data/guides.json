@@ -1,0 +1,29 @@
+[
+  {
+    "id": "eni",
+    "name": "Eni",
+    "displayTitle": "Meet Eni, Your Roman Storyteller",
+    "quote": "\"Rome isn't just a city to me—it's my home, my heartbeat, and my greatest story to share.\"",
+    "bio": "I wasn't born in Rome — I was born in Albania, and moved here at 18 to continue my studies. What I didn't expect was to completely fall in love with this city. The more I explored Rome, the more fascinated I became by its history, its architecture and the incredible genius of ancient Roman civilization. That curiosity became a passion, and that passion became my profession. Today, being a guide isn't simply my job — it's my way of sharing the city that changed my life. Rome has become my home, and nothing makes me happier than helping others fall in love with it too.",
+    "avatar": "https://romanguides.com/wp-content/uploads-webpc/uploads/App%20Roman%20Guides/GUides/Eni.jpg",
+    "whatsappUrl": "https://wa.me/393516260186?text=Hi%20Eni!%20I%27m%20using%20MyRome%20and%20I%27d%20like%20your%20help%20planning%20my%20Rome%20adventure."
+  },
+  {
+    "id": "arjan",
+    "name": "Arjan",
+    "displayTitle": "Meet Arjan, Your Local Friend in Rome",
+    "quote": "\"Every tour should feel like exploring Rome with a local friend.\"",
+    "bio": "Born in Albania and shaped by experiences across Europe, Arjan first worked as a tour guide in Prague, where he discovered his passion for bringing history to life. After moving to Rome in 2013, he spent years working in the tourism industry, but his true calling was always guiding. Today, he has returned to the profession he loves most, sharing the beauty, stories, and hidden corners of the Eternal City with travelers from around the world. Friendly, knowledgeable, and passionate, Arjan believes every tour should feel like exploring Rome with a local friend.",
+    "avatar": "https://romanguides.com/wp-content/uploads-webpc/uploads/App%20Roman%20Guides/GUides/Arjan.png",
+    "whatsappUrl": "https://wa.me/393516260186?text=Hi%20Arjan!%20I%27m%20using%20MyRome%20and%20I%27d%20like%20your%20help%20planning%20my%20Rome%20adventure."
+  },
+  {
+    "id": "giovanni",
+    "name": "Giovanni",
+    "displayTitle": "Meet Giovanni, Your Roman History Enthusiast",
+    "quote": "\"I love bringing ancient history to life for every guest.\"",
+    "bio": "Born in Romania, Giovanni spent his childhood there before moving to Rome, a city he soon came to call home. From the very beginning, he built his career in the tourism industry, where his natural talent for languages and his passion for history quickly set him apart. Over the years, those qualities helped him become one of Rome's most charismatic and highly regarded tour guides. Energetic, engaging, and passionate about sharing the city's rich heritage, Giovanni loves bringing ancient history to life and ensuring every guest leaves with unforgettable memories of the Eternal City.",
+    "avatar": "https://romanguides.com/wp-content/uploads-webpc/uploads/App%20Roman%20Guides/GUides/Giovanni%20.jpeg",
+    "whatsappUrl": "https://wa.me/393516260186?text=Hi%20Giovanni!%20I%27m%20using%20MyRome%20and%20I%27d%20like%20your%20help%20planning%20my%20Rome%20adventure."
+  }
+]

@@ -1,0 +1,72 @@
+/* Roman Guides Companion — Design tokens
+   Allineati esattamente alla landing romanguides.com (Fase 0, Design
+   Foundation) — non più un'approssimazione, gli stessi valori esatti. */
+
+:root {
+  /* ---- brand board ufficiale, identico alla landing ---- */
+  --red: #ff0033;
+  --red-dk: #cc0029;
+  --black: #000000;
+  --green: #006600;
+  --green-dk: #004d00;
+  --white: #ffffff;
+
+  /* ---- tema chiaro caldo, identico alla landing ---- */
+  --bg-app: #fbf1f0;
+  --ink: #2a1210;
+  --stone: #8a6f6c;
+  --surface: #ffffff;
+  --surface-2: #f5e4e2;
+  --line: rgba(110, 27, 27, 0.12);
+  --shadow-color: rgba(42, 18, 16, 0.14);
+
+  /* ---- sistema ombre a due livelli — porting diretto dalla landing ---- */
+  --shadow-card: 0 1px 3px rgba(42, 18, 16, 0.04), 0 10px 26px rgba(42, 18, 16, 0.08);
+  --shadow-card-hover: 0 2px 6px rgba(42, 18, 16, 0.05), 0 14px 30px rgba(42, 18, 16, 0.12);
+  --shadow-button-hover: 0 6px 14px rgba(78, 16, 16, 0.3);
+
+  /* ---- sistema spaziature — scala a 4px, coerente con i valori osservati nella landing ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* ---- raggio angoli ---- */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* ---- animazioni — stessa curva usata nella landing per hover/press ---- */
+  --ease-hover: cubic-bezier(0.22, 0.9, 0.32, 1);
+  --duration-fast: 0.15s;
+  --duration-normal: 0.25s;
+
+  --display: 'Vollkorn', Georgia, 'Times New Roman', serif;
+  --body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--body);
+  background: var(--bg-app);
+  color: var(--ink);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
