@@ -20,6 +20,15 @@ blob-report
 .env.*
 !.env.example
 
+# Altri formati comuni di credenziali/certificati — nessuno presente oggi,
+# regola difensiva per quando il progetto crescerà
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account*.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

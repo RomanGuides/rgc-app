@@ -34,7 +34,7 @@ try {
   } else {
     console.log(`✅ Bundle size: ${sizeLabel} — entro la soglia di avviso (${WARN_THRESHOLD_KB} KB)`);
   }
-} catch (err) {
+} catch {
   console.error(`Impossibile leggere ${DIST_DIR}/ — hai eseguito 'npm run build' prima?`);
   process.exit(1);
 }

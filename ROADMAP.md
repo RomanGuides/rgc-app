@@ -1,0 +1,22 @@
+# Roadmap
+
+Future work under consideration, grouped by priority. Nothing in this document is implemented — it exists to track deferred decisions and known gaps so they aren't lost or rediscovered from scratch. Per `CONTRIBUTING.md`, anything here should be discussed before implementation begins.
+
+## High priority
+
+- **"Our Story" copy review (My Rome).** The current text in `src/features/myrome/MyRomeScreen.tsx` is an AI-authored draft, explicitly flagged as such in a comment at the top of that file, and has not been reviewed or approved by the founder. This is customer-facing brand copy and should be reviewed before it's treated as final.
+- **CI/CD pipeline.** No `.github/workflows` or equivalent exists. At minimum: run `npm run build` and `npm run test:e2e` automatically on every push/PR, so a broken build or failing test can't reach `main` unnoticed.
+- **Hosting/deployment configuration.** No hosting target (Netlify, Vercel, static bucket, etc.) is configured. `dist/` is currently published manually, if at all.
+
+## Medium priority
+
+- **Content update workflow.** Updating place/guide/experience data currently requires manually re-running an external export script and hand-copying JSON into this repo (see `docs/GoogleSheets.md`). Worth revisiting once content changes often enough for the manual step to become a bottleneck.
+- **Bundle size / code-splitting.** Total `dist/` output is ~1.8 MB, with the main JS chunk (~1.3 MB) as a single bundle. Route- or tab-based code-splitting (e.g. lazy-loading the Map tab's MapLibre dependency) could meaningfully reduce initial load time.
+- **Unify `UserLocation` types.** `src/store/usePlacesStore.ts` and `src/hooks/useGeolocation.ts` each define their own `UserLocation` interface. They're structurally identical today but not shared, so they can silently drift apart. Worth consolidating into one shared type once either file changes for another reason.
+- **Dependency review.** TypeScript has a new major version available (project is currently pinned to `~6.0.2`); worth a deliberate, tested upgrade pass rather than an incidental one. No other dependency was found duplicated or clearly obsolete as of this writing.
+
+## Low priority
+
+- **`Collection` entity.** A `Collection` type is defined in `src/data/types.ts` with a corresponding (currently unused) `collectionsService.ts` stub removed in the v1.0.0 cleanup — no JSON data, no UI. If a themed "Collections" browsing mode (grouping places beyond category/tier) is ever wanted, this is the natural starting shape; if not, the type itself is a candidate for removal.
+- **Settings screen.** Not present in any planning document or the codebase today, and explicitly confirmed as out of scope during this maintenance pass. Listed here only so a future decision to add one is deliberate, not assumed.
+- **`maptiler`/`mapbox` map providers.** Defined as inactive options in `src/config/mapProvider.config.ts`, pending a post-launch review of whether OSM raster tiles remain sufficient (styling, rate limits, attribution requirements).

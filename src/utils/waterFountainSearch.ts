@@ -1,8 +1,7 @@
 // Roman Guides Companion — Water fountain search link builder
 //
 // Non un'integrazione dentro la nostra mappa (niente chiave API, niente
-// fatturazione Google Cloud) — un link diretto alla ricerca di Google Maps,
-// stesso pattern già validato per "Get Directions" (utils/directions.ts).
+// fatturazione Google Cloud) — un link diretto alla ricerca di Google Maps.
 // Se conosciamo la posizione dell'utente, la includiamo nell'URL (stesso
 // formato "@lat,lng,zoom" che Google Maps usa quando cerchi tu stesso da
 // browser); altrimenti Google userà la geolocalizzazione del dispositivo
