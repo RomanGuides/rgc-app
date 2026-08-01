@@ -10,12 +10,12 @@
 // parte umana della pagina.
 
 import { useEffect, useState } from 'react';
-import type { AppContent, Guide } from '../../data/types';
+import type { AppContent } from '../../data/types';
 import { getAppContent } from '../../services/appContentService';
-import { getGuides } from '../../services/guidesService';
 import { BrushRing } from '../../design-system/components/BrushRing';
-import { ICON_REGISTRY, ArrowRightIcon, PhoneIcon, MessageIcon } from '../../design-system/components/Icons';
+import { ICON_REGISTRY, ArrowRightIcon, PhoneIcon } from '../../design-system/components/Icons';
 import { LOCAL_TIPS, GET_AROUND_OPTIONS } from './homeConfig';
+import { OUR_STORY_PULL_QUOTE, OUR_STORY_TEASER } from '../../config/story';
 
 interface HomeScreenProps {
   onNavigate: (tab: 'home' | 'map' | 'experiences' | 'explore' | 'myrome') => void;
@@ -25,21 +25,15 @@ const COMMUNITY_BASE = 'https://romanguides.com/wp-content/uploads-webpc/uploads
 
 export function HomeScreen({ onNavigate }: HomeScreenProps) {
   const [sections, setSections] = useState<AppContent[]>([]);
-  const [guides, setGuides] = useState<Guide[]>([]);
 
   useEffect(() => {
     setSections(getAppContent());
-    setGuides(getGuides());
   }, []);
 
   const hero = sections.find((s) => s.id === 'hero');
   const recommend = sections.find((s) => s.id === 'tip_of_the_day');
   const getAround = sections.find((s) => s.id === 'get_around');
   const emergency = sections.find((s) => s.id === 'emergency');
-
-  // Guida del giorno: rotazione stabile sul giorno del mese, così cambia
-  // ma resta la stessa per tutta la giornata di un dato utente.
-  const todayGuide = guides.length > 0 ? guides[new Date().getDate() % guides.length] : undefined;
 
   return (
     <div style={{ height: '100%', overflowY: 'auto', background: 'var(--bg-app)' }}>
@@ -85,69 +79,45 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
         </div>
       )}
 
-      {todayGuide && (
-        <div style={{ padding: 'var(--space-6) var(--space-5) 4px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ position: 'relative', width: 72, height: 72, flexShrink: 0 }}>
-              <BrushRing size={84} strokeWidth={2.4} />
-              <img
-                src={todayGuide.avatar}
-                alt={todayGuide.name}
-                style={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: '50%',
-                  objectFit: 'cover',
-                  position: 'relative',
-                  zIndex: 1,
-                  display: 'block',
-                }}
-              />
-            </div>
-            <div>
-              <div style={{ fontFamily: 'var(--display)', fontSize: '1.05rem', fontWeight: 700, color: 'var(--ink)' }}>
-                {todayGuide.name}
-              </div>
-              <div style={{ fontSize: '0.76rem', color: 'var(--stone)' }}>Your guide today</div>
-            </div>
-          </div>
-          <div
-            style={{
-              fontFamily: 'var(--display)',
-              fontStyle: 'italic',
-              fontSize: '1.05rem',
-              lineHeight: 1.45,
-              color: 'var(--ink)',
-              margin: '16px 0 6px',
-              paddingLeft: 14,
-              borderLeft: '2px solid var(--red)',
-            }}
-          >
-            {todayGuide.quote}
-          </div>
-          <div style={{ fontSize: '0.74rem', color: 'var(--stone)', paddingLeft: 16, marginBottom: 8 }}>
-            — {todayGuide.name}, Roman Guides
-          </div>
-          <a
-            href={todayGuide.whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              color: 'var(--red)',
-              textDecoration: 'none',
-              marginLeft: 16,
-            }}
-          >
-            <MessageIcon width={16} height={16} />
-            Message {todayGuide.name}
-          </a>
+      <div style={{ padding: 'var(--space-6) var(--space-5) 4px' }}>
+        <div
+          style={{
+            fontFamily: 'var(--display)',
+            fontStyle: 'italic',
+            fontSize: '1.15rem',
+            lineHeight: 1.45,
+            color: 'var(--ink)',
+            margin: '0 0 6px',
+            paddingLeft: 14,
+            borderLeft: '2px solid var(--red)',
+          }}
+        >
+          {OUR_STORY_PULL_QUOTE}
         </div>
-      )}
+        <div style={{ fontSize: '0.82rem', color: 'var(--stone)', lineHeight: 1.55, paddingLeft: 16, margin: '10px 0 8px' }}>
+          {OUR_STORY_TEASER}
+        </div>
+        <button
+          onClick={() => onNavigate('myrome')}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            fontSize: '0.82rem',
+            fontWeight: 600,
+            color: 'var(--red)',
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            marginLeft: 16,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          Read our full story
+          <ArrowRightIcon width={14} height={14} />
+        </button>
+      </div>
 
       <div
         style={{
