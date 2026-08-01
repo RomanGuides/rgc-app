@@ -1,22 +1,21 @@
 // Roman Guides Companion — HomeScreen
-// Rifinita su richiesta esplicita del founder (sprint "qualità premium"):
-// header che invita a conoscere il team, rimossa la card installazione app,
-// social con loghi veri (no emoji), sezione evergreen al posto del tip
-// giornaliero, community come galleria più ricca, Practical Info
-// semplificato, sconto aggiornato al 10% (ROME10).
+// Ridisegnata attorno a tre principi di brand (sessione "direzione
+// editoriale"): il serif porta peso editoriale invece di limitarsi a
+// decorare i titoli; il tratto di pennello del logo è una firma usata con
+// parsimonia, sempre legata a qualcosa di vero (qui: il ritratto della
+// guida); le persone vengono prima dei bottoni — la guida del giorno
+// appare prima di qualsiasi contenuto promozionale. Il blocco funzionale
+// (trasporti, emergenze, tips pratici) resta in fondo, volutamente
+// silenzioso: righe sottili, non card colorate, per non competere con la
+// parte umana della pagina.
 
 import { useEffect, useState } from 'react';
-import type { AppContent, Experience } from '../../data/types';
+import type { AppContent, Guide } from '../../data/types';
 import { getAppContent } from '../../services/appContentService';
-import { getExperiences } from '../../services/experiencesService';
-import { Card } from '../../design-system/components/Card';
-import { Badge } from '../../design-system/components/Badge';
-import { Button } from '../../design-system/components/Button';
-import { SectionHeader } from '../../design-system/components/SectionHeader';
-import { InstagramIcon, FacebookIcon, TikTokIcon, YouTubeIcon } from '../../design-system/components/SocialIcons';
-import { EmailCaptureBanner } from '../../design-system/components/EmailCaptureBanner';
+import { getGuides } from '../../services/guidesService';
+import { BrushRing } from '../../design-system/components/BrushRing';
+import { ICON_REGISTRY, ArrowRightIcon, PhoneIcon, MessageIcon } from '../../design-system/components/Icons';
 import { LOCAL_TIPS, GET_AROUND_OPTIONS } from './homeConfig';
-import { LINKS } from '../../config/links';
 
 interface HomeScreenProps {
   onNavigate: (tab: 'home' | 'map' | 'experiences' | 'explore' | 'myrome') => void;
@@ -26,11 +25,11 @@ const COMMUNITY_BASE = 'https://romanguides.com/wp-content/uploads-webpc/uploads
 
 export function HomeScreen({ onNavigate }: HomeScreenProps) {
   const [sections, setSections] = useState<AppContent[]>([]);
-  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [guides, setGuides] = useState<Guide[]>([]);
 
   useEffect(() => {
     setSections(getAppContent());
-    setExperiences(getExperiences());
+    setGuides(getGuides());
   }, []);
 
   const hero = sections.find((s) => s.id === 'hero');
@@ -38,309 +37,300 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
   const getAround = sections.find((s) => s.id === 'get_around');
   const emergency = sections.find((s) => s.id === 'emergency');
 
+  // Guida del giorno: rotazione stabile sul giorno del mese, così cambia
+  // ma resta la stessa per tutta la giornata di un dato utente.
+  const todayGuide = guides.length > 0 ? guides[new Date().getDate() % guides.length] : undefined;
+
   return (
     <div style={{ height: '100%', overflowY: 'auto', background: 'var(--bg-app)' }}>
       {hero && (
         <div
           style={{
             position: 'relative',
-            minHeight: 400,
+            minHeight: 340,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-end',
-            padding: 'var(--space-6) var(--space-5) var(--space-6)',
+            padding: 'var(--space-6) var(--space-5) var(--space-5)',
             background: hero.imageUrl
-              ? `linear-gradient(0deg, rgba(10,5,4,0.92) 0%, rgba(10,5,4,0.35) 45%, rgba(10,5,4,0.05) 70%), url(${hero.imageUrl}) center/cover`
+              ? `linear-gradient(0deg, rgba(10,5,4,0.88) 0%, rgba(10,5,4,0.2) 55%, rgba(10,5,4,0.02) 75%), url(${hero.imageUrl}) center/cover`
               : 'linear-gradient(160deg, var(--red), var(--red-dk))',
             color: 'var(--white)',
           }}
         >
           <div
             style={{
+              fontSize: '0.68rem',
+              fontWeight: 600,
+              letterSpacing: '.08em',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.7)',
+              marginBottom: 8,
+            }}
+          >
+            Roman Guides
+          </div>
+          <div
+            style={{
               fontFamily: 'var(--display)',
-              fontSize: 'clamp(1.9rem, 8vw, 2.3rem)',
+              fontSize: 'clamp(1.6rem, 7.5vw, 1.9rem)',
               fontWeight: 700,
-              lineHeight: 1.15,
-              margin: '0 0 var(--space-3)',
-              textShadow: '0 2px 16px rgba(0,0,0,0.5)',
-              maxWidth: '88%',
+              lineHeight: 1.2,
+              margin: 0,
+              maxWidth: '92%',
             }}
           >
             {hero.title}
           </div>
-          <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.88)', marginBottom: 'var(--space-4)' }}>
-            ★ {hero.body}
-          </div>
-          <Button href={LINKS.TEAM_VIDEO_URL} target="_blank" rel="noopener noreferrer" variant="gold">
-            ▶ Meet Roman Guides
-          </Button>
         </div>
       )}
 
-      <div style={{ padding: 'var(--space-4)' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-6)' }}>
-          {[
-            { label: 'Instagram', url: LINKS.INSTAGRAM, Icon: InstagramIcon },
-            { label: 'Facebook', url: LINKS.FACEBOOK, Icon: FacebookIcon },
-            { label: 'TikTok', url: LINKS.TIKTOK, Icon: TikTokIcon },
-            { label: 'YouTube', url: LINKS.YOUTUBE, Icon: YouTubeIcon },
-          ].map(({ label, url, Icon }) => (
+      {todayGuide && (
+        <div style={{ padding: 'var(--space-6) var(--space-5) 4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ position: 'relative', width: 72, height: 72, flexShrink: 0 }}>
+              <BrushRing size={84} strokeWidth={2.4} />
+              <img
+                src={todayGuide.avatar}
+                alt={todayGuide.name}
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  position: 'relative',
+                  zIndex: 1,
+                  display: 'block',
+                }}
+              />
+            </div>
+            <div>
+              <div style={{ fontFamily: 'var(--display)', fontSize: '1.05rem', fontWeight: 700, color: 'var(--ink)' }}>
+                {todayGuide.name}
+              </div>
+              <div style={{ fontSize: '0.76rem', color: 'var(--stone)' }}>Your guide today</div>
+            </div>
+          </div>
+          <div
+            style={{
+              fontFamily: 'var(--display)',
+              fontStyle: 'italic',
+              fontSize: '1.05rem',
+              lineHeight: 1.45,
+              color: 'var(--ink)',
+              margin: '16px 0 6px',
+              paddingLeft: 14,
+              borderLeft: '2px solid var(--red)',
+            }}
+          >
+            {todayGuide.quote}
+          </div>
+          <div style={{ fontSize: '0.74rem', color: 'var(--stone)', paddingLeft: 16, marginBottom: 8 }}>
+            — {todayGuide.name}, Roman Guides
+          </div>
+          <a
+            href={todayGuide.whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              color: 'var(--red)',
+              textDecoration: 'none',
+              marginLeft: 16,
+            }}
+          >
+            <MessageIcon width={16} height={16} />
+            Message {todayGuide.name}
+          </a>
+        </div>
+      )}
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 12,
+          padding: 'var(--space-8) var(--space-5) var(--space-3)',
+        }}
+      >
+        <div style={{ flex: 1, height: 1, background: 'var(--line)' }} />
+        <div style={{ position: 'relative', width: 26, height: 26, flexShrink: 0 }}>
+          <BrushRing size={26} strokeWidth={2.2} />
+        </div>
+        <div style={{ flex: 1, height: 1, background: 'var(--line)' }} />
+      </div>
+
+      {recommend && (
+        <div style={{ padding: '0 var(--space-5)' }}>
+          <div
+            style={{
+              fontSize: '0.68rem',
+              fontWeight: 700,
+              letterSpacing: '.06em',
+              textTransform: 'uppercase',
+              color: 'var(--red)',
+              marginBottom: 8,
+            }}
+          >
+            Tonight's recommendation
+          </div>
+          {recommend.imageUrl && (
+            <div
+              style={{
+                height: 210,
+                borderRadius: 'var(--radius-lg)',
+                marginBottom: 14,
+                background: `linear-gradient(0deg, rgba(0,0,0,0.35), rgba(0,0,0,0.02)), url(${recommend.imageUrl}) center/cover`,
+              }}
+            />
+          )}
+          <div style={{ fontFamily: 'var(--display)', fontSize: '1.3rem', fontWeight: 700, color: 'var(--ink)', lineHeight: 1.25, margin: '0 0 6px' }}>
+            {recommend.title}
+          </div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--stone)', lineHeight: 1.55, marginBottom: 14 }}>
+            {recommend.subtitle || recommend.body}
+          </div>
+          {recommend.ctaUrl && (
             <a
-              key={label}
-              href={url}
+              href={recommend.ctaUrl}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={label}
               style={{
-                width: 42,
-                height: 42,
-                borderRadius: '50%',
-                background: 'var(--surface)',
-                border: '1px solid var(--line)',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--ink)',
+                gap: 8,
+                fontSize: '0.82rem',
+                fontWeight: 600,
+                color: 'var(--red)',
                 textDecoration: 'none',
-                boxShadow: 'var(--shadow-card)',
+                marginBottom: 'var(--space-8)',
               }}
             >
-              <Icon />
+              {recommend.ctaLabel || 'Discover more'}
+              <ArrowRightIcon width={14} height={14} />
             </a>
-          ))}
+          )}
         </div>
+      )}
 
-        {recommend && (
-          <>
-            <SectionHeader eyebrow="Editor's Pick" title="Roman Guides Recommends" />
-            <Card
-              href={recommend.ctaUrl || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              imageUrl={recommend.imageUrl}
-              mediaAccentColor="var(--green)"
-              mediaAccentColorEnd="var(--green-dk)"
-              mediaHeight={190}
-              style={{ marginBottom: 'var(--space-8)' }}
-            >
-              <Badge variant="green">Editor's Pick</Badge>
-              <div
-                style={{
-                  fontFamily: 'var(--display)',
-                  fontSize: '1.1rem',
-                  fontWeight: 700,
-                  margin: 'var(--space-2) 0 2px',
-                }}
-              >
-                {recommend.title}
-              </div>
-              {recommend.subtitle && <div style={{ fontSize: '0.82rem', color: 'var(--stone)' }}>{recommend.subtitle}</div>}
-            </Card>
-          </>
-        )}
-
-        <SectionHeader eyebrow="Community" title="Tag us in your Rome moments" subtitle="Share your Rome memories with us. Use #RomanGuides on Instagram." />
-        <div
-          style={{
-            height: 170,
-            borderRadius: 'var(--radius-md)',
-            background: `url(${COMMUNITY_BASE}community-1.jpeg) center/cover`,
-            boxShadow: 'var(--shadow-card)',
-            marginBottom: 'var(--space-2)',
-          }}
-        />
-        <div style={{ display: 'flex', gap: 'var(--space-2)', overflowX: 'auto', marginBottom: 'var(--space-3)', paddingBottom: 2 }}>
-          {['community-2.jpeg', 'community-3.jpeg', 'community-4.jpeg', 'community-5.jpeg', 'community-6.jpeg'].map((f) => (
+      <div style={{ padding: '0 var(--space-5)' }}>
+        <div style={{ fontFamily: 'var(--display)', fontSize: '1.1rem', fontWeight: 700, color: 'var(--ink)', marginBottom: 4 }}>
+          Stories from the road
+        </div>
+        <div style={{ fontSize: '0.78rem', color: 'var(--stone)', marginBottom: 14 }}>
+          Moments shared by travellers who joined us. #RomanGuides
+        </div>
+        <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 6 }}>
+          {['community-1.jpeg', 'community-2.jpeg', 'community-3.jpeg', 'community-4.jpeg'].map((f) => (
             <div
               key={f}
               style={{
                 flexShrink: 0,
-                width: 90,
-                height: 90,
-                borderRadius: 'var(--radius-sm)',
+                width: 120,
+                height: 150,
+                borderRadius: 'var(--radius-md)',
                 background: `url(${COMMUNITY_BASE}${f}) center/cover`,
-                boxShadow: 'var(--shadow-card)',
               }}
             />
           ))}
         </div>
-        <Card showMedia={false} style={{ marginBottom: 'var(--space-8)' }}>
-          <Button variant="ghost" fullWidth href={LINKS.INSTAGRAM} target="_blank" rel="noopener noreferrer">
-            Tag @RomanGuides · #RomanGuides
-          </Button>
-        </Card>
+      </div>
 
-        <SectionHeader eyebrow="Watch & discover" title="Latest videos" />
-        <div style={{ display: 'flex', gap: 'var(--space-3)', overflowX: 'auto', marginBottom: 'var(--space-8)', paddingBottom: 4, marginTop: 'var(--space-3)' }}>
-          {experiences.filter((exp) => exp.videoUrl).map((exp) => (
-            <a
-              key={exp.id}
-              href={exp.videoUrl || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ flexShrink: 0, width: 140, textDecoration: 'none', color: 'inherit' }}
-            >
-              <div
-                style={{
-                  width: 140,
-                  height: 185,
-                  borderRadius: 'var(--radius-md)',
-                  background: exp.imageUrl
-                    ? `url(${exp.imageUrl}) center/cover`
-                    : 'linear-gradient(160deg, #1a1a1a, #3a3a3a)',
-                  marginBottom: 'var(--space-2)',
-                  position: 'relative',
-                  boxShadow: 'var(--shadow-card)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '50%',
-                    background: 'rgba(255,255,255,0.92)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 0,
-                      height: 0,
-                      borderTop: '8px solid transparent',
-                      borderBottom: '8px solid transparent',
-                      borderLeft: '13px solid var(--red)',
-                      marginLeft: 3,
-                    }}
-                  />
-                </div>
-                <span
-                  style={{
-                    position: 'absolute',
-                    bottom: 6,
-                    right: 8,
-                    fontSize: '0.65rem',
-                    color: '#fff',
-                    background: 'rgba(0,0,0,0.55)',
-                    padding: '2px 6px',
-                    borderRadius: 6,
-                  }}
-                >
-                  {exp.videoDuration}
-                </span>
-              </div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, lineHeight: 1.3 }}>{exp.name}</div>
-            </a>
-          ))}
+      <div style={{ padding: 'var(--space-8) var(--space-5) var(--space-6)', borderTop: '1px solid var(--line)', marginTop: 'var(--space-8)' }}>
+        <div style={{ fontSize: '0.68rem', fontWeight: 700, letterSpacing: '.05em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 12 }}>
+          Practical, when you need it
         </div>
 
-        <SectionHeader eyebrow="Around you" title="Local tips" />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3)', marginTop: 'var(--space-3)', marginBottom: 'var(--space-8)' }}>
-          {LOCAL_TIPS.map((tipItem) =>
-            tipItem.action.type === 'tab' ? (
-              <button
-                key={tipItem.label}
-                onClick={() => onNavigate(tipItem.action.type === 'tab' ? tipItem.action.tab : 'home')}
-                style={{
-                  background: 'var(--surface)',
-                  border: '1px solid var(--line)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: 'var(--space-3) var(--space-2)',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  boxShadow: 'var(--shadow-card)',
-                }}
-              >
-                <div style={{ fontSize: '1.3rem', marginBottom: 4 }}>{tipItem.emoji}</div>
-                <div style={{ fontSize: '0.68rem', fontWeight: 700 }}>{tipItem.label}</div>
-              </button>
-            ) : (
+        {LOCAL_TIPS.map((tip) => {
+          const Icon = ICON_REGISTRY[tip.icon];
+          const content = (
+            <>
+              <Icon width={17} height={17} style={{ color: 'var(--stone)', flexShrink: 0 }} />
+              <span>{tip.label}</span>
+              <span style={{ marginLeft: 'auto', color: 'var(--line)' }}>
+                <ArrowRightIcon width={14} height={14} style={{ display: 'block' }} />
+              </span>
+            </>
+          );
+          const rowStyle = {
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '11px 0',
+            borderBottom: '1px solid var(--line)',
+            fontSize: '0.82rem',
+            color: 'var(--ink)',
+            textDecoration: 'none',
+          } as const;
+          return tip.action.type === 'tab' ? (
+            <button
+              key={tip.label}
+              onClick={() => onNavigate(tip.action.type === 'tab' ? tip.action.tab : 'home')}
+              style={{ ...rowStyle, background: 'none', border: 'none', borderBottom: '1px solid var(--line)', width: '100%', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              {content}
+            </button>
+          ) : (
+            <a key={tip.label} href={tip.action.url} target="_blank" rel="noopener noreferrer" style={rowStyle}>
+              {content}
+            </a>
+          );
+        })}
+
+        {getAround &&
+          GET_AROUND_OPTIONS.map((opt) => {
+            const Icon = ICON_REGISTRY[opt.icon];
+            return (
               <a
-                key={tipItem.label}
-                href={tipItem.action.url}
+                key={opt.label}
+                href={opt.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  background: 'var(--surface)',
-                  border: '1px solid var(--line)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: 'var(--space-3) var(--space-2)',
-                  textAlign: 'center',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '11px 0',
+                  borderBottom: '1px solid var(--line)',
+                  fontSize: '0.82rem',
+                  color: 'var(--ink)',
                   textDecoration: 'none',
-                  color: 'inherit',
-                  boxShadow: 'var(--shadow-card)',
                 }}
               >
-                <div style={{ fontSize: '1.3rem', marginBottom: 4 }}>{tipItem.emoji}</div>
-                <div style={{ fontSize: '0.68rem', fontWeight: 700 }}>{tipItem.label}</div>
+                <Icon width={17} height={17} style={{ color: 'var(--stone)', flexShrink: 0 }} />
+                <span>{opt.label}</span>
+                <span style={{ marginLeft: 'auto', color: 'var(--line)' }}>
+                  <ArrowRightIcon width={14} height={14} style={{ display: 'block' }} />
+                </span>
               </a>
-            )
-          )}
-        </div>
+            );
+          })}
 
-        <SectionHeader eyebrow="Before you go" title="Practical info" />
-        <div style={{ marginTop: 'var(--space-3)' }}>
-          {getAround && (
-            <Card showMedia={false} style={{ marginBottom: 'var(--space-3)' }}>
-              <Badge variant="black">Get Around</Badge>
-              <div style={{ fontFamily: 'var(--display)', fontSize: '1rem', fontWeight: 700, margin: 'var(--space-2) 0' }}>
-                {getAround.title}
-              </div>
-              <div style={{ fontSize: '0.82rem', color: 'var(--stone)', lineHeight: 1.5, marginBottom: 'var(--space-3)' }}>
-                {getAround.body}
-              </div>
-              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                {GET_AROUND_OPTIONS.map((opt) => (
-                  <a
-                    key={opt.label}
-                    href={opt.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      flex: 1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 6,
-                      fontSize: '0.72rem',
-                      fontWeight: 700,
-                      padding: '8px 6px',
-                      borderRadius: 'var(--radius-pill)',
-                      border: '1px solid var(--line)',
-                      textDecoration: 'none',
-                      color: 'var(--ink)',
-                    }}
-                  >
-                    <span>{opt.emoji}</span> {opt.label}
-                  </a>
-                ))}
-              </div>
-            </Card>
-          )}
-
-          <EmailCaptureBanner />
-
-          {emergency && (
-            <Card showMedia={false}>
-              <Badge variant="green">Emergency</Badge>
-              <div style={{ fontFamily: 'var(--display)', fontSize: '1rem', fontWeight: 700, margin: 'var(--space-2) 0' }}>
-                {emergency.title}
-              </div>
-              <div style={{ fontSize: '0.82rem', color: 'var(--stone)', lineHeight: 1.5, marginBottom: 'var(--space-3)' }}>
-                {emergency.body}
-              </div>
-              {emergency.ctaLabel && (
-                <Button href={emergency.ctaUrl || '#'} variant="gold">
-                  {emergency.ctaLabel}
-                </Button>
-              )}
-            </Card>
-          )}
-        </div>
+        {emergency && (
+          <a
+            href={emergency.ctaUrl || 'tel:112'}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              padding: '11px 0',
+              fontSize: '0.82rem',
+              color: 'var(--ink)',
+              textDecoration: 'none',
+            }}
+          >
+            <PhoneIcon width={17} height={17} style={{ color: 'var(--stone)', flexShrink: 0 }} />
+            <span>{emergency.title}</span>
+            <span style={{ marginLeft: 'auto', color: 'var(--line)' }}>
+              <ArrowRightIcon width={14} height={14} style={{ display: 'block' }} />
+            </span>
+          </a>
+        )}
       </div>
     </div>
   );

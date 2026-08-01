@@ -5,6 +5,8 @@
 // navigazione invece di limitarsi a un'icona generica.
 
 import type { ReactNode } from 'react';
+import { BrushRing } from './BrushRing';
+import { HomeIcon, MapPinIcon, ExperiencesIcon, ExploreIcon, HeartIcon } from './Icons';
 
 export type TabKey = 'home' | 'map' | 'experiences' | 'explore' | 'myrome';
 
@@ -14,97 +16,13 @@ interface TabDef {
   icon: ReactNode;
 }
 
-const ICON_PROPS = {
-  viewBox: '0 0 24 24',
-  fill: 'none',
-  stroke: 'currentColor',
-  strokeWidth: 2,
-  strokeLinecap: 'round' as const,
-  strokeLinejoin: 'round' as const,
-  width: 19,
-  height: 19,
-};
-
-function HomeIcon() {
-  return (
-    <svg {...ICON_PROPS}>
-      <path d="M3 10.5 12 4l9 6.5" />
-      <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" />
-    </svg>
-  );
-}
-
-function MapIcon() {
-  return (
-    <svg {...ICON_PROPS}>
-      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-      <circle cx="12" cy="10" r="2.6" />
-    </svg>
-  );
-}
-
-function ExperiencesIcon() {
-  return (
-    <svg {...ICON_PROPS}>
-      <rect x="3" y="4" width="18" height="16" rx="2" />
-      <path d="M3 9h18M8 4v5M16 4v5" />
-    </svg>
-  );
-}
-
-function ExploreIcon() {
-  return (
-    <svg {...ICON_PROPS}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="m15.5 8.5-2 5-5 2 2-5 5-2Z" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function MyRomeIcon() {
-  return (
-    <svg {...ICON_PROPS}>
-      <path d="M20.8 4.9a5.4 5.4 0 0 0-7.6 0L12 6.1l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6l1.2 1.2L12 21l7.6-7.3 1.2-1.2a5.4 5.4 0 0 0 0-7.6Z" />
-    </svg>
-  );
-}
-
 const TABS: TabDef[] = [
-  { key: 'home', label: 'Home', icon: <HomeIcon /> },
-  { key: 'map', label: 'Mappa', icon: <MapIcon /> },
-  { key: 'experiences', label: 'Experiences', icon: <ExperiencesIcon /> },
-  { key: 'explore', label: 'Explore', icon: <ExploreIcon /> },
-  { key: 'myrome', label: 'My Rome', icon: <MyRomeIcon /> },
+  { key: 'home', label: 'Home', icon: <HomeIcon width={19} height={19} /> },
+  { key: 'map', label: 'Mappa', icon: <MapPinIcon width={19} height={19} /> },
+  { key: 'experiences', label: 'Experiences', icon: <ExperiencesIcon width={19} height={19} /> },
+  { key: 'explore', label: 'Explore', icon: <ExploreIcon width={19} height={19} /> },
+  { key: 'myrome', label: 'My Rome', icon: <HeartIcon width={19} height={19} /> },
 ];
-
-// Tratto di pennello — stesso path per ogni tab, leggermente irregolare
-// per non sembrare un cerchio geometrico perfetto (coerente col logo).
-function BrushRing({ active }: { active: boolean }) {
-  return (
-    <svg
-      width="36"
-      height="36"
-      viewBox="0 0 40 40"
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        opacity: active ? 1 : 0,
-        transform: active ? 'scale(1)' : 'scale(0.6)',
-        transition: 'opacity 0.25s ease, transform 0.25s cubic-bezier(0.22,0.9,0.32,1)',
-        pointerEvents: 'none',
-      }}
-    >
-      <path
-        d="M20 2 C29 1, 37 8, 38 18 C39 28, 31 37, 20 38 C10 39, 2 31, 2 20 C1 10, 11 2, 20 2"
-        fill="none"
-        stroke="var(--red)"
-        strokeWidth={2.6}
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 
 interface TabBarProps {
   activeTab: TabKey;
