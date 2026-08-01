@@ -40,6 +40,11 @@ function App() {
           borderTop: '1px solid var(--line)',
           background: 'var(--surface)',
           flexShrink: 0,
+          // Nella WebView nativa (Android edge-to-edge da targetSdk 35+) l'app
+          // disegna fino al bordo fisico dello schermo: senza questo padding
+          // i pulsanti della tab bar finiscono sotto la barra di navigazione
+          // di sistema (3 pulsanti), che intercetta il tocco per prima.
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
         {TABS.map((tab) => (

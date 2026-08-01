@@ -8,6 +8,11 @@ All notable changes to this project are documented in this file, starting from t
 - Capacitor native wrapper for iOS and Android (`ios/`, `android/`, `capacitor.config.ts`), enabling native App Store/Play Store builds of the existing web app. No app logic changed — geolocation still uses the standard browser API, not a native plugin (deferred to a future change). Location permission strings declared on both platforms (`NSLocationWhenInUseUsageDescription` on iOS, `ACCESS_COARSE_LOCATION`/`ACCESS_FINE_LOCATION` on Android).
 - `npm run cap:sync` / `cap:ios` / `cap:android` scripts for the native build workflow.
 - `.gitignore` hardened for native signing material (`*.jks`, `*.keystore`, `*.mobileprovision`).
+- `@capacitor/dialog` dependency, used in place of `window.alert()` (see Fixed below).
+
+### Fixed
+- Found only by testing a real installed Android build (not caught by Playwright or browser testing): the bottom tab bar and the Map screen's top black bar had no safe-area padding, so on a device with a 3-button navigation bar and a standard status bar, both were rendered underneath system UI — the tab bar became untappable, and the top bar sat behind the clock/signal icons. Fixed with `env(safe-area-inset-bottom)` / `env(safe-area-inset-top)` padding in `src/App.tsx` and `src/features/map/MapScreen.tsx`.
+- Also found only on a real device: `startWalkingDirections.ts` used `window.alert()` for its two user-facing error messages (no location set, route request failed). In Capacitor's native Android WebView this caused the app to freeze, requiring a force-close — a known incompatibility between raw browser dialogs and native WebViews. Replaced with `@capacitor/dialog`'s `Dialog.alert()`, which has an identical web fallback (no change in browser/Playwright behavior) but uses a proper native dialog on Android/iOS.
 
 ## [1.0.0] — 2026-08-01
 

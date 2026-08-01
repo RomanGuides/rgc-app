@@ -46,6 +46,11 @@ export function MapScreen() {
           background: 'var(--black)',
           color: '#fff',
           padding: '10px 16px',
+          // Stessa causa del fix sulla tab bar in App.tsx: nella WebView nativa
+          // edge-to-edge, questa barra è il primo elemento in cima allo schermo
+          // e finisce dietro la barra di stato (segnale, orologio) senza questo
+          // padding — riscontrato su dispositivo reale.
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 10px)',
           display: 'flex',
           justifyContent: 'flex-end',
           gap: 8,
