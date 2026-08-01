@@ -84,6 +84,21 @@ npm run cap:android    # cap:sync, then open the project in Android Studio
 
 Building the actual native binaries requires the respective native toolchain: Xcode (macOS only) for iOS, Android Studio/Gradle for Android. Location permission strings are already declared: `NSLocationWhenInUseUsageDescription` in `ios/App/App/Info.plist`, and `ACCESS_COARSE_LOCATION`/`ACCESS_FINE_LOCATION` in `android/app/src/main/AndroidManifest.xml`.
 
+**Android requires JDK 21**, not just any JDK — confirmed by a real build failure (`error: invalid source release: 21`) the first time this was set up with JDK 17. `@capacitor/android`'s Gradle module (`node_modules/@capacitor/android/capacitor/build.gradle`) sets `sourceCompatibility`/`targetCompatibility` to `JavaVersion.VERSION_21`, and Gradle's `javac` can't target a release higher than the JDK actually running it. Point `JAVA_HOME` (or Android Studio's configured Gradle JDK) at a JDK 21 install before building.
+
+### Building a debug APK without Android Studio (CLI-only)
+
+Verified working end-to-end on a Windows machine with no prior Android tooling installed, using only: JDK 21 (Temurin), the Android SDK "command line tools only" package (from `developer.android.com`, not the full Android Studio IDE), with `ANDROID_HOME`/`ANDROID_SDK_ROOT` and `platform-tools`/`cmdline-tools/latest/bin` on `PATH`. No emulator was installed — this path assumes testing on a real device.
+
+```
+sdkmanager --licenses
+sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+npm run cap:sync
+cd android && ./gradlew assembleDebug   # gradlew.bat on Windows
+```
+
+Produces `android/app/build/outputs/apk/debug/app-debug.apk` — install on a real device (USB debugging enabled in Developer Options) with `adb install -r app-debug.apk`. This is a **debug** build only. `android/app/build.gradle`'s `release` build type has no `signingConfig` today, so `assembleRelease` would currently produce an unsigned package — not installable, and not what the Play Store accepts. A release keystore still needs to be created before any store submission (tracked in `ROADMAP.md`).
+
 ### How updates reach users
 
 Once distributed via an app store, the web bundle is baked into the native binary at build time — it is **not** fetched live. Any change under `src/`, including a content-only update (new/edited places, guides, etc. — see `docs/GoogleSheets.md`), requires: rebuild web → `npm run cap:sync` → rebuild the native binary → submit to the App Store / Play Store → pass review → users update the app. There is currently no OTA/live-update mechanism and no remote content fetching — content is compiled into the bundle just like it is for the web build today.
