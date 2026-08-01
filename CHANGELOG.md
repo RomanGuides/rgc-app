@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file, starting from the v1.0.0 baseline. Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Added
+- Capacitor native wrapper for iOS and Android (`ios/`, `android/`, `capacitor.config.ts`), enabling native App Store/Play Store builds of the existing web app. No app logic changed — geolocation still uses the standard browser API, not a native plugin (deferred to a future change). Location permission strings declared on both platforms (`NSLocationWhenInUseUsageDescription` on iOS, `ACCESS_COARSE_LOCATION`/`ACCESS_FINE_LOCATION` on Android).
+- `npm run cap:sync` / `cap:ios` / `cap:android` scripts for the native build workflow.
+- `.gitignore` hardened for native signing material (`*.jks`, `*.keystore`, `*.mobileprovision`).
+
 ## [1.0.0] — 2026-08-01
 
 ### Added

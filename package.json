@@ -10,15 +10,22 @@
     "preview": "vite preview",
     "check-bundle-size": "node scripts/check-bundle-size.mjs",
     "build:check": "npm run build && npm run check-bundle-size",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "cap:sync": "npm run build && cap sync",
+    "cap:ios": "npm run cap:sync && cap open ios",
+    "cap:android": "npm run cap:sync && cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
     "maplibre-gl": "^6.0.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.0",
     "@playwright/test": "^1.62.1",
     "@types/node": "^24.13.2",
     "@types/react": "^19.2.17",

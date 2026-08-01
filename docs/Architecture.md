@@ -10,6 +10,7 @@ This document describes the current implementation of Roman Guides Companion —
 - **OpenRouteService** for walking directions (see `docs/Routing.md`).
 - **Oxlint** for linting (`npm run lint`), not ESLint.
 - **Playwright** for end-to-end tests (`npm run test:e2e`).
+- **Capacitor** wraps the web app in native iOS (`ios/`) and Android (`android/`) shells for App Store / Play Store distribution (see `docs/Deployment.md`). The web app itself is unmodified for this — it's the same React app, loaded in a native WebView. Geolocation still goes through the standard browser `navigator.geolocation` API (not a native Capacitor plugin) as of this writing.
 - No UI framework (MUI, Tailwind, etc.) — every component is hand-styled with inline `style` objects and a small set of CSS custom properties (`src/design-system/tokens.css`).
 - No backend. The app is a static single-page app; all content is bundled JSON (see `docs/DataModel.md`).
 
@@ -32,6 +33,10 @@ src/
   services/                    — one file per data entity, each just wrapping its JSON import (see docs/DataModel.md)
   store/                       — the single Zustand store
   utils/                       — pure helper functions (distance, filterPlaces, performance, water fountain search link builder)
+
+ios/                            — native Xcode project (Capacitor-generated), wraps the built web app
+android/                        — native Android Studio/Gradle project (Capacitor-generated), wraps the built web app
+capacitor.config.ts             — Capacitor config: app id, app name, webDir ('dist')
 ```
 
 ## State boundary

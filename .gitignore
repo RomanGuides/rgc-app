@@ -26,6 +26,7 @@ blob-report
 *.key
 *.p12
 *.pfx
+*.mobileprovision
 credentials.json
 service-account*.json
 
