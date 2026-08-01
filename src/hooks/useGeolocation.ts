@@ -35,7 +35,11 @@ export function useGeolocation() {
         setLocation({ ...DEFAULT_ME });
         setStatus('fallback');
       },
-      { timeout: 6000 }
+      // 6s was too tight for a real first GPS/network fix on a physical
+      // device (esp. indoors) — it reliably timed out (code=3) and fell
+      // back to the Trevi Fountain default even when location genuinely
+      // worked given more time. Confirmed on a real phone: 15s fixed it.
+      { timeout: 15000 }
     );
   }, []);
 

@@ -14,6 +14,17 @@ test('Home tab renders', async ({ page }) => {
   await expect(page.getByText('Meet your trusted Rome travel agency.')).toBeVisible();
 });
 
+test('Home: Last name field in the email capture form stays within the viewport', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Home/ }).click();
+  const lastNameBox = await page.getByPlaceholder('Last name (optional)').boundingBox();
+  const viewportWidth = page.viewportSize()!.width;
+  expect(lastNameBox).not.toBeNull();
+  expect(lastNameBox!.x + lastNameBox!.width).toBeLessThanOrEqual(viewportWidth);
+});
+
 test('Map tab renders with markers and basemap', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('canvas')).toBeVisible();

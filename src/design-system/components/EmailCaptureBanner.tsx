@@ -100,6 +100,7 @@ export function EmailCaptureBanner() {
           placeholder="First name"
           style={{
             flex: 1,
+            minWidth: 0,
             boxSizing: 'border-box',
             padding: '10px 12px',
             borderRadius: 'var(--radius-sm)',
@@ -114,6 +115,7 @@ export function EmailCaptureBanner() {
           placeholder="Last name (optional)"
           style={{
             flex: 1,
+            minWidth: 0,
             boxSizing: 'border-box',
             padding: '10px 12px',
             borderRadius: 'var(--radius-sm)',
