@@ -9,17 +9,10 @@ import { MapScreen } from './features/map/MapScreen';
 import { ExperiencesScreen } from './features/experiences/ExperiencesScreen';
 import { ExploreScreen } from './features/explore/ExploreScreen';
 import { MyRomeScreen } from './features/myrome/MyRomeScreen';
+import { TabBar, type TabKey } from './design-system/components/TabBar';
 import './design-system/tokens.css';
 
-type Tab = 'home' | 'map' | 'experiences' | 'explore' | 'myrome';
-
-const TABS: { key: Tab; label: string; emoji: string }[] = [
-  { key: 'home', label: 'Home', emoji: '🏠' },
-  { key: 'map', label: 'Mappa', emoji: '📍' },
-  { key: 'experiences', label: 'Experiences', emoji: '🎬' },
-  { key: 'explore', label: 'Explore', emoji: '🏛️' },
-  { key: 'myrome', label: 'My Rome', emoji: '❤️' },
-];
+type Tab = TabKey;
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('map');
@@ -34,42 +27,7 @@ function App() {
         {activeTab === 'myrome' && <MyRomeScreen onNavigate={setActiveTab} />}
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          borderTop: '1px solid var(--line)',
-          background: 'var(--surface)',
-          flexShrink: 0,
-          // Nella WebView nativa (Android edge-to-edge da targetSdk 35+) l'app
-          // disegna fino al bordo fisico dello schermo: senza questo padding
-          // i pulsanti della tab bar finiscono sotto la barra di navigazione
-          // di sistema (3 pulsanti), che intercetta il tocco per prima.
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        }}
-      >
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            style={{
-              flex: 1,
-              padding: '10px 4px',
-              border: 'none',
-              background: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 2,
-              color: activeTab === tab.key ? 'var(--red)' : 'var(--stone)',
-              fontWeight: activeTab === tab.key ? 700 : 500,
-            }}
-          >
-            <span style={{ fontSize: '1.1rem' }}>{tab.emoji}</span>
-            <span style={{ fontSize: '0.62rem' }}>{tab.label}</span>
-          </button>
-        ))}
-      </div>
+      <TabBar activeTab={activeTab} onChange={setActiveTab} />
     </div>
   );
 }
