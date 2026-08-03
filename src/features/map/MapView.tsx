@@ -252,7 +252,7 @@ export function MapView({ places, onSelectPlace, userLocation, activeRoute, sele
       el.style.height = '30px';
       el.style.borderRadius = '50% 50% 50% 0';
       el.style.transform = 'rotate(-45deg)';
-      el.style.background = 'var(--green, #006600)';
+      el.style.background = 'var(--ink)';
       el.style.border = '2px solid #fff';
       el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.35)';
       el.style.display = 'flex';
@@ -339,7 +339,15 @@ export function MapView({ places, onSelectPlace, userLocation, activeRoute, sele
     return () => {
       map.off('sourcedata', applyMarkerOpacity);
     };
-  }, [activeRoute]);
+    // Solo destinationId, non l'intero oggetto activeRoute: updateRouteProgress
+    // (useRouteTracking) crea un nuovo oggetto activeRoute ad ogni aggiornamento
+    // di posizione durante il percorso (remainingDistance/-Duration cambiano),
+    // anche se la destinazione resta la stessa. Con [activeRoute] questo effetto
+    // rifaceva fitBounds() ad ogni singolo tick GPS — innocuo al chiuso (pochi
+    // aggiornamenti), ma con GPS reale all'aperto ha saturato il thread di
+    // rendering fino al blocco (ANR) su dispositivo reale.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeRoute?.destinationId]);
 
   return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />;
 }

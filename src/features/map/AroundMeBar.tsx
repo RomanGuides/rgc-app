@@ -90,7 +90,7 @@ export function AroundMeBar() {
           padding: '6px 10px',
           borderRadius: '999px',
           border: '1px solid var(--line)',
-          background: status === 'located' || status === 'fallback' ? 'var(--green)' : 'var(--surface-2)',
+          background: status === 'located' || status === 'fallback' ? 'var(--ink)' : 'var(--surface-2)',
           color: status === 'located' || status === 'fallback' ? '#fff' : 'var(--ink)',
           cursor: 'pointer',
           whiteSpace: 'nowrap',

@@ -8,38 +8,20 @@ function placeMarkers(page: Page) {
   return page.locator('.maplibregl-marker').filter({ hasNotText: '📍' });
 }
 
-test('Home tab renders', async ({ page }) => {
-  await page.goto('/');
-  await page.getByRole('button', { name: /Home/ }).click();
-  await expect(page.getByText('Meet your trusted Rome travel agency.')).toBeVisible();
-});
+// Home and Explore tabs were removed in the redesign's nav-shell phase
+// (5 tabs → 3: Rome, Experiences, Saved). Their content is staged for reuse
+// elsewhere (Home's email banner → Experience Detail; Explore's browsing →
+// the new Search screen) — re-add equivalent tests once those phases land.
 
-test('Home: Last name field in the email capture form stays within the viewport', async ({
-  page,
-}) => {
-  await page.goto('/');
-  await page.getByRole('button', { name: /Home/ }).click();
-  const lastNameBox = await page.getByPlaceholder('Last name (optional)').boundingBox();
-  const viewportWidth = page.viewportSize()!.width;
-  expect(lastNameBox).not.toBeNull();
-  expect(lastNameBox!.x + lastNameBox!.width).toBeLessThanOrEqual(viewportWidth);
-});
-
-test('Map tab renders with markers and basemap', async ({ page }) => {
+test('Rome tab (default) renders with markers and basemap', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('canvas')).toBeVisible();
   await expect(page.locator('.maplibregl-marker').first()).toBeVisible();
 });
 
-test('Explore tab renders', async ({ page }) => {
+test('Saved tab renders', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: /Explore/ }).click();
-  await expect(page.getByText(/places curated by locals/)).toBeVisible();
-});
-
-test('My Rome tab renders', async ({ page }) => {
-  await page.goto('/');
-  await page.getByRole('button', { name: /My Rome/ }).last().click();
+  await page.getByRole('button', { name: /Saved/ }).last().click();
   await expect(page.getByText('Nothing saved yet')).toBeVisible();
   await expect(page.getByText('Meet the Guides')).toBeVisible();
 });

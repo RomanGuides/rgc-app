@@ -12,6 +12,7 @@ import { SavedPlacesList } from './SavedPlacesList';
 import { Card } from '../../design-system/components/Card';
 import { Button } from '../../design-system/components/Button';
 import { SectionHeader } from '../../design-system/components/SectionHeader';
+import type { TabKey } from '../../design-system/components/TabBar';
 
 function GuidePhoto({ avatar, name }: { avatar: string; name: string }) {
   const isRealUrl = avatar.startsWith('http');
@@ -38,7 +39,7 @@ function GuidePhoto({ avatar, name }: { avatar: string; name: string }) {
 }
 
 interface MyRomeScreenProps {
-  onNavigate: (tab: 'home' | 'map' | 'experiences' | 'explore' | 'myrome') => void;
+  onNavigate: (tab: TabKey) => void;
 }
 
 export function MyRomeScreen({ onNavigate }: MyRomeScreenProps) {
@@ -55,7 +56,7 @@ export function MyRomeScreen({ onNavigate }: MyRomeScreenProps) {
       <SectionHeader eyebrow="Roman Guides Companion" title="My Rome" subtitle="Your saved places, your guides, and the community." />
 
       <div style={{ marginBottom: 'var(--space-6)' }}>
-        <SavedPlacesList onSelect={() => onNavigate('map')} />
+        <SavedPlacesList onSelect={() => onNavigate('rome')} />
       </div>
 
       <SectionHeader eyebrow="Your local experts" title="Meet the Guides" />

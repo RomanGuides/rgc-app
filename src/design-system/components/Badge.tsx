@@ -6,13 +6,12 @@ import type { ReactNode } from 'react';
 
 interface BadgeProps {
   children: ReactNode;
-  variant?: 'red' | 'black' | 'green' | 'neutral';
+  variant?: 'red' | 'black' | 'neutral';
 }
 
 const VARIANT_STYLES: Record<NonNullable<BadgeProps['variant']>, { bg: string; color: string; border: string }> = {
   red: { bg: 'rgba(255,0,51,0.08)', color: 'var(--red)', border: 'rgba(255,0,51,0.25)' },
   black: { bg: 'rgba(0,0,0,0.06)', color: 'var(--ink)', border: 'rgba(0,0,0,0.15)' },
-  green: { bg: 'rgba(0,102,0,0.08)', color: 'var(--green)', border: 'rgba(0,102,0,0.25)' },
   neutral: { bg: 'var(--surface-2)', color: 'var(--stone)', border: 'var(--line)' },
 };
 

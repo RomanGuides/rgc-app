@@ -118,12 +118,12 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
               target="_blank"
               rel="noopener noreferrer"
               imageUrl={recommend.imageUrl}
-              mediaAccentColor="var(--green)"
-              mediaAccentColorEnd="var(--green-dk)"
+              mediaAccentColor="var(--stone)"
+              mediaAccentColorEnd="var(--ink)"
               mediaHeight={190}
               style={{ marginBottom: 'var(--space-8)' }}
             >
-              <Badge variant="green">Editor's Pick</Badge>
+              <Badge variant="neutral">Editor's Pick</Badge>
               <div
                 style={{
                   fontFamily: 'var(--display)',
@@ -326,7 +326,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps) {
 
           {emergency && (
             <Card showMedia={false}>
-              <Badge variant="green">Emergency</Badge>
+              <Badge variant="red">Emergency</Badge>
               <div style={{ fontFamily: 'var(--display)', fontSize: '1rem', fontWeight: 700, margin: 'var(--space-2) 0' }}>
                 {emergency.title}
               </div>

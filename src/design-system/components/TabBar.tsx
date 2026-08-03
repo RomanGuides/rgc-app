@@ -6,7 +6,7 @@
 
 import type { ReactNode } from 'react';
 
-export type TabKey = 'home' | 'map' | 'experiences' | 'explore' | 'myrome';
+export type TabKey = 'rome' | 'experiences' | 'saved';
 
 interface TabDef {
   key: TabKey;
@@ -24,15 +24,6 @@ const ICON_PROPS = {
   width: 19,
   height: 19,
 };
-
-function HomeIcon() {
-  return (
-    <svg {...ICON_PROPS}>
-      <path d="M3 10.5 12 4l9 6.5" />
-      <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" />
-    </svg>
-  );
-}
 
 function MapIcon() {
   return (
@@ -52,15 +43,6 @@ function ExperiencesIcon() {
   );
 }
 
-function ExploreIcon() {
-  return (
-    <svg {...ICON_PROPS}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="m15.5 8.5-2 5-5 2 2-5 5-2Z" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 function MyRomeIcon() {
   return (
     <svg {...ICON_PROPS}>
@@ -70,11 +52,9 @@ function MyRomeIcon() {
 }
 
 const TABS: TabDef[] = [
-  { key: 'home', label: 'Home', icon: <HomeIcon /> },
-  { key: 'map', label: 'Mappa', icon: <MapIcon /> },
+  { key: 'rome', label: 'Rome', icon: <MapIcon /> },
   { key: 'experiences', label: 'Experiences', icon: <ExperiencesIcon /> },
-  { key: 'explore', label: 'Explore', icon: <ExploreIcon /> },
-  { key: 'myrome', label: 'My Rome', icon: <MyRomeIcon /> },
+  { key: 'saved', label: 'Saved', icon: <MyRomeIcon /> },
 ];
 
 // Tratto di pennello — stesso path per ogni tab, leggermente irregolare

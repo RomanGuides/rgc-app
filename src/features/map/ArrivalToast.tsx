@@ -16,7 +16,7 @@ export function ArrivalToast() {
         left: '50%',
         transform: 'translate(-50%, -50%)',
         zIndex: 30,
-        background: 'var(--green)',
+        background: 'var(--ink)',
         color: '#fff',
         fontWeight: 700,
         fontSize: '0.9rem',
