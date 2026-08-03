@@ -13,14 +13,6 @@ export const DEFAULT_ME = {
   label: 'Trevi Fountain (default reference point)',
 };
 
-// Opzioni raggio per "Around Me" — 0 = Tutta Roma
-export const RADIUS_OPTIONS = [
-  { value: 300, label: '300 m' },
-  { value: 500, label: '500 m' },
-  { value: 1000, label: '1 km' },
-  { value: 0, label: 'Entire Rome' },
-];
-
 // Soglie di dimensione cluster (validate nello Spike)
 export const CLUSTER_MAX_ZOOM = 15;
 export const CLUSTER_RADIUS = 50;

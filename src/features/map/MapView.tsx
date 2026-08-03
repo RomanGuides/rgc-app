@@ -268,7 +268,7 @@ export function MapView({ places, onSelectPlace, userLocation, activeRoute, sele
   // coordinate sono identiche alla richiesta precedente (locateMeSignal
   // cambia comunque, a differenza di userLocation che potrebbe non cambiare
   // valore). Non scatta per gli aggiornamenti silenziosi in background
-  // durante un percorso attivo — vedi AroundMeBar.
+  // durante un percorso attivo — vedi MapScreen (bumpLocateMeSignal).
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !userLocation || !locateMeSignal) return;

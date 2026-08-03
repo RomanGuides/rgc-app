@@ -35,16 +35,26 @@ The user's own location is rendered as a separate DOM marker (📍) added direct
 
 The same `setupClusterLayers()` function also creates the `'active-route'` GeoJSON source and `'active-route-line'` layer used to draw the walking-directions polyline. This is intentional co-location, not an accident — both the clustering setup and the route line depend on the style being fully loaded, so they share the one `ensureLayers()` guard. It also explains why the style-loading race condition above broke both clustering *and* Directions at the same time before it was fixed.
 
-A separate `useEffect` in `MapView.tsx`, keyed on the store's `activeRoute`, updates this source's data whenever a route becomes active/inactive: it draws the line, dims all non-destination place markers to 0.35 opacity, highlights the destination marker, and calls `map.fitBounds()` to frame the full route.
+A separate `useEffect` in `MapView.tsx`, keyed on `activeRoute?.destinationId` (not the whole `activeRoute` object — see below), updates this source's data whenever the route's *destination* changes: it draws the line, dims all non-destination place markers to 0.35 opacity, highlights the destination marker, and calls `map.fitBounds()` to frame the full route.
 
-## Filtering
+This dependency is deliberately narrow. `updateRouteProgress` (in `useRouteTracking.ts`) creates a new `activeRoute` object on every location update while a route is active (only `remainingDistanceMeters`/`remainingDurationSeconds` change, not the destination). Keying this effect on the whole object meant `fitBounds()` re-ran on every single GPS tick — harmless indoors (few updates), but on a real device outdoors with frequent GPS updates this saturated the render thread badly enough to cause an ANR (app-not-responding) requiring a force-close. Keying on `destinationId` alone fixes this while still correctly re-running when a route starts, changes destination, or is cleared.
 
-Category filters and the "Around Me" radius filter (300m / 500m / 1km / Entire Rome) are applied in `src/utils/filterPlaces.ts` against the store's `places` array before rendering — the map itself has no server-side or API-based filtering, since all place data is static and local.
+## Filtering, search, and geolocation UI (redesign v1, Phase 3)
+
+The old black bar, `AroundMeBar` (category chips + "Around Me" radius filter), and `CategoryFilterBar` were removed and replaced by two new components in `src/features/map/`:
+
+- **`RomeSheet.tsx`** — a persistent, draggable bottom sheet with three detents (peek/resting/full, tap the handle to cycle since drag-via-mouse could not be reliably verified in a desktop browser — real touch-drag support is still there but needs on-device confirmation). Contains the search entry field, a category filter popover (reusing `CATEGORY_META`, same filtering, different UI), the "Tonight" editorial pick, "Nearest to you", and — only at the full detent — compact utility rows (Get Around, Emergency, Find Water Nearby) migrated from the old Home tab.
+- **`SearchScreen.tsx`** — new, full-screen, real-time filter by name/category/area (no submit button, no debounce). Supersedes the old Explore tab's browsing function.
+- **`LocateButton.tsx`** — a floating circular button over the map (top-right), visually replacing `AroundMeBar`'s "Use my location" button; same underlying behavior.
+
+The "Around Me" radius filter is gone entirely (redesign decision): places are no longer filterable by distance, only by category. `filterPlaces.ts` now only filters by `activeCategories`.
+
+Geolocation lifecycle (previously in `AroundMeBar.tsx`) now lives directly in `MapScreen.tsx`: it calls `useGeolocation()`, pushes results into the store via `setUserLocation`, and starts/stops continuous tracking (`startWatching`/`stopWatching`) based on whether `activeRoute` is set.
 
 ## Geolocation
 
 `src/hooks/useGeolocation.ts` wraps the browser Geolocation API:
 - `requestLocation()` — one-shot `getCurrentPosition`, used for "Use my location" and for centering on load. Falls back to `DEFAULT_ME` (a hardcoded Trevi Fountain coordinate, `src/config/app.config.ts`) if geolocation is unsupported or errors. Uses a 15-second timeout — raised from an original 6 seconds, which reliably timed out (`GeolocationPositionError.code === 3`) on real phones before a first GPS/network fix completed, especially indoors.
-- `startWatching()`/`stopWatching()` — a continuous `watchPosition` (`enableHighAccuracy: true`, `maximumAge: 5000`), used while a Directions route is active so the "me" marker and remaining-distance calculation update live (see `docs/Routing.md`).
+- `startWatching()`/`stopWatching()` — a continuous `watchPosition` (`enableHighAccuracy: false`, `maximumAge: 5000`), used while a Directions route is active so the "me" marker and remaining-distance calculation update live (see `docs/Routing.md`). `enableHighAccuracy` was originally `true`, but on a real device with several other apps also requesting high-accuracy location in the background, this contributed to CPU/GPS contention severe enough to trigger an ANR (`Input dispatching timed out`) — lowered to reduce this app's own contribution to that contention, at the cost of slightly less precise live position during a walk.
 
 Real GPS positioning on a phone browser requires a secure context (HTTPS or localhost) — see `docs/Deployment.md` for how this is tested locally.

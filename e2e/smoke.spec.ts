@@ -9,9 +9,9 @@ function placeMarkers(page: Page) {
 }
 
 // Home and Explore tabs were removed in the redesign's nav-shell phase
-// (5 tabs → 3: Rome, Experiences, Saved). Their content is staged for reuse
-// elsewhere (Home's email banner → Experience Detail; Explore's browsing →
-// the new Search screen) — re-add equivalent tests once those phases land.
+// (5 tabs → 3: Rome, Experiences, Saved). Home's content is staged for reuse
+// elsewhere (email banner → Experience Detail) — re-add an equivalent test
+// once that phase lands. Explore's browsing was superseded by Search (below).
 
 test('Rome tab (default) renders with markers and basemap', async ({ page }) => {
   await page.goto('/');
@@ -43,6 +43,18 @@ test('Directions: Get Directions draws a route and shows the Directions bar', as
 
   await expect(page.getByRole('button', { name: /Stop Route/ })).toBeVisible();
   await expect(page.getByText(/min/)).toBeVisible();
+});
+
+test('Search: typing filters results and selecting one opens its place card', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Search Rome/ }).click();
+  await expect(page.getByText(/results|All places/)).toBeVisible();
+
+  await page.getByPlaceholder(/Search places/).fill('colosseum');
+  await expect(page.getByText('Colosseum', { exact: true })).toBeVisible();
+
+  await page.getByText('Colosseum', { exact: true }).click();
+  await expect(page.getByRole('button', { name: /Get Directions/ })).toBeVisible();
 });
 
 test('Clear Route: Stop Route removes the Directions bar', async ({ page }) => {

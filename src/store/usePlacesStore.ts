@@ -32,7 +32,6 @@ export interface ActiveRoute {
 interface PlacesStore {
   places: Place[];
   activeCategories: Set<PlaceCategory>;
-  radius: number;
   userLocation: UserLocation | null;
   selectedPlace: Place | null;
   savedPlaceIds: string[];
@@ -46,7 +45,6 @@ interface PlacesStore {
 
   loadPlaces: () => void;
   toggleCategory: (cat: PlaceCategory) => void;
-  setRadius: (r: number) => void;
   setUserLocation: (loc: UserLocation | null) => void;
   selectPlace: (p: Place | null) => void;
   toggleSaved: (id: string) => void;
@@ -62,7 +60,6 @@ export const usePlacesStore = create<PlacesStore>()(
     (set) => ({
       places: [],
       activeCategories: new Set(Object.keys(CATEGORY_META) as PlaceCategory[]),
-      radius: 0,
       userLocation: null,
       selectedPlace: null,
       savedPlaceIds: [],
@@ -79,8 +76,6 @@ export const usePlacesStore = create<PlacesStore>()(
           else next.add(cat);
           return { activeCategories: next };
         }),
-
-      setRadius: (r) => set({ radius: r }),
 
       setUserLocation: (loc) => set({ userLocation: loc }),
 
