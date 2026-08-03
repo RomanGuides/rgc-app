@@ -39,7 +39,7 @@ This is the first version baseline of Roman Guides Companion considered **stable
 
 ## Known issues / caveats (not fixed in this release — see `ROADMAP.md`)
 
-- **"Our Story" copy on My Rome is a draft.** Per the comment at the top of `src/features/myrome/MyRomeScreen.tsx`, this text was written by an AI assistant in the absence of official copy and has **not been reviewed by the founder**. Treat it as a placeholder, not final marketing copy.
+- ~~"Our Story" copy on My Rome is a draft.~~ **Resolved** — the founder has confirmed the copy (see `src/config/story.ts`), which is now the single source of truth for this text.
 - No CI/CD or hosting is configured yet (see `docs/Deployment.md`).
 - The `Collection` data model entity is defined but has no service, no data, and no UI consumer (Explore/Collections style browsing was never wired up).
 - Total `dist/` is ~1.8 MB — main JS chunk ~1.3 MB (single chunk, no code-splitting yet) plus vendored MapLibre worker files and CSS.

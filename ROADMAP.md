@@ -4,7 +4,6 @@ Future work under consideration, grouped by priority. Nothing in this document i
 
 ## High priority
 
-- **"Our Story" copy review (My Rome).** The current text in `src/features/myrome/MyRomeScreen.tsx` is an AI-authored draft, explicitly flagged as such in a comment at the top of that file, and has not been reviewed or approved by the founder. This is customer-facing brand copy and should be reviewed before it's treated as final.
 - **CI/CD pipeline.** No `.github/workflows` or equivalent exists. At minimum: run `npm run build` and `npm run test:e2e` automatically on every push/PR, so a broken build or failing test can't reach `main` unnoticed.
 - **Hosting/deployment configuration.** No hosting target (Netlify, Vercel, static bucket, etc.) is configured. `dist/` is currently published manually, if at all.
 - **Move the OpenRouteService API key server-side before any public store launch.** The key lives client-side today (`src/config/routing.config.ts`), fine for local/private testing, but once the app is distributed via the App Store/Play Store it ships inside the public binary, extractable by anyone — a real cost/abuse risk at public scale. Needs a small proxy/backend before a real public launch.

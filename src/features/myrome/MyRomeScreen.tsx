@@ -1,8 +1,7 @@
 // Roman Guides Companion — MyRomeScreen
 // Arricchita su richiesta esplicita: "Meet the Guides" con foto reale dove
-// disponibile, e nuova sezione "Our Story" (testo emozionale — BOZZA,
-// scritta da Claude in assenza di un testo ufficiale, da far rivedere
-// al founder prima della pubblicazione: vedi report finale).
+// disponibile, e sezione "Our Story" (testo approvato dal founder — fonte
+// unica in config/story.ts, riusata anche come pull-quote in Home).
 
 import { useEffect, useState } from 'react';
 import type { Guide, Testimonial } from '../../data/types';
@@ -13,6 +12,7 @@ import { Card } from '../../design-system/components/Card';
 import { Button } from '../../design-system/components/Button';
 import { SectionHeader } from '../../design-system/components/SectionHeader';
 import type { TabKey } from '../../design-system/components/TabBar';
+import { OUR_STORY_PARAGRAPHS } from '../../config/story';
 
 function GuidePhoto({ avatar, name }: { avatar: string; name: string }) {
   const isRealUrl = avatar.startsWith('http');
@@ -83,28 +83,11 @@ export function MyRomeScreen({ onNavigate }: MyRomeScreenProps) {
         <SectionHeader eyebrow="Our Story" title="Rome, told by the people who live it" />
         <Card showMedia={false} style={{ marginTop: 'var(--space-3)' }}>
           <div style={{ fontSize: '0.85rem', color: 'var(--ink)', lineHeight: 1.65 }}>
-            <p style={{ margin: '0 0 var(--space-3)' }}>
-              Rome is one of the most visited cities in the world, but too often travelers leave having only seen its
-              landmarks. Roman Guides was created with a different idea.
-            </p>
-            <p style={{ margin: '0 0 var(--space-3)' }}>
-              We believe the best way to discover Rome is through the people who live it every day. That's why we're a
-              boutique tour company focused on small groups, authentic experiences, and genuine local hospitality.
-            </p>
-            <p style={{ margin: '0 0 var(--space-3)' }}>
-              Every itinerary is designed to go beyond the typical tourist route. Whether you're exploring the
-              Colosseum, discovering hidden streets, tasting local food, or riding through the city on one of our Golf
-              Cart Tours, our goal is always the same: to help you experience Rome, not just visit it.
-            </p>
-            <p style={{ margin: '0 0 var(--space-3)' }}>
-              But our journey doesn't end when the tour finishes. Through our Rome Concierge App, local
-              recommendations, travel tips, and personalized support, we continue helping our guests throughout their
-              stay, making every moment in Rome as seamless and memorable as possible.
-            </p>
-            <p style={{ margin: 0 }}>
-              At Roman Guides, we're not just guides. We're locals who love sharing our city and creating memories
-              you'll cherish for a lifetime.
-            </p>
+            {OUR_STORY_PARAGRAPHS.map((paragraph, i) => (
+              <p key={i} style={{ margin: i === OUR_STORY_PARAGRAPHS.length - 1 ? 0 : '0 0 var(--space-3)' }}>
+                {paragraph}
+              </p>
+            ))}
           </div>
         </Card>
       </div>
