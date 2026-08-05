@@ -33,21 +33,25 @@ test('Experiences tab renders (tours, guides, story)', async ({ page }) => {
   await expect(page.getByText('Our Story')).toBeVisible();
 });
 
-// The iframe points at a real Bokun URL — asserting on its loaded content
-// would depend on that external site (same class of flakiness as the
-// OpenRouteService-backed Directions tests). Only the app's own side of the
-// contract is checked here: opening/closing the in-app booking widget.
-test('Experiences: Discover Experience opens the in-app booking widget, back closes it', async ({ page }) => {
+// The widget div hands off to Bokun's own script (BokunWidgetsLoader.js +
+// their BokunWidgets bundle, loaded from widgets.bokun.io/static.bokun.io)
+// to render the actual booking iframe — asserting on ITS loaded content
+// would depend on that external infrastructure (same class of flakiness as
+// the OpenRouteService-backed Directions tests). Only the app's own side of
+// the contract is checked here: the placeholder div Bokun's script looks
+// for is mounted with the right data-src, and opening/closing works.
+test('Experiences: Discover Experience opens the in-app booking widget, close closes it', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /Experiences/ }).last().click();
 
   await page.getByRole('button', { name: /Discover Experience/ }).first().click();
-  const iframe = page.locator('iframe[title^="Book "]');
-  await expect(iframe).toBeVisible();
-  await expect(iframe).toHaveAttribute('src', /widgets\.bokun\.io/);
+  const widget = page.locator('div.bokunWidget');
+  await expect(widget).toBeVisible();
+  await expect(widget).toHaveAttribute('data-src', /widgets\.bokun\.io/);
+  await expect(page.getByText('widgets.bokun.io')).toBeVisible();
 
-  await page.getByRole('button', { name: /Back/ }).click();
-  await expect(iframe).not.toBeVisible();
+  await page.getByRole('button', { name: /Close/ }).click();
+  await expect(widget).not.toBeVisible();
 });
 
 test('Marker popup: clicking a place marker opens its card', async ({ page }) => {

@@ -68,3 +68,27 @@ body {
     transform: none;
   }
 }
+
+/* BookingWidgetModal — barra di caricamento indeterminata sotto l'header. */
+@keyframes bookingLoadingBar {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* BookingWidgetModal — pulsazione dei blocchi skeleton durante il primo caricamento. */
+@keyframes skeletonPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}

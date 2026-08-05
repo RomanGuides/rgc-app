@@ -1,4 +1,48 @@
-# Release Notes — v1.0.0
+# Release Notes
+
+## Redesign v1 — 2026-08-05 (Unreleased)
+
+A substantial redesign since the v1.0.0 baseline below — nav shell, screens, and visual language all changed. Everything here supersedes the "What's included" section under v1.0.0; that section is kept as a historical record of what v1.0.0 actually shipped, not a description of the app today.
+
+### App shell
+- Capacitor native wrapper for iOS and Android — the app now ships as a real native binary, not just a web page. Geolocation still uses the standard browser API, not a native plugin.
+- Tab bar cut from 5 tabs to 3: **Rome** (replaces Home + Map + Explore), **Experiences**, **Saved** (replaces My Rome).
+
+### Rome (was Map, plus relevant parts of Home)
+- Full-bleed map with `RomeSheet`, a persistent bottom sheet with three detents, dragged via a real spring-physics simulation (not a fixed-duration CSS transition).
+- Search, real-time, full-screen — with suggestion pills when a query matches nothing (nearest-matching category and area, computed from the bundle).
+- Category filter popover with outline icons (no more emoji) and a fixed z-index/clipping bug that let `LocateButton` cover it.
+- "Tonight" (was Tip of the Day), "Nearest to you" — replaced by a by-neighbourhood grouped list when location access is explicitly denied, rather than just going blank.
+- "Around Me" radius filter removed entirely — sorting is always by walking distance now, category filters remain.
+- Get Around, Emergency, and Find Water Nearby, migrated here from the old Home tab (visible at the sheet's full detent).
+- Offline handling: a non-blocking banner when connectivity drops, and map tiles that fail to load leave a plain neutral background instead of a broken/grey checkerboard look.
+
+### Place screen (new; replaces the old marker popup card)
+- Full-screen "push" instead of a bottom-sheet popup, one template for every place instead of separate premium/utility card types.
+- Save toggle (heart icon, fills red when saved) and a free-text arrival note ("ring the left bell"), local-only.
+- Header photo falls back to a category-specific placeholder photo (for gastronomic categories) or a plain neutral background — never the category's marker color, which for pasta/restaurant read as a red error state.
+
+### Experiences (restructured; now also "who we are")
+- New order: a short masthead, all seven bookable tours immediately, Meet the Guides, guest quotes, and Our Story — absorbing content that used to live on My Rome.
+- Guide names/bios and Our Story are the founder's real August 2026 copy, not placeholder text.
+- **Booking now happens inside the app.** "Discover Experience" opens Bokun's checkout in a full-screen in-app view instead of handing off to the system browser — no more fully leaving the app to pay. Bokun still handles the entire booking and payment flow (see `docs/BokunIntegration.md`).
+
+### Saved (was My Rome)
+- Reduced to just the shortlist: title, count, and the saved-places list, now sorted by distance instead of save order.
+- Meet the Guides, Our Story, testimonials, and review links moved to Experiences (above); a WhatsApp-per-guide button and a second (TripAdvisor) review link were retired for now rather than carried over — see `docs/parked-content.md`.
+
+### Fixed (found only through real-device testing)
+- Safe-area padding for the tab bar and map header on edge-to-edge Android devices.
+- `window.alert()` froze the app in the native WebView — replaced with `@capacitor/dialog`.
+- Two separate ANR (app-not-responding) bugs from effects re-running on every GPS tick during an active route, in both the map's route-line drawing and the location-watching lifecycle.
+- Geolocation accuracy tuning after a real-device ANR investigation (see `CHANGELOG.md` for the full back-and-forth).
+
+### Known issues / caveats
+- Full native Bokun checkout (own UI, live pricing/availability, in-app payment) was researched and architected in depth but deliberately not built — the in-app widget above already avoids the external-browser handoff at zero backend/PCI cost, and the added UI control wasn't judged worth taking on a backend and payment compliance burden for at current volume. See `docs/BokunIntegration.md`.
+- **App Store screenshots are now out of date.** Any reference mockups predate this redesign (new nav shell, new Place/Experiences/Saved screens, in-app booking) — fresh real-device captures are needed before any store submission, tracked in `ROADMAP.md`.
+- Caveats already listed under v1.0.0 below that are still true: no CI/CD or hosting configured, the `Collection` data model entity still has no UI, and the two independent `UserLocation` interfaces still haven't been unified.
+
+## v1.0.0 — 2026-08-01
 
 This is the first version baseline of Roman Guides Companion considered **stable**. It marks the switch from active feature-building to long-term maintenance.
 

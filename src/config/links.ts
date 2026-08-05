@@ -11,4 +11,9 @@ export const LINKS = {
   // Video di presentazione del team — costante facile da aggiornare quando
   // sarà pronto il link definitivo (YouTube o Instagram).
   TEAM_VIDEO_URL: 'https://www.instagram.com/romanguides/',
+  // SEGNAPOSTO — indirizzo di supporto reale non ancora fornito dal founder.
+  // Unico consumatore: la terza azione ("Contact us") dello stato di errore
+  // di BookingWidgetModal. Sostituire non appena arriva l'indirizzo definitivo
+  // (vedi ROADMAP.md).
+  SUPPORT_CONTACT_URL: 'mailto:support@romanguides.com',
 } as const;

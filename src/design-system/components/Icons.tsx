@@ -77,6 +77,27 @@ export function ChevronLeftIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+// Congedo, non passo indietro nella navigazione — usata da BookingWidgetModal
+// al posto di ChevronLeftIcon: chiudere il checkout non è "tornare indietro".
+export function CloseIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M6 6l12 12M18 6 6 18" />
+    </svg>
+  );
+}
+
+// Riga di fiducia sotto il nome del tour in BookingWidgetModal — l'unico
+// indizio visivo che la pagina sia autentica per chi sta per inserire la carta.
+export function LockIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <rect x="5" y="11" width="14" height="9" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </svg>
+  );
+}
+
 interface HeartIconProps extends SVGProps<SVGSVGElement> {
   filled?: boolean;
 }
