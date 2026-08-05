@@ -11,6 +11,7 @@ import { RomeSheet, type Detent } from './RomeSheet';
 import { LocateButton } from './LocateButton';
 import { SearchScreen } from './SearchScreen';
 import { PlaceScreen } from './PlaceScreen';
+import { LegalScreen } from '../legal/LegalScreen';
 import { DirectionsBar } from './DirectionsBar';
 import { ArrivalToast } from './ArrivalToast';
 import { OfflineBanner } from './OfflineBanner';
@@ -33,6 +34,7 @@ export function MapScreen() {
   const bumpLocateMeSignal = usePlacesStore((s) => s.bumpLocateMeSignal);
   const setMapBounds = usePlacesStore((s) => s.setMapBounds);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [legalOpen, setLegalOpen] = useState(false);
   const [sheetDetent, setSheetDetent] = useState<Detent>('resting');
 
   const { location, status, requestLocation, startWatching, stopWatching } = useGeolocation();
@@ -101,11 +103,13 @@ export function MapScreen() {
             locationStatus={status}
             forceFullDetent={!isOnline}
             onDetentChange={setSheetDetent}
+            onOpenLegal={() => setLegalOpen(true)}
           />
         )}
       </div>
       {selectedPlaceForCentering && <PlaceScreen place={selectedPlaceForCentering} />}
       {searchOpen && <SearchScreen onClose={() => setSearchOpen(false)} />}
+      {legalOpen && <LegalScreen onClose={() => setLegalOpen(false)} />}
     </div>
   );
 }

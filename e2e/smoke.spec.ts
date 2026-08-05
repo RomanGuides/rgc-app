@@ -85,6 +85,21 @@ test('Search: typing filters results and selecting one opens its place card', as
   await expect(page.getByRole('button', { name: /Walk there/ })).toBeVisible();
 });
 
+test('Rome sheet: Legal & About opens from the full-detent footer, back closes it', async ({ page }) => {
+  await page.goto('/');
+  // Tap sull'handle: alterna resting/full (endDrag tratta un movimento sotto
+  // soglia come tap) — solo a detent "full" compare la riga Legal & About.
+  await page.getByRole('button', { name: /Expand or collapse/ }).click();
+  await expect(page.getByRole('button', { name: /Legal & About/ })).toBeVisible();
+
+  await page.getByRole('button', { name: /Legal & About/ }).click();
+  await expect(page.getByText('Privacy Policy', { exact: true })).toBeVisible();
+  await expect(page.getByText('Terms of Service', { exact: true })).toBeVisible();
+
+  await page.getByRole('button', { name: /Back/ }).click();
+  await expect(page.getByText('Privacy Policy', { exact: true })).not.toBeVisible();
+});
+
 test('Clear Route: Stop Route removes the Directions bar', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /Use my location/ }).click();

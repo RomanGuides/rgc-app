@@ -15,6 +15,7 @@ A substantial redesign since the v1.0.0 baseline below — nav shell, screens, a
 - "Tonight" (was Tip of the Day), "Nearest to you" — replaced by a by-neighbourhood grouped list when location access is explicitly denied, rather than just going blank.
 - "Around Me" radius filter removed entirely — sorting is always by walking distance now, category filters remain.
 - Get Around, Emergency, and Find Water Nearby, migrated here from the old Home tab (visible at the sheet's full detent).
+- Legal & About — privacy policy, terms of service, version, and contact — reachable from a plain text link next to Find Water Nearby (same full-detent footer), not a tab or a Settings screen. Required for store submission (both stores require an in-app-reachable privacy policy for an app that uses location).
 - Offline handling: a non-blocking banner when connectivity drops, and map tiles that fail to load leave a plain neutral background instead of a broken/grey checkerboard look.
 
 ### Place screen (new; replaces the old marker popup card)

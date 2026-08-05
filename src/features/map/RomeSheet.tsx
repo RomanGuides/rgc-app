@@ -43,9 +43,10 @@ interface RomeSheetProps {
   locationStatus: LocationStatus;
   forceFullDetent?: boolean; // stato 04: offline — il foglio sale a full così la lista porta lo schermo
   onDetentChange?: (detent: Detent) => void; // MapScreen ne ha bisogno per nascondere LocateButton al detent full (altrimenti il bottone filtro ci finisce sotto, stesso angolo di schermo)
+  onOpenLegal?: () => void;
 }
 
-export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDetentChange }: RomeSheetProps) {
+export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDetentChange, onOpenLegal }: RomeSheetProps) {
   const places = usePlacesStore((s) => s.places);
   const activeCategories = usePlacesStore((s) => s.activeCategories);
   const toggleCategory = usePlacesStore((s) => s.toggleCategory);
@@ -361,7 +362,7 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
           onPointerCancel={onHeaderPointerUp}
           style={{ touchAction: 'none', cursor: 'grab', minHeight: 44, flexShrink: 0 }}
         >
-          <div style={{ padding: '10px 0 4px' }}>
+          <div role="button" aria-label="Expand or collapse" style={{ padding: '10px 0 4px' }}>
             <div style={{ width: 38, height: 5, background: 'rgba(26,22,20,.16)', borderRadius: 3, margin: '0 auto' }} />
           </div>
 
@@ -556,10 +557,18 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
                 href={buildWaterFountainSearchUrl(userLocation)}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ fontSize: '0.82rem', color: 'var(--red)', fontWeight: 600, textDecoration: 'none' }}
+                style={{ fontSize: '0.82rem', color: 'var(--red)', fontWeight: 600, textDecoration: 'none', display: 'block', marginBottom: 12 }}
               >
                 🚰 Find Water Nearby
               </a>
+              {onOpenLegal && (
+                <button
+                  onClick={onOpenLegal}
+                  style={{ border: 'none', background: 'none', padding: 0, fontSize: '0.82rem', color: '#8C7F79', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
+                >
+                  Legal &amp; About
+                </button>
+              )}
             </div>
           )}
         </div>
