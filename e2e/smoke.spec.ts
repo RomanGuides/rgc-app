@@ -30,16 +30,16 @@ test('Marker popup: clicking a place marker opens its card', async ({ page }) =>
   await page.goto('/');
   await page.waitForTimeout(1000);
   await placeMarkers(page).first().click();
-  await expect(page.getByRole('button', { name: /Get Directions/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Walk there/ })).toBeVisible();
 });
 
-test('Directions: Get Directions draws a route and shows the Directions bar', async ({ page }) => {
+test('Directions: Walk there draws a route and shows the Directions bar', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /Use my location/ }).click();
   await expect(page.getByRole('button', { name: /Located/ })).toBeVisible();
 
   await placeMarkers(page).first().click();
-  await page.getByRole('button', { name: /Get Directions/ }).click();
+  await page.getByRole('button', { name: /Walk there/ }).click();
 
   await expect(page.getByRole('button', { name: /Stop Route/ })).toBeVisible();
   await expect(page.getByText(/min/)).toBeVisible();
@@ -54,7 +54,7 @@ test('Search: typing filters results and selecting one opens its place card', as
   await expect(page.getByText('Colosseum', { exact: true })).toBeVisible();
 
   await page.getByText('Colosseum', { exact: true }).click();
-  await expect(page.getByRole('button', { name: /Get Directions/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Walk there/ })).toBeVisible();
 });
 
 test('Clear Route: Stop Route removes the Directions bar', async ({ page }) => {
@@ -63,7 +63,7 @@ test('Clear Route: Stop Route removes the Directions bar', async ({ page }) => {
   await expect(page.getByRole('button', { name: /Located/ })).toBeVisible();
 
   await placeMarkers(page).first().click();
-  await page.getByRole('button', { name: /Get Directions/ }).click();
+  await page.getByRole('button', { name: /Walk there/ }).click();
   await expect(page.getByRole('button', { name: /Stop Route/ })).toBeVisible();
 
   await page.getByRole('button', { name: /Stop Route/ }).click();

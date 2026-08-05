@@ -10,7 +10,7 @@ import { MapView } from './MapView';
 import { RomeSheet } from './RomeSheet';
 import { LocateButton } from './LocateButton';
 import { SearchScreen } from './SearchScreen';
-import { PlaceBottomSheet } from './PlaceBottomSheet';
+import { PlaceScreen } from './PlaceScreen';
 import { DirectionsBar } from './DirectionsBar';
 import { ArrivalToast } from './ArrivalToast';
 import { useRouteTracking } from './useRouteTracking';
@@ -78,7 +78,7 @@ export function MapScreen() {
         <ArrivalToast />
         {!selectedPlaceForCentering && <RomeSheet onOpenSearch={() => setSearchOpen(true)} />}
       </div>
-      <PlaceBottomSheet />
+      {selectedPlaceForCentering && <PlaceScreen place={selectedPlaceForCentering} />}
       {searchOpen && <SearchScreen onClose={() => setSearchOpen(false)} />}
     </div>
   );

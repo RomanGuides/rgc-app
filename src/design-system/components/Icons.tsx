@@ -3,6 +3,10 @@
 // Person/Upload/TurnRight/ChevronLeft. Stessa BASE per tutte: 24×24,
 // currentColor, stroke 2, round caps/joins, nessun fill — coerente con le
 // icone già esistenti altrove nel design system.
+//
+// HeartIcon aggiunta in Fase 4 (Place): serve per il bottone salva, che la
+// spec descrive come icona che si riempie di rosso quando salvato, non più
+// l'emoji ❤️/🤍 usata prima.
 
 import type { SVGProps } from 'react';
 
@@ -68,6 +72,18 @@ export function ChevronLeftIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg {...BASE} {...props}>
       <path d="m14.5 5-7 7 7 7" />
+    </svg>
+  );
+}
+
+interface HeartIconProps extends SVGProps<SVGSVGElement> {
+  filled?: boolean;
+}
+
+export function HeartIcon({ filled, ...props }: HeartIconProps) {
+  return (
+    <svg {...BASE} fill={filled ? 'currentColor' : 'none'} {...props}>
+      <path d="M20.8 4.9a5.4 5.4 0 0 0-7.6 0L12 6.1l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6l1.2 1.2L12 21l7.6-7.3 1.2-1.2a5.4 5.4 0 0 0 0-7.6Z" />
     </svg>
   );
 }

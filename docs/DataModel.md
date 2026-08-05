@@ -15,9 +15,9 @@ All content is static JSON, bundled into the app at build time — there is no r
 The core entity, backing the Map, Explore, and My Rome tabs. Fields include:
 - Identity/display: `id`, `name`, `category` (one of the 7 keys in `src/config/categories.config.ts`), `lat`, `lng`, `imageUrl`.
 - Common metadata: `visitDuration`, `bookingUrl`, `openingHours`, `entranceFee`, `officialSite`.
-- **Premium-only editorial fields** (present only for places whose category tier is `'premium'` — see below): `whyWeLoveIt`, `insiderTip`, `localSecret`, `didYouKnow`, `nearbyRecommendations`.
+- **Editorial fields** (populated mainly for the `gallery` category, but not exclusive to it): `whyWeLoveIt`, `insiderTip`, `localSecret`, `didYouKnow`, `nearbyRecommendations`.
 
-A place's category determines its **tier** via `CATEGORY_META[category].tier`, which is either `'premium'` or `'utility'`. Today only the `gallery` category ("Visit on Your Own") is `'premium'`; all others (`restaurant`, `pasta`, `pizza`, `gelato`, `rooftop_bar`, `cocktail_bar`) are `'utility'`. The tier decides which card component `PlaceBottomSheet.tsx` renders — `PremiumPlaceCard` (uses the editorial fields) or `UtilityPlaceCard` (practical info only).
+A place's category still carries a **tier** via `CATEGORY_META[category].tier` (`'premium'` for `gallery`, `'utility'` for everything else), but as of the Phase 4 redesign this no longer selects a different rendering component — `PlaceScreen.tsx` (`src/features/map/PlaceScreen.tsx`) is the single template for every place, and each editorial section simply doesn't render when its field is missing on the data. `tier` is otherwise unused in `src/` today.
 
 ### `Experience`
 Video-based highlighted experiences shown on the Experiences tab, each tied to a specific guide.

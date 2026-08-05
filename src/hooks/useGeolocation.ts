@@ -46,14 +46,15 @@ export function useGeolocation() {
   // Tracciamento continuo — usato SOLO mentre un percorso è attivo (batteria).
   // Fuori da quel contesto resta il comportamento "una tantum" di sempre.
   //
-  // enableHighAccuracy: false (non true) — riscontrato su dispositivo reale:
-  // con più app in background che richiedono posizione ad alta precisione
-  // contemporaneamente (es. app di navigazione/fitness, servizi di
-  // localizzazione di sistema), la nostra richiesta ad alta precisione durante
-  // il tracciamento ha contribuito a un ANR ("Input dispatching timed out") —
-  // il telefono era sotto forte contesa CPU/GPS nello stesso istante. La
-  // precisione più bassa riduce il nostro carico sul sistema; per "quanto
-  // manca ancora" durante una camminata è una precisione sufficiente.
+  // enableHighAccuracy: true — era stato messo a false per mitigare un ANR
+  // riscontrato su dispositivo reale (vedi CHANGELOG), ma la bassa precisione
+  // (posizionamento WiFi/celle invece del GPS vero) ha prodotto un errore di
+  // posizione di ~200m su dispositivo reale — inaccettabile per una funzione
+  // che deve rilevare l'arrivo entro 25m. Riportato a true: i dati dell'ANR
+  // mostravano che il carico principale veniva da ALTRE app in background
+  // (system_server, altri processi) e non dalla nostra richiesta di alta
+  // precisione (eravamo il contributo di CPU più piccolo dei tre) — quindi il
+  // costo in precisione non era giustificato dal beneficio marginale sull'ANR.
   const startWatching = useCallback(() => {
     if (!navigator.geolocation || watchIdRef.current !== null) return;
     watchIdRef.current = navigator.geolocation.watchPosition(
@@ -64,7 +65,7 @@ export function useGeolocation() {
       () => {
         /* se il tracciamento continuo fallisce, resta l'ultima posizione nota */
       },
-      { enableHighAccuracy: false, maximumAge: 5000 }
+      { enableHighAccuracy: true, maximumAge: 5000 }
     );
   }, []);
 

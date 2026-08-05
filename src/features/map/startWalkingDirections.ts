@@ -1,7 +1,6 @@
 // Roman Guides Companion — startWalkingDirections
-// Funzione condivisa, usata sia da PremiumPlaceCard che da UtilityPlaceCard:
-// avvia un percorso pedonale in-app verso il luogo selezionato. Un solo
-// posto che sa come farlo — le due card non duplicano questa logica.
+// Chiamata dal bottone "Walk there" su PlaceScreen — avvia un percorso
+// pedonale in-app verso il luogo selezionato. Un solo posto che sa come farlo.
 
 import { Dialog } from '@capacitor/dialog';
 import type { Place } from '../../data/types';

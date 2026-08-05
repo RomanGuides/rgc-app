@@ -1,17 +1,22 @@
 // Roman Guides Companion — RomeSheet
-// Il foglio persistente della tab Rome (redesign v1, Fase 3) — sostituisce
+// Il foglio persistente della tab Rome (redesign v1, Fase 3/4) — sostituisce
 // la barra nera, AroundMeBar (raggio) e CategoryFilterBar (chip categoria).
-// Tre detent: peek (168), resting (392, default), full — trascinabile dalla
-// maniglia. Dentro: campo di ricerca (apre SearchScreen), filtro categoria,
-// "Tonight" (era Tip of the Day), "Nearest to you"; a detent pieno anche
-// Get Around ed Emergency (contenuto ex-Home, redistribuito qui).
+// Dentro: campo di ricerca (apre SearchScreen), filtro categoria, "Tonight"
+// (era Tip of the Day), "Nearest to you"; a detent pieno anche Get Around
+// ed Emergency (contenuto ex-Home, redistribuito qui).
 //
 // Il raggio "Around Me" è stato rimosso di proposito (decisione del redesign):
 // l'ordinamento è sempre per distanza a piedi, senza controllo utente.
 // I filtri categoria restano, ma dentro il pannello del bottone Filtro
 // invece di una riga di chip sempre visibile.
+//
+// Fisica del trascinamento (spec aggiornata dopo la Fase 3): non più altezze
+// fisse con transizione CSS a durata fissa, ma una vera simulazione a molla
+// (stiffness 320, damping 34, integrata a mano frame per frame — nessuna
+// nuova dipendenza) con proiezione della velocità al rilascio e resistenza
+// rubber-band oltre i limiti. Vedi animateToDetent()/onDragMove() sotto.
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePlacesStore } from '../../store/usePlacesStore';
 import { getAppContentSection } from '../../services/appContentService';
 import { distMeters, formatDistance } from '../../utils/distance';
@@ -22,11 +27,13 @@ import type { Place, PlaceCategory } from '../../data/types';
 
 type Detent = 'peek' | 'resting' | 'full';
 
-const PEEK_PX = 168;
-const RESTING_PX = 392;
-// "full" non ha un valore fisso nella spec — lascia una porzione di mappa
-// visibile in alto invece di coprire tutto lo schermo.
-const FULL_TOP_GAP_PX = 70;
+const DETENT_FRACTIONS: Record<Detent, number> = { peek: 0.16, resting: 0.4, full: 0.9 };
+const STIFFNESS = 320;
+const DAMPING = 34;
+const RUBBER_BAND = 0.35;
+const VELOCITY_PROJECTION_S = 0.15;
+const TAP_MOVEMENT_THRESHOLD_PX = 8;
+const BODY_DRAG_COMMIT_THRESHOLD_PX = 6;
 
 interface RomeSheetProps {
   onOpenSearch: () => void;
@@ -41,60 +48,176 @@ export function RomeSheet({ onOpenSearch }: RomeSheetProps) {
 
   const [detent, setDetent] = useState<Detent>('resting');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [heightPx, setHeightPx] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const sheetRef = useRef<HTMLDivElement>(null);
-  const dragState = useRef<{ startY: number; startHeight: number } | null>(null);
-  const [dragHeight, setDragHeight] = useState<number | null>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
-  const heightForDetent = useCallback((d: Detent): number => {
-    if (d === 'peek') return PEEK_PX;
-    if (d === 'resting') return RESTING_PX;
-    const containerHeight = containerRef.current?.clientHeight ?? 700;
-    return Math.max(RESTING_PX, containerHeight - FULL_TOP_GAP_PX);
-  }, []);
+  const rafRef = useRef<number | null>(null);
+  // Trascinamento attivo (header o corpo, una volta "agganciato").
+  const dragRef = useRef<{ startY: number; startHeight: number; lastY: number; lastT: number; lastDy: number; lastDt: number } | null>(null);
+  // Candidato di trascinamento dal corpo — non ancora "agganciato" finché non
+  // si conferma che la lista è in cima e il dito si muove verso il basso.
+  const bodyCandidateRef = useRef<{ startY: number; scrollTopAtStart: number } | null>(null);
 
-  const currentHeight = dragHeight ?? heightForDetent(detent);
+  const getContainerHeight = useCallback(() => containerRef.current?.clientHeight ?? 700, []);
+  const getDetentPx = useCallback((d: Detent) => getContainerHeight() * DETENT_FRACTIONS[d], [getContainerHeight]);
 
-  function onHandlePointerDown(e: React.PointerEvent) {
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    dragState.current = { startY: e.clientY, startHeight: sheetRef.current?.getBoundingClientRect().height ?? currentHeight };
+  // Misura iniziale e ricalcolo su resize/rotazione (le altezze sono frazioni
+  // del viewport, non valori fissi).
+  useEffect(() => {
+    function measure() {
+      setHeightPx((prev) => {
+        if (dragRef.current) return prev; // non interferire con un drag in corso
+        return getDetentPx(detent);
+      });
+    }
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detent]);
+
+  function stopAnimation() {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
   }
 
-  function onHandlePointerMove(e: React.PointerEvent) {
-    if (!dragState.current) return;
-    const delta = dragState.current.startY - e.clientY; // trascinare in su = più alto
-    const containerHeight = containerRef.current?.clientHeight ?? 700;
-    const max = Math.max(RESTING_PX, containerHeight - FULL_TOP_GAP_PX);
-    const next = Math.min(max, Math.max(PEEK_PX, dragState.current.startHeight + delta));
-    setDragHeight(next);
+  // Vera simulazione a molla (non una transizione CSS a durata fissa):
+  // integra l'equazione del moto frame per frame finché non si assesta,
+  // così un rilascio più veloce raggiunge il detent più rapidamente invece
+  // di seguire sempre la stessa curva temporale.
+  function animateToDetent(target: Detent, initialVelocity: number) {
+    setDetent(target);
+    stopAnimation();
+    const targetPx = getDetentPx(target);
+    let velocity = initialVelocity; // px/s
+    let last = performance.now();
+
+    function step(now: number) {
+      const dt = Math.min(0.032, (now - last) / 1000);
+      last = now;
+      setHeightPx((prev) => {
+        const cur = prev ?? targetPx;
+        const displacement = cur - targetPx;
+        const accel = -STIFFNESS * displacement - DAMPING * velocity;
+        velocity += accel * dt;
+        const next = cur + velocity * dt;
+        if (Math.abs(next - targetPx) < 0.5 && Math.abs(velocity) < 2) {
+          rafRef.current = null;
+          return targetPx;
+        }
+        rafRef.current = requestAnimationFrame(step);
+        return next;
+      });
+    }
+    rafRef.current = requestAnimationFrame(step);
   }
 
-  function onHandlePointerUp() {
-    if (!dragState.current) return;
-    const totalMovement = Math.abs((dragHeight ?? dragState.current.startHeight) - dragState.current.startHeight);
-    dragState.current = null;
+  function nearestDetentTo(px: number): Detent {
+    const entries = (Object.keys(DETENT_FRACTIONS) as Detent[]).map((d): [Detent, number] => [d, Math.abs(px - getDetentPx(d))]);
+    entries.sort((a, b) => a[1] - b[1]);
+    return entries[0][0];
+  }
 
-    // Movimento minimo (o nullo): trattalo come un tocco sulla maniglia,
-    // non come un trascinamento — fa avanzare al detent successivo. Serve
-    // da alternativa affidabile al drag vero e proprio (touch/mouse su
-    // dispositivi/browser dove il gesto di trascinamento non è preciso).
-    if (totalMovement < 10) {
-      setDetent((d) => (d === 'peek' ? 'resting' : d === 'resting' ? 'full' : 'peek'));
-      setDragHeight(null);
+  function clampWithRubberBand(raw: number): number {
+    const min = getDetentPx('peek');
+    const max = getDetentPx('full');
+    if (raw > max) return max + (raw - max) * RUBBER_BAND;
+    if (raw < min) return min + (raw - min) * RUBBER_BAND;
+    return raw;
+  }
+
+  function beginDrag(clientY: number) {
+    stopAnimation();
+    dragRef.current = {
+      startY: clientY,
+      startHeight: heightPx ?? getDetentPx(detent),
+      lastY: clientY,
+      lastT: performance.now(),
+      lastDy: 0,
+      lastDt: 1,
+    };
+  }
+
+  function updateDrag(clientY: number) {
+    const d = dragRef.current;
+    if (!d) return;
+    const now = performance.now();
+    d.lastDy = clientY - d.lastY;
+    d.lastDt = Math.max(1, now - d.lastT);
+    d.lastY = clientY;
+    d.lastT = now;
+
+    const rawDelta = d.startY - clientY; // trascinare in su = più alto
+    setHeightPx(clampWithRubberBand(d.startHeight + rawDelta));
+  }
+
+  function endDrag() {
+    const d = dragRef.current;
+    if (!d) return;
+    dragRef.current = null;
+
+    const totalMovement = Math.abs(d.startY - d.lastY);
+    if (totalMovement < TAP_MOVEMENT_THRESHOLD_PX) {
+      // Tocco, non trascinamento — alterna resting ↔ full (mai peek dal tocco).
+      const next = detent === 'full' ? 'resting' : 'full';
+      animateToDetent(next, 0);
       return;
     }
 
-    const current = dragHeight ?? currentHeight;
-    const containerHeight = containerRef.current?.clientHeight ?? 700;
-    const fullPx = Math.max(RESTING_PX, containerHeight - FULL_TOP_GAP_PX);
-    const distances: [Detent, number][] = [
-      ['peek', Math.abs(current - PEEK_PX)],
-      ['resting', Math.abs(current - RESTING_PX)],
-      ['full', Math.abs(current - fullPx)],
-    ];
-    distances.sort((a, b) => a[1] - b[1]);
-    setDetent(distances[0][0]);
-    setDragHeight(null);
+    // Velocità istantanea dall'ultimo tratto di movimento, proiettata in avanti:
+    // un flick veloce deve poter cambiare detent anche con pochi px percorsi.
+    const rawVelocityYPerS = (d.lastDy / d.lastDt) * 1000; // px/s, negativo = su
+    const heightVelocity = -rawVelocityYPerS;
+    const current = heightPx ?? getDetentPx(detent);
+    const projected = current + heightVelocity * VELOCITY_PROJECTION_S;
+    animateToDetent(nearestDetentTo(projected), heightVelocity);
+  }
+
+  function onHeaderPointerDown(e: React.PointerEvent) {
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    beginDrag(e.clientY);
+  }
+  function onHeaderPointerMove(e: React.PointerEvent) {
+    updateDrag(e.clientY);
+  }
+  function onHeaderPointerUp() {
+    endDrag();
+  }
+
+  // Sul corpo (lista interna): la lista scrolla normalmente, TRANNE quando è
+  // già in cima e il dito trascina verso il basso — in quel caso il gesto
+  // controlla il foglio, non il contenuto (altrimenti si "urterebbe" contro
+  // l'inizio della lista senza effetto, che sembra rotto).
+  function onBodyPointerDown(e: React.PointerEvent) {
+    if (dragRef.current) return;
+    bodyCandidateRef.current = { startY: e.clientY, scrollTopAtStart: listRef.current?.scrollTop ?? 0 };
+  }
+  function onBodyPointerMove(e: React.PointerEvent) {
+    if (dragRef.current) {
+      updateDrag(e.clientY);
+      return;
+    }
+    const c = bodyCandidateRef.current;
+    if (!c) return;
+    const draggingDown = e.clientY - c.startY > BODY_DRAG_COMMIT_THRESHOLD_PX;
+    if (c.scrollTopAtStart <= 0 && draggingDown) {
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+      bodyCandidateRef.current = null;
+      beginDrag(c.startY);
+      updateDrag(e.clientY);
+    }
+  }
+  function onBodyPointerUp() {
+    bodyCandidateRef.current = null;
+    if (dragRef.current) endDrag();
+  }
+
+  function handleSearchTap() {
+    animateToDetent('full', 0);
+    onOpenSearch();
   }
 
   const tonight = getAppContentSection('tip_of_the_day');
@@ -110,42 +233,42 @@ export function RomeSheet({ onOpenSearch }: RomeSheetProps) {
     : [];
 
   return (
-    <div
-      ref={containerRef}
-      style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 5 }}
-    >
+    <div ref={containerRef} style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 5 }}>
       <div
-        ref={sheetRef}
         style={{
           position: 'absolute',
           left: 0,
           right: 0,
           bottom: 0,
-          height: currentHeight,
+          height: heightPx ?? getDetentPx('resting'),
           background: '#FFFFFF',
           borderRadius: '22px 22px 0 0',
           boxShadow: '0 -14px 44px rgba(26,22,20,.14)',
           pointerEvents: 'auto',
-          transition: dragHeight === null ? 'height 0.28s ease-out' : 'none',
           display: 'flex',
           flexDirection: 'column',
           paddingBottom: 'max(20px, env(safe-area-inset-bottom, 0px))',
+          overflow: 'hidden',
         }}
       >
+        {/* Superficie di trascinamento: l'intero header (maniglia + padding
+            attorno al campo di ricerca). I bottoni al suo interno fermano la
+            propagazione del pointerdown così restano toccabili normalmente. */}
         <div
-          onPointerDown={onHandlePointerDown}
-          onPointerMove={onHandlePointerMove}
-          onPointerUp={onHandlePointerUp}
-          onPointerCancel={onHandlePointerUp}
-          style={{ padding: '10px 0 4px', cursor: 'grab', touchAction: 'none' }}
+          onPointerDown={onHeaderPointerDown}
+          onPointerMove={onHeaderPointerMove}
+          onPointerUp={onHeaderPointerUp}
+          onPointerCancel={onHeaderPointerUp}
+          style={{ touchAction: 'none', cursor: 'grab', minHeight: 44, flexShrink: 0 }}
         >
-          <div style={{ width: 38, height: 5, background: 'rgba(26,22,20,.16)', borderRadius: 3, margin: '0 auto' }} />
-        </div>
+          <div style={{ padding: '10px 0 4px' }}>
+            <div style={{ width: 38, height: 5, background: 'rgba(26,22,20,.16)', borderRadius: 3, margin: '0 auto' }} />
+          </div>
 
-        <div style={{ padding: '0 20px', overflowY: 'auto', flex: 1 }}>
-          <div style={{ display: 'flex', gap: 10, marginBottom: 22, position: 'relative' }}>
+          <div style={{ display: 'flex', gap: 10, padding: '0 20px', position: 'relative' }}>
             <button
-              onClick={onOpenSearch}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={handleSearchTap}
               style={{
                 flex: 1,
                 minWidth: 0,
@@ -167,6 +290,7 @@ export function RomeSheet({ onOpenSearch }: RomeSheetProps) {
               Search Rome
             </button>
             <button
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={() => setFilterOpen((v) => !v)}
               aria-label="Filter by category"
               style={{
@@ -189,10 +313,11 @@ export function RomeSheet({ onOpenSearch }: RomeSheetProps) {
 
             {filterOpen && (
               <div
+                onPointerDown={(e) => e.stopPropagation()}
                 style={{
                   position: 'absolute',
                   top: 54,
-                  right: 0,
+                  right: 20,
                   zIndex: 6,
                   background: '#FFFFFF',
                   borderRadius: 14,
@@ -235,7 +360,17 @@ export function RomeSheet({ onOpenSearch }: RomeSheetProps) {
               </div>
             )}
           </div>
+          <div style={{ height: 22 }} />
+        </div>
 
+        <div
+          ref={listRef}
+          onPointerDown={onBodyPointerDown}
+          onPointerMove={onBodyPointerMove}
+          onPointerUp={onBodyPointerUp}
+          onPointerCancel={onBodyPointerUp}
+          style={{ padding: '0 20px', overflowY: dragRef.current ? 'hidden' : 'auto', flex: 1 }}
+        >
           {tonight && (
             <div style={{ marginBottom: 24 }}>
               <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: '#6E645F', marginBottom: 4 }}>

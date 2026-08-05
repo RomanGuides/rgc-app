@@ -35,6 +35,9 @@ interface PlacesStore {
   userLocation: UserLocation | null;
   selectedPlace: Place | null;
   savedPlaceIds: string[];
+  // Nota personale libera per luogo ("suona il campanello a sinistra") —
+  // solo locale, mai sincronizzata, per uso proprio dell'utente (redesign v1, Fase 4).
+  arrivalNotes: Record<string, string>;
   activeRoute: ActiveRoute | null;
   arrivalMessageVisible: boolean;
   // Incrementato SOLO quando l'utente preme esplicitamente "Use my
@@ -48,6 +51,7 @@ interface PlacesStore {
   setUserLocation: (loc: UserLocation | null) => void;
   selectPlace: (p: Place | null) => void;
   toggleSaved: (id: string) => void;
+  setArrivalNote: (placeId: string, note: string) => void;
   setActiveRoute: (route: ActiveRoute | null) => void;
   updateRouteProgress: (remainingDistanceMeters: number, remainingDurationSeconds: number) => void;
   showArrivalMessage: () => void;
@@ -63,6 +67,7 @@ export const usePlacesStore = create<PlacesStore>()(
       userLocation: null,
       selectedPlace: null,
       savedPlaceIds: [],
+      arrivalNotes: {},
       activeRoute: null,
       arrivalMessageVisible: false,
       locateMeSignal: 0,
@@ -91,6 +96,9 @@ export const usePlacesStore = create<PlacesStore>()(
           return { savedPlaceIds: next };
         }),
 
+      setArrivalNote: (placeId, note) =>
+        set((state) => ({ arrivalNotes: { ...state.arrivalNotes, [placeId]: note } })),
+
       setActiveRoute: (route) => set({ activeRoute: route }),
 
       updateRouteProgress: (remainingDistanceMeters, remainingDurationSeconds) =>
@@ -106,8 +114,8 @@ export const usePlacesStore = create<PlacesStore>()(
     }),
     {
       name: SAVE_STORAGE_KEY,
-      // Solo i luoghi salvati sono persistiti — il resto è stato di sessione
-      partialize: (state) => ({ savedPlaceIds: state.savedPlaceIds }),
+      // Solo i luoghi salvati e le note d'arrivo sono persistiti — il resto è stato di sessione
+      partialize: (state) => ({ savedPlaceIds: state.savedPlaceIds, arrivalNotes: state.arrivalNotes }),
     }
   )
 );
