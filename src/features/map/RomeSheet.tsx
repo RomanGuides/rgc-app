@@ -16,13 +16,16 @@
 // nuova dipendenza) con proiezione della velocità al rilascio e resistenza
 // rubber-band oltre i limiti. Vedi animateToDetent()/onDragMove() sotto.
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { usePlacesStore } from '../../store/usePlacesStore';
 import { getAppContentSection } from '../../services/appContentService';
 import { distMeters, formatDistance } from '../../utils/distance';
 import { buildWaterFountainSearchUrl } from '../../utils/waterFountainSearch';
 import { CATEGORY_META } from '../../config/categories.config';
-import { SearchIcon, FilterIcon } from '../../design-system/components/Icons';
+import { SearchIcon, FilterIcon, CATEGORY_ICONS } from '../../design-system/components/Icons';
+import { EmptyState } from '../../design-system/components/EmptyState';
+import type { LocationStatus } from '../../hooks/useGeolocation';
 import type { Place, PlaceCategory } from '../../data/types';
 
 type Detent = 'peek' | 'resting' | 'full';
@@ -37,12 +40,15 @@ const BODY_DRAG_COMMIT_THRESHOLD_PX = 6;
 
 interface RomeSheetProps {
   onOpenSearch: () => void;
+  locationStatus: LocationStatus;
+  forceFullDetent?: boolean; // stato 04: offline — il foglio sale a full così la lista porta lo schermo
 }
 
-export function RomeSheet({ onOpenSearch }: RomeSheetProps) {
+export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent }: RomeSheetProps) {
   const places = usePlacesStore((s) => s.places);
   const activeCategories = usePlacesStore((s) => s.activeCategories);
   const toggleCategory = usePlacesStore((s) => s.toggleCategory);
+  const setActiveCategories = usePlacesStore((s) => s.setActiveCategories);
   const userLocation = usePlacesStore((s) => s.userLocation);
   const selectPlace = usePlacesStore((s) => s.selectPlace);
 
@@ -51,6 +57,43 @@ export function RomeSheet({ onOpenSearch }: RomeSheetProps) {
   const [heightPx, setHeightPx] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+
+  // Popover filtro — portato in document.body (vedi il return più sotto):
+  // il foglio ha `overflow: hidden` e il proprio stacking context (il
+  // wrapper esterno è a z-index 5, più basso di LocateButton a 6), quindi
+  // un popover annidato lì dentro non può mai comparire sopra LocateButton
+  // per quanto alto sia il suo z-index locale — veniva tagliato e finiva
+  // sotto in z-order (bug corretto qui). Con un portal la posizione è
+  // calcolata dal rect reale del bottone, non da un offset fisso.
+  const filterButtonRef = useRef<HTMLButtonElement>(null);
+  const filterPopoverRef = useRef<HTMLDivElement>(null);
+  const [popoverAnchor, setPopoverAnchor] = useState<{ top?: number; bottom?: number; right: number } | null>(null);
+
+  function handleFilterToggle() {
+    setFilterOpen((wasOpen) => {
+      const next = !wasOpen;
+      if (next && filterButtonRef.current) {
+        const rect = filterButtonRef.current.getBoundingClientRect();
+        // Ancorato sotto per default, 8px di distacco — ribaltato sopra
+        // nel layout effect qui sotto se non c'è spazio a sufficienza.
+        setPopoverAnchor({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+      }
+      return next;
+    });
+  }
+
+  // Non sovrapporsi mai al bottone: se lo spazio sotto non basta per
+  // l'altezza reale del popover (nota solo dopo il primo render), si apre
+  // verso l'alto invece.
+  useLayoutEffect(() => {
+    if (!filterOpen || !filterButtonRef.current || !filterPopoverRef.current) return;
+    const buttonRect = filterButtonRef.current.getBoundingClientRect();
+    const popoverHeight = filterPopoverRef.current.offsetHeight;
+    const spaceBelow = window.innerHeight - buttonRect.bottom - 8;
+    if (spaceBelow < popoverHeight) {
+      setPopoverAnchor({ bottom: window.innerHeight - buttonRect.top + 8, right: window.innerWidth - buttonRect.right });
+    }
+  }, [filterOpen]);
 
   const rafRef = useRef<number | null>(null);
   // Trascinamento attivo (header o corpo, una volta "agganciato").
@@ -76,6 +119,14 @@ export function RomeSheet({ onOpenSearch }: RomeSheetProps) {
     return () => window.removeEventListener('resize', measure);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detent]);
+
+  // Stato 04: offline — il foglio sale a full da solo (non un default
+  // iniziale, un salto attivo quando la connessione cade) così la lista dei
+  // luoghi porta lo schermo invece di lasciare la mappa vuota in primo piano.
+  useEffect(() => {
+    if (forceFullDetent) animateToDetent('full', 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [forceFullDetent]);
 
   function stopAnimation() {
     if (rafRef.current !== null) {
@@ -220,6 +271,30 @@ export function RomeSheet({ onOpenSearch }: RomeSheetProps) {
     onOpenSearch();
   }
 
+  // Stato 02 (Empty and Error States addendum): il filtro categoria svuota
+  // l'elenco — nella nostra app, con il raggio "Around Me" rimosso in Fase 3,
+  // l'unico modo reale di arrivarci è deselezionare tutte le categorie dal
+  // popover Filtro (ogni categoria ha sempre almeno un luogo). Due azioni
+  // distinte come da spec, adattate al nostro modello a sole categorie:
+  // "Show nearest places" riaccende solo le categorie dei luoghi più vicini
+  // (equivalente minimo di "allargare"), "Clear filters" le riaccende tutte.
+  function handleShowNearestPlaces() {
+    const nearestAcrossAll = userLocation
+      ? [...places]
+          .sort(
+            (a, b) =>
+              distMeters(userLocation.lat, userLocation.lng, a.lat, a.lng) -
+              distMeters(userLocation.lat, userLocation.lng, b.lat, b.lng)
+          )
+          .slice(0, 2)
+      : [];
+    setActiveCategories(new Set(nearestAcrossAll.map((p) => p.category)));
+  }
+
+  function handleClearFilters() {
+    setActiveCategories(new Set(Object.keys(CATEGORY_META) as PlaceCategory[]));
+  }
+
   const tonight = getAppContentSection('tip_of_the_day');
   const getAround = getAppContentSection('get_around');
   const emergency = getAppContentSection('emergency');
@@ -232,7 +307,26 @@ export function RomeSheet({ onOpenSearch }: RomeSheetProps) {
         .slice(0, 2)
     : [];
 
+  // Stato 05 (Empty and Error States addendum): permesso di localizzazione
+  // rifiutato esplicitamente — "Nearest to you" non ha senso senza distanze
+  // reali, quindi viene sostituito (non svuotato) da un elenco per zona.
+  // Aree canoniche garantite da scripts/check-place-areas.mjs — nessun
+  // luogo può avere area nulla o fuori lista a build completata.
+  const areaGroups: { area: string; places: Place[] }[] =
+    locationStatus === 'denied' && visiblePlaces.length > 0
+      ? Object.entries(
+          visiblePlaces.reduce<Record<string, Place[]>>((acc, p) => {
+            const area = p.area ?? 'Other';
+            (acc[area] ??= []).push(p);
+            return acc;
+          }, {})
+        )
+          .map(([area, areaPlaces]) => ({ area, places: areaPlaces }))
+          .sort((a, b) => b.places.length - a.places.length || a.area.localeCompare(b.area))
+      : [];
+
   return (
+    <>
     <div ref={containerRef} style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 5 }}>
       <div
         style={{
@@ -290,8 +384,9 @@ export function RomeSheet({ onOpenSearch }: RomeSheetProps) {
               Search Rome
             </button>
             <button
+              ref={filterButtonRef}
               onPointerDown={(e) => e.stopPropagation()}
-              onClick={() => setFilterOpen((v) => !v)}
+              onClick={handleFilterToggle}
               aria-label="Filter by category"
               style={{
                 width: 32,
@@ -310,55 +405,6 @@ export function RomeSheet({ onOpenSearch }: RomeSheetProps) {
             >
               <FilterIcon width={16} height={16} />
             </button>
-
-            {filterOpen && (
-              <div
-                onPointerDown={(e) => e.stopPropagation()}
-                style={{
-                  position: 'absolute',
-                  top: 54,
-                  right: 20,
-                  zIndex: 6,
-                  background: '#FFFFFF',
-                  borderRadius: 14,
-                  boxShadow: '0 4px 16px rgba(26,22,20,.18)',
-                  padding: 10,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 4,
-                  minWidth: 180,
-                }}
-              >
-                {(Object.keys(CATEGORY_META) as PlaceCategory[]).map((cat) => {
-                  const meta = CATEGORY_META[cat];
-                  const active = activeCategories.has(cat);
-                  return (
-                    <button
-                      key={cat}
-                      onClick={() => toggleCategory(cat)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        padding: '8px 10px',
-                        borderRadius: 10,
-                        border: 'none',
-                        background: active ? '#F3EFEB' : 'transparent',
-                        color: 'var(--ink)',
-                        fontSize: '0.85rem',
-                        fontWeight: active ? 700 : 500,
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        fontFamily: 'inherit',
-                      }}
-                    >
-                      <span>{meta.emoji}</span>
-                      {meta.label}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
           </div>
           <div style={{ height: 22 }} />
         </div>
@@ -383,36 +429,104 @@ export function RomeSheet({ onOpenSearch }: RomeSheetProps) {
             </div>
           )}
 
-          {nearest.length > 0 && (
+          {visiblePlaces.length === 0 && (
             <div style={{ marginBottom: 24 }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: '#6E645F', marginBottom: 10 }}>
-                Nearest to you
-              </div>
-              {nearest.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => selectPlace(p)}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    width: '100%',
-                    padding: '10px 0',
-                    border: 'none',
-                    background: 'none',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    fontFamily: 'inherit',
-                  }}
-                >
-                  <span style={{ fontSize: '1rem', color: '#1A1614' }}>{p.name}</span>
-                  <span style={{ fontSize: '0.85rem', color: '#8C7F79', flexShrink: 0, marginLeft: 12 }}>
-                    {formatDistance(p.distanceMeters)}
-                  </span>
-                </button>
-              ))}
+              <EmptyState
+                message="No places match your filter. We only carry the eighty-nine places our guides stand behind."
+                action={
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    {userLocation && (
+                      <button
+                        onClick={handleShowNearestPlaces}
+                        style={{ border: 'none', background: 'none', padding: 0, textAlign: 'left', color: 'var(--red)', fontWeight: 600, fontSize: '1.0625rem', cursor: 'pointer', fontFamily: 'inherit' }}
+                      >
+                        Show nearest places
+                      </button>
+                    )}
+                    <button
+                      onClick={handleClearFilters}
+                      style={{ border: 'none', background: 'none', padding: 0, textAlign: 'left', color: '#6E645F', fontSize: '1.0625rem', cursor: 'pointer', fontFamily: 'inherit' }}
+                    >
+                      Clear filters
+                    </button>
+                  </div>
+                }
+              />
             </div>
           )}
+
+          {visiblePlaces.length > 0 && (locationStatus === 'denied'
+            ? areaGroups.map((g) => (
+                <div key={g.area} style={{ marginBottom: 24 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      fontSize: '0.72rem',
+                      fontWeight: 600,
+                      letterSpacing: '.09em',
+                      textTransform: 'uppercase',
+                      color: '#6E645F',
+                      marginBottom: 10,
+                    }}
+                  >
+                    <span>{g.area}</span>
+                    <span style={{ color: '#8C7F79' }}>
+                      {g.places.length} place{g.places.length === 1 ? '' : 's'}
+                    </span>
+                  </div>
+                  {g.places.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => selectPlace(p)}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        padding: '10px 0',
+                        border: 'none',
+                        background: 'none',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontFamily: 'inherit',
+                        fontSize: '1rem',
+                        color: '#1A1614',
+                      }}
+                    >
+                      {p.name}
+                    </button>
+                  ))}
+                </div>
+              ))
+            : nearest.length > 0 && (
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: '#6E645F', marginBottom: 10 }}>
+                    Nearest to you
+                  </div>
+                  {nearest.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => selectPlace(p)}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        width: '100%',
+                        padding: '10px 0',
+                        border: 'none',
+                        background: 'none',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontFamily: 'inherit',
+                      }}
+                    >
+                      <span style={{ fontSize: '1rem', color: '#1A1614' }}>{p.name}</span>
+                      <span style={{ fontSize: '0.85rem', color: '#8C7F79', flexShrink: 0, marginLeft: 12 }}>
+                        {formatDistance(p.distanceMeters)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              ))}
 
           {detent === 'full' && (getAround || emergency) && (
             <div style={{ borderTop: '1px solid rgba(26,22,20,.10)', paddingTop: 16, marginTop: 8 }}>
@@ -445,5 +559,64 @@ export function RomeSheet({ onOpenSearch }: RomeSheetProps) {
         </div>
       </div>
     </div>
+
+    {filterOpen &&
+      popoverAnchor &&
+      createPortal(
+        <>
+          {/* Backdrop trasparente a tutto schermo — chiude il popover al
+              tap, così non resta aperto sopra la lista o altri controlli. */}
+          <div onClick={() => setFilterOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 30 }} />
+          <div
+            ref={filterPopoverRef}
+            style={{
+              position: 'fixed',
+              ...(popoverAnchor.top !== undefined ? { top: popoverAnchor.top } : { bottom: popoverAnchor.bottom }),
+              right: popoverAnchor.right,
+              zIndex: 31,
+              background: '#FFFFFF',
+              borderRadius: 16,
+              boxShadow: '0 8px 28px rgba(26,22,20,.16)',
+              padding: 10,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 4,
+              minWidth: 220,
+            }}
+          >
+            {(Object.keys(CATEGORY_META) as PlaceCategory[]).map((cat) => {
+              const meta = CATEGORY_META[cat];
+              const active = activeCategories.has(cat);
+              const Icon = CATEGORY_ICONS[cat];
+              return (
+                <button
+                  key={cat}
+                  onClick={() => toggleCategory(cat)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    padding: '8px 10px',
+                    borderRadius: 10,
+                    border: 'none',
+                    background: active ? '#F3EFEB' : 'transparent',
+                    color: active ? '#CC0029' : '#6E645F',
+                    fontSize: '0.85rem',
+                    fontWeight: active ? 700 : 500,
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  <Icon width={20} height={20} strokeWidth={2} />
+                  <span style={{ color: 'var(--ink)' }}>{meta.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </>,
+        document.body
+      )}
+  </>
   );
 }

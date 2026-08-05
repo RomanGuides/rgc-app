@@ -1,20 +1,20 @@
 [
   {
-    "id": "kevin-c",
-    "quoteText": "Amazing experience. Access to the underground area was incredible. No crowds. Learned a lot of new things, fantastic picture locations, great historical facts. He was the best!",
-    "attribution": "Kevin C. — Colosseum Underground & Arena",
-    "rating": 5.0
+    "id": "christine-c",
+    "quoteText": "One of the highlights of our trip to Rome.",
+    "attribution": "Christine C. — Colosseum Underground Tour",
+    "rating": 5
+  },
+  {
+    "id": "petrt-d",
+    "quoteText": "A fun and comfortable way to discover Rome without getting too tired.",
+    "attribution": "Petrt D. — Rome Highlights Golf Cart Tour",
+    "rating": 5
   },
   {
     "id": "marc",
-    "quoteText": "You'll be blown away by this tour... food, drink, super small groups and no need for the headphone earpiece like on most tours. Seriously, just go.",
+    "quoteText": "The most fun tour we took during our five-week trip across Italy, France and Spain.",
     "attribution": "Marc — Drunken History Rome",
-    "rating": 5.0
-  },
-  {
-    "id": "christine-m",
-    "quoteText": "An exceptional guide! Extremely knowledgeable, engaging, and genuinely enthusiastic... helped us truly appreciate the scale and significance of this iconic landmark.",
-    "attribution": "Christine M. — Colosseum Underground & Arena",
-    "rating": 5.0
+    "rating": 5
   }
 ]

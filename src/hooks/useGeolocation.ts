@@ -12,7 +12,11 @@ export interface UserLocation {
   label?: string;
 }
 
-export type LocationStatus = 'idle' | 'locating' | 'located' | 'fallback';
+// 'denied' è distinto da 'fallback' — serve a RomeSheet per sapere se
+// l'utente ha esplicitamente rifiutato il permesso (redesign v1, Empty and
+// Error States, stato 05: "Nearest to you" viene sostituito da un elenco
+// per zona), invece che una richiesta semplicemente scaduta o non supportata.
+export type LocationStatus = 'idle' | 'locating' | 'located' | 'fallback' | 'denied';
 
 export function useGeolocation() {
   const [location, setLocation] = useState<UserLocation | null>(null);
@@ -31,9 +35,14 @@ export function useGeolocation() {
         setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude, label: 'Your location' });
         setStatus('located');
       },
-      () => {
+      (err) => {
         setLocation({ ...DEFAULT_ME });
-        setStatus('fallback');
+        // code 1 = PERMISSION_DENIED — l'utente ha detto esplicitamente no,
+        // a differenza di un timeout (3) o "non disponibile" (2). Solo un
+        // rifiuto esplicito attiva lo stato 05 (elenco per zona) in RomeSheet;
+        // un timeout resta 'fallback' e può essere ritentato senza motivo
+        // per pensare che ritentare non serva a niente.
+        setStatus(err.code === err.PERMISSION_DENIED ? 'denied' : 'fallback');
       },
       // 6s was too tight for a real first GPS/network fix on a physical
       // device (esp. indoors) — it reliably timed out (code=3) and fell

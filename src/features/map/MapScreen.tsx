@@ -13,8 +13,10 @@ import { SearchScreen } from './SearchScreen';
 import { PlaceScreen } from './PlaceScreen';
 import { DirectionsBar } from './DirectionsBar';
 import { ArrivalToast } from './ArrivalToast';
+import { OfflineBanner } from './OfflineBanner';
 import { useRouteTracking } from './useRouteTracking';
 import { useGeolocation } from '../../hooks/useGeolocation';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { usePlacesStore } from '../../store/usePlacesStore';
 import { filterPlaces } from '../../utils/filterPlaces';
 
@@ -29,9 +31,11 @@ export function MapScreen() {
   const selectedPlaceForCentering = usePlacesStore((s) => s.selectedPlace);
   const locateMeSignal = usePlacesStore((s) => s.locateMeSignal);
   const bumpLocateMeSignal = usePlacesStore((s) => s.bumpLocateMeSignal);
+  const setMapBounds = usePlacesStore((s) => s.setMapBounds);
   const [searchOpen, setSearchOpen] = useState(false);
 
   const { location, status, requestLocation, startWatching, stopWatching } = useGeolocation();
+  const isOnline = useOnlineStatus();
 
   useRouteTracking();
 
@@ -84,11 +88,15 @@ export function MapScreen() {
           activeRoute={activeRoute}
           selectedPlace={selectedPlaceForCentering}
           locateMeSignal={locateMeSignal}
+          onBoundsChange={setMapBounds}
         />
         <LocateButton status={status} onClick={handleLocateMe} />
         <DirectionsBar />
         <ArrivalToast />
-        {!selectedPlaceForCentering && <RomeSheet onOpenSearch={() => setSearchOpen(true)} />}
+        {!isOnline && <OfflineBanner />}
+        {!selectedPlaceForCentering && (
+          <RomeSheet onOpenSearch={() => setSearchOpen(true)} locationStatus={status} forceFullDetent={!isOnline} />
+        )}
       </div>
       {selectedPlaceForCentering && <PlaceScreen place={selectedPlaceForCentering} />}
       {searchOpen && <SearchScreen onClose={() => setSearchOpen(false)} />}

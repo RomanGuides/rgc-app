@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { usePlacesStore } from '../../store/usePlacesStore';
 import { getCategoryMeta } from '../../config/categories.config';
 import { distMeters } from '../../utils/distance';
+import { levenshteinDistance, normalizeForMatch } from '../../utils/levenshtein';
 import { AVERAGE_WALKING_SPEED_MPS } from '../../config/routing.config';
 import { SearchIcon, ChevronLeftIcon } from '../../design-system/components/Icons';
 import type { Place } from '../../data/types';
@@ -20,9 +21,86 @@ function walkingMinutes(meters: number): number {
   return Math.max(1, Math.round(meters / AVERAGE_WALKING_SPEED_MPS / 60));
 }
 
+// Distanza massima di edit (nome normalizzato) perché una categoria valga
+// come suggerimento — oltre, la query non "assomiglia" a nessun nome reale.
+const CATEGORY_PILL_MAX_DISTANCE = 5;
+
+interface Pill {
+  label: string;
+  value: string; // sostituisce la query al tap
+}
+
+// Stato 01 (Empty and Error States addendum): tre pill, ordine fisso, mai
+// duplicate, mai vuote — calcolate solo dal bundle, mai una chiamata di rete.
+function buildSuggestionPills(
+  query: string,
+  allPlaces: Place[],
+  userLocation: { lat: number; lng: number } | null,
+  mapBounds: [number, number, number, number] | null
+): Pill[] {
+  const pills: Pill[] = [];
+  const normalizedQuery = normalizeForMatch(query);
+
+  // 1) Categoria del luogo il cui nome è lessicalmente più vicino alla query.
+  let nearestNamePlace: Place | null = null;
+  let bestDistance = Infinity;
+  for (const p of allPlaces) {
+    const d = levenshteinDistance(normalizedQuery, normalizeForMatch(p.name));
+    if (d < bestDistance) {
+      bestDistance = d;
+      nearestNamePlace = p;
+    }
+  }
+  if (nearestNamePlace && bestDistance <= CATEGORY_PILL_MAX_DISTANCE) {
+    pills.push({ label: getCategoryMeta(nearestNamePlace.category).label, value: getCategoryMeta(nearestNamePlace.category).label });
+  }
+
+  // 2) Area corrente — del luogo più vicino alla posizione utente, oppure
+  // (senza posizione) l'area con più luoghi visibili nel viewport della mappa.
+  let currentArea: string | null = null;
+  if (userLocation) {
+    const nearest = [...allPlaces].sort(
+      (a, b) =>
+        distMeters(userLocation.lat, userLocation.lng, a.lat, a.lng) -
+        distMeters(userLocation.lat, userLocation.lng, b.lat, b.lng)
+    )[0];
+    currentArea = nearest?.area ?? null;
+  } else if (mapBounds) {
+    const [west, south, east, north] = mapBounds;
+    const inView = allPlaces.filter((p) => p.lng >= west && p.lng <= east && p.lat >= south && p.lat <= north);
+    const counts = new Map<string, number>();
+    for (const p of inView) {
+      if (!p.area) continue;
+      counts.set(p.area, (counts.get(p.area) ?? 0) + 1);
+    }
+    let topArea: string | null = null;
+    let topCount = 0;
+    for (const [area, count] of counts) {
+      if (count > topCount) {
+        topCount = count;
+        topArea = area;
+      }
+    }
+    currentArea = topArea;
+  }
+  if (currentArea) {
+    pills.push({ label: currentArea, value: currentArea });
+  }
+
+  // 3) Area del match del punto 1, solo se diversa da quella del punto 2 —
+  // mai una pill duplicata.
+  const nearestNameArea = nearestNamePlace?.area ?? null;
+  if (nearestNameArea && bestDistance <= CATEGORY_PILL_MAX_DISTANCE && nearestNameArea !== currentArea) {
+    pills.push({ label: `In ${nearestNameArea}`, value: nearestNameArea });
+  }
+
+  return pills;
+}
+
 export function SearchScreen({ onClose }: SearchScreenProps) {
   const places = usePlacesStore((s) => s.places);
   const userLocation = usePlacesStore((s) => s.userLocation);
+  const mapBounds = usePlacesStore((s) => s.mapBounds);
   const selectPlace = usePlacesStore((s) => s.selectPlace);
   const [query, setQuery] = useState('');
 
@@ -45,6 +123,8 @@ export function SearchScreen({ onClose }: SearchScreenProps) {
           distMeters(userLocation.lat, userLocation.lng, b.lat, b.lng)
       )
     : filtered;
+
+  const suggestionPills = q && results.length === 0 ? buildSuggestionPills(q, places, userLocation, mapBounds) : [];
 
   function handleSelect(p: Place) {
     selectPlace(p);
@@ -114,7 +194,41 @@ export function SearchScreen({ onClose }: SearchScreenProps) {
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px' }}>
         {results.length === 0 && (
-          <div style={{ padding: '24px 0', fontSize: '0.9rem', color: '#8C7F79' }}>No places match "{query}".</div>
+          <div style={{ padding: '24px 0' }}>
+            <div style={{ fontSize: '1.0625rem', lineHeight: 1.55, color: '#443A33' }}>
+              Nothing in our list matches <strong style={{ color: '#1A1614' }}>{query}</strong>. We only carry the eighty-nine places our guides stand behind.
+            </div>
+            {suggestionPills.length > 0 && (
+              <div style={{ marginTop: 26 }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: '#8C7F79', paddingBottom: 12 }}>
+                  Try instead
+                </div>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  {suggestionPills.map((pill) => (
+                    <button
+                      key={pill.label}
+                      onClick={() => setQuery(pill.value)}
+                      style={{
+                        height: 38,
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '0 16px',
+                        borderRadius: 99,
+                        background: '#F3EFEB',
+                        border: 'none',
+                        fontSize: '0.94rem',
+                        color: '#1A1614',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                      }}
+                    >
+                      {pill.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         )}
         {results.map((p) => {
           const meta = getCategoryMeta(p.category);

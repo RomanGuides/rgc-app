@@ -29,10 +29,10 @@ src/
   data/                        — TypeScript types + the static JSON content itself
   design-system/               — CSS tokens + shared presentational components (Card, Button, Chip, Badge, BottomSheet, SectionHeader, SocialIcons, EmailCaptureBanner, EmptyState)
   features/                    — one folder per screen/feature area (home, map, experiences, explore, myrome)
-  hooks/                       — useGeolocation
+  hooks/                       — useGeolocation, useOnlineStatus
   services/                    — one file per data entity, each just wrapping its JSON import (see docs/DataModel.md)
   store/                       — the single Zustand store
-  utils/                       — pure helper functions (distance, filterPlaces, performance, water fountain search link builder)
+  utils/                       — pure helper functions (distance, filterPlaces, performance, water fountain search link builder, Levenshtein distance)
 
 ios/                            — native Xcode project (Capacitor-generated), wraps the built web app
 android/                        — native Android Studio/Gradle project (Capacitor-generated), wraps the built web app

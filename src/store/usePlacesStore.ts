@@ -33,6 +33,11 @@ interface PlacesStore {
   places: Place[];
   activeCategories: Set<PlaceCategory>;
   userLocation: UserLocation | null;
+  // [west, south, east, north] del viewport corrente della mappa — usato solo
+  // da SearchScreen (stato 01, "nessun risultato") quando la posizione utente
+  // non è nota, per stimare un'area di ricerca plausibile. Non è stato di
+  // routing/filtro: la mappa stessa non lo legge, lo scrive soltanto.
+  mapBounds: [number, number, number, number] | null;
   selectedPlace: Place | null;
   savedPlaceIds: string[];
   // Nota personale libera per luogo ("suona il campanello a sinistra") —
@@ -48,7 +53,9 @@ interface PlacesStore {
 
   loadPlaces: () => void;
   toggleCategory: (cat: PlaceCategory) => void;
+  setActiveCategories: (cats: Set<PlaceCategory>) => void;
   setUserLocation: (loc: UserLocation | null) => void;
+  setMapBounds: (bounds: [number, number, number, number] | null) => void;
   selectPlace: (p: Place | null) => void;
   toggleSaved: (id: string) => void;
   setArrivalNote: (placeId: string, note: string) => void;
@@ -65,6 +72,7 @@ export const usePlacesStore = create<PlacesStore>()(
       places: [],
       activeCategories: new Set(Object.keys(CATEGORY_META) as PlaceCategory[]),
       userLocation: null,
+      mapBounds: null,
       selectedPlace: null,
       savedPlaceIds: [],
       arrivalNotes: {},
@@ -82,7 +90,11 @@ export const usePlacesStore = create<PlacesStore>()(
           return { activeCategories: next };
         }),
 
+      setActiveCategories: (cats) => set({ activeCategories: cats }),
+
       setUserLocation: (loc) => set({ userLocation: loc }),
+
+      setMapBounds: (bounds) => set({ mapBounds: bounds }),
 
       selectPlace: (p) => set({ selectedPlace: p }),
 

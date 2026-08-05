@@ -31,6 +31,7 @@ interface MapViewProps {
   activeRoute?: ActiveRoute | null; // Concierge Map: percorso pedonale attivo, se presente
   selectedPlace?: Place | null; // per centrare la mappa quando la selezione arriva da fuori (es. Explore)
   locateMeSignal?: number; // incrementato ad ogni pressione esplicita di "Use my location" — fa volare la mappa lì
+  onBoundsChange?: (bounds: [number, number, number, number]) => void; // [west, south, east, north] — usato da SearchScreen (Empty and Error States, stato 01) quando la posizione utente non è nota
 }
 
 function placesToGeoJSON(places: Place[]) {
@@ -44,7 +45,7 @@ function placesToGeoJSON(places: Place[]) {
   };
 }
 
-export function MapView({ places, onSelectPlace, userLocation, activeRoute, selectedPlace, locateMeSignal }: MapViewProps) {
+export function MapView({ places, onSelectPlace, userLocation, activeRoute, selectedPlace, locateMeSignal, onBoundsChange }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const domMarkersRef = useRef<Record<string, maplibregl.Marker>>({});
@@ -52,6 +53,8 @@ export function MapView({ places, onSelectPlace, userLocation, activeRoute, sele
   const placeByIdRef = useRef<Record<string, Place>>({});
   const onSelectPlaceRef = useRef(onSelectPlace);
   onSelectPlaceRef.current = onSelectPlace;
+  const onBoundsChangeRef = useRef(onBoundsChange);
+  onBoundsChangeRef.current = onBoundsChange;
   // Always-current ref for places — the map-init effect below runs only once
   // (empty deps), so it must NOT read `places` directly from its closure
   // (that would stay stuck at whatever it was on the very first render,
@@ -123,6 +126,12 @@ export function MapView({ places, onSelectPlace, userLocation, activeRoute, sele
       markEnd('marker_sync', { markerCount: leaves.length });
     }
 
+    function reportBounds() {
+      if (!onBoundsChangeRef.current) return;
+      const b = map.getBounds();
+      onBoundsChangeRef.current([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
+    }
+
     function setupClusterLayers() {
       map.addSource('places', {
         type: 'geojson',
@@ -166,6 +175,9 @@ export function MapView({ places, onSelectPlace, userLocation, activeRoute, sele
 
       map.on('moveend', syncIndividualMarkers);
       map.on('zoomend', syncIndividualMarkers);
+      map.on('moveend', reportBounds);
+      map.on('zoomend', reportBounds);
+      reportBounds();
       map.on('sourcedata', (e) => {
         if (e.sourceId === 'places' && e.isSourceLoaded) syncIndividualMarkers();
       });
@@ -349,5 +361,8 @@ export function MapView({ places, onSelectPlace, userLocation, activeRoute, sele
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRoute?.destinationId]);
 
-  return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />;
+  // #F3EFEB come sfondo del contenitore, non del solo stile mappa: le tile
+  // che falliscono a caricare (offline, stato 04) lasciano questo colore
+  // invece di una scacchiera grigia o un'area trasparente.
+  return <div ref={containerRef} style={{ width: '100%', height: '100%', background: '#F3EFEB' }} />;
 }

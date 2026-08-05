@@ -14,16 +14,37 @@
 // "Walk there" in fondo. Trattato come omissione intenzionale (la spec è
 // molto dettagliata ed esplicita per questa schermata), non un dimenticato.
 
-import { useState } from 'react';
-import type { Place } from '../../data/types';
+import { useEffect, useState } from 'react';
+import type { Place, PlaceCategory } from '../../data/types';
 import { usePlacesStore } from '../../store/usePlacesStore';
 import { getCategoryMeta } from '../../config/categories.config';
 import { startWalkingDirections } from './startWalkingDirections';
 import { ChevronLeftIcon, HeartIcon } from '../../design-system/components/Icons';
+import restaurantPlaceholder from '../../assets/category/restaurant.jpg';
+import pastaPlaceholder from '../../assets/category/pasta.jpg';
+import pizzaPlaceholder from '../../assets/category/pizza.jpg';
+import gelatoPlaceholder from '../../assets/category/gelato.jpg';
+import rooftopBarPlaceholder from '../../assets/category/rooftop_bar.jpg';
+import cocktailBarPlaceholder from '../../assets/category/cocktail_bar.jpg';
 
 interface PlaceScreenProps {
   place: Place;
 }
+
+// Foto segnaposto per le categorie gastronomiche, una per categoria — usata
+// solo quando il luogo non ha una imageUrl propria (o la sua fallisce a
+// caricare). Import statico (non un percorso runtime): Vite garantisce che
+// il file esista al momento della build, niente da precaricare o verificare
+// per questo candidato. Le altre categorie (oggi solo `gallery`) restano su
+// #F3EFEB piatto — una foto generica per un monumento sarebbe fuorviante.
+const CATEGORY_PLACEHOLDER_IMAGES: Partial<Record<PlaceCategory, string>> = {
+  restaurant: restaurantPlaceholder,
+  pasta: pastaPlaceholder,
+  pizza: pizzaPlaceholder,
+  gelato: gelatoPlaceholder,
+  rooftop_bar: rooftopBarPlaceholder,
+  cocktail_bar: cocktailBarPlaceholder,
+};
 
 function Fact({ label, value }: { label: string; value: string }) {
   return (
@@ -59,6 +80,34 @@ export function PlaceScreen({ place: p }: PlaceScreenProps) {
   const isSaved = savedPlaceIds.includes(p.id);
   const [noteDraft, setNoteDraft] = useState(arrivalNotes[p.id] ?? '');
 
+  // Catena di fallback per l'header: foto vera del luogo → foto segnaposto
+  // di categoria (solo gastronomiche, import statico — sempre valido) →
+  // #F3EFEB piatto. Mai meta.color: per pasta/restaurant è un rosso quasi
+  // identico al rosso del brand, che a schermo intero legge come uno stato
+  // di errore (bug corretto qui).
+  //
+  // Solo la imageUrl del luogo va verificata a runtime (è un URL esterno,
+  // può fallire) — il segnaposto di categoria è garantito da Vite al build,
+  // non serve precaricarlo. `background: url(...)` da solo non basta a
+  // rilevare un fallimento — a differenza di un <img>, un CSS background
+  // fallito non emette un evento leggibile — quindi la imageUrl viene
+  // mostrata subito in modo ottimistico (nessun glyph di immagine rotta con
+  // un CSS background, quindi nessun rischio) e sostituita solo se un
+  // probe separato segnala l'errore.
+  const [placeImageFailed, setPlaceImageFailed] = useState(false);
+  useEffect(() => {
+    setPlaceImageFailed(false);
+    if (!p.imageUrl) return;
+    const img = new Image();
+    img.onerror = () => setPlaceImageFailed(true);
+    img.src = p.imageUrl;
+    return () => {
+      img.onerror = null;
+    };
+  }, [p.imageUrl]);
+
+  const resolvedImageUrl = p.imageUrl && !placeImageFailed ? p.imageUrl : (CATEGORY_PLACEHOLDER_IMAGES[p.category] ?? null);
+
   const whyWeLoveIt = p.whyWeLoveIt ?? p.content?.body;
   const insiderTip = p.insiderTip ?? p.content?.attribution;
   const facts = [
@@ -74,9 +123,9 @@ export function PlaceScreen({ place: p }: PlaceScreenProps) {
           style={{
             position: 'relative',
             height: 272,
-            background: p.imageUrl
-              ? `linear-gradient(rgba(16,12,10,.42) 0%, rgba(16,12,10,.06) 45%, rgba(16,12,10,.40) 100%), url(${p.imageUrl}) center/cover`
-              : meta.color,
+            background: resolvedImageUrl
+              ? `linear-gradient(rgba(16,12,10,.42) 0%, rgba(16,12,10,.06) 45%, rgba(16,12,10,.40) 100%), url(${resolvedImageUrl}) center/cover`
+              : '#F3EFEB',
             flexShrink: 0,
           }}
         >

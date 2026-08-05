@@ -8,7 +8,8 @@
 // spec descrive come icona che si riempie di rosso quando salvato, non più
 // l'emoji ❤️/🤍 usata prima.
 
-import type { SVGProps } from 'react';
+import type { ReactElement, SVGProps } from 'react';
+import type { PlaceCategory } from '../../data/types';
 
 const BASE = {
   viewBox: '0 0 24 24',
@@ -87,3 +88,78 @@ export function HeartIcon({ filled, ...props }: HeartIconProps) {
     </svg>
   );
 }
+
+// Icone di categoria per il popover Filtro (RomeSheet.tsx) — sostituiscono
+// le emoji, che restavano l'unico punto dell'app senza la coerenza
+// stroke-2/24×24/round-caps del resto del design system. Non definite
+// nell'Icons Addendum (che anzi dice esplicitamente di NON farlo — nota
+// datata, superata su richiesta esplicita): disegnate qui seguendo la
+// stessa BASE delle altre sei icone, nessuna fonte esterna da cui copiarle.
+
+export function UtensilsIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M7 3v6a2 2 0 0 0 4 0V3M9 9v12M17 3c-1.5 2-2 4-2 6s.5 4 2 5v7" />
+    </svg>
+  );
+}
+
+export function PizzaIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M12 3 3 20h18L12 3Z" />
+      <circle cx="10" cy="13" r="1" />
+      <circle cx="14" cy="16" r="1" />
+    </svg>
+  );
+}
+
+export function GelatoIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M8.5 10 12 21l3.5-11" />
+    </svg>
+  );
+}
+
+export function RooftopBarIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M3 20h18" />
+      <path d="M6 20V9l4-3 4 3v11" />
+      <circle cx="17" cy="13" r="3" />
+    </svg>
+  );
+}
+
+export function CocktailBarIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M4 4h16" />
+      <path d="M4 4 12 13 20 4" />
+      <path d="M12 13v6" />
+      <path d="M9 20h6" />
+    </svg>
+  );
+}
+
+export function GalleryIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M3 10 12 4l9 6" />
+      <path d="M4 10v9M9 10v9M15 10v9M20 10v9" />
+      <path d="M2 19h20" />
+    </svg>
+  );
+}
+
+export const CATEGORY_ICONS: Record<PlaceCategory, (props: SVGProps<SVGSVGElement>) => ReactElement> = {
+  restaurant: UtensilsIcon,
+  pasta: UtensilsIcon,
+  pizza: PizzaIcon,
+  gelato: GelatoIcon,
+  rooftop_bar: RooftopBarIcon,
+  cocktail_bar: CocktailBarIcon,
+  gallery: GalleryIcon,
+};
