@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import { MapView } from './MapView';
-import { RomeSheet } from './RomeSheet';
+import { RomeSheet, type Detent } from './RomeSheet';
 import { LocateButton } from './LocateButton';
 import { SearchScreen } from './SearchScreen';
 import { PlaceScreen } from './PlaceScreen';
@@ -33,6 +33,7 @@ export function MapScreen() {
   const bumpLocateMeSignal = usePlacesStore((s) => s.bumpLocateMeSignal);
   const setMapBounds = usePlacesStore((s) => s.setMapBounds);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [sheetDetent, setSheetDetent] = useState<Detent>('resting');
 
   const { location, status, requestLocation, startWatching, stopWatching } = useGeolocation();
   const isOnline = useOnlineStatus();
@@ -90,12 +91,17 @@ export function MapScreen() {
           locateMeSignal={locateMeSignal}
           onBoundsChange={setMapBounds}
         />
-        <LocateButton status={status} onClick={handleLocateMe} />
+        <LocateButton status={status} onClick={handleLocateMe} hidden={sheetDetent === 'full'} />
         <DirectionsBar />
         <ArrivalToast />
         {!isOnline && <OfflineBanner />}
         {!selectedPlaceForCentering && (
-          <RomeSheet onOpenSearch={() => setSearchOpen(true)} locationStatus={status} forceFullDetent={!isOnline} />
+          <RomeSheet
+            onOpenSearch={() => setSearchOpen(true)}
+            locationStatus={status}
+            forceFullDetent={!isOnline}
+            onDetentChange={setSheetDetent}
+          />
         )}
       </div>
       {selectedPlaceForCentering && <PlaceScreen place={selectedPlaceForCentering} />}

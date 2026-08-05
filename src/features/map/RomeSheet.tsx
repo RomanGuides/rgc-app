@@ -28,7 +28,7 @@ import { EmptyState } from '../../design-system/components/EmptyState';
 import type { LocationStatus } from '../../hooks/useGeolocation';
 import type { Place, PlaceCategory } from '../../data/types';
 
-type Detent = 'peek' | 'resting' | 'full';
+export type Detent = 'peek' | 'resting' | 'full';
 
 const DETENT_FRACTIONS: Record<Detent, number> = { peek: 0.16, resting: 0.4, full: 0.9 };
 const STIFFNESS = 320;
@@ -42,9 +42,10 @@ interface RomeSheetProps {
   onOpenSearch: () => void;
   locationStatus: LocationStatus;
   forceFullDetent?: boolean; // stato 04: offline — il foglio sale a full così la lista porta lo schermo
+  onDetentChange?: (detent: Detent) => void; // MapScreen ne ha bisogno per nascondere LocateButton al detent full (altrimenti il bottone filtro ci finisce sotto, stesso angolo di schermo)
 }
 
-export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent }: RomeSheetProps) {
+export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDetentChange }: RomeSheetProps) {
   const places = usePlacesStore((s) => s.places);
   const activeCategories = usePlacesStore((s) => s.activeCategories);
   const toggleCategory = usePlacesStore((s) => s.toggleCategory);
@@ -127,6 +128,11 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent }: Rom
     if (forceFullDetent) animateToDetent('full', 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [forceFullDetent]);
+
+  useEffect(() => {
+    onDetentChange?.(detent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detent]);
 
   function stopAnimation() {
     if (rafRef.current !== null) {

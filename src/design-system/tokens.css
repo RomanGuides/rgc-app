@@ -92,3 +92,12 @@ body {
     opacity: 0.55;
   }
 }
+
+/* MapView (MapLibre NavigationControl, zoom +/-) — la libreria lo ancora a
+   `top: 0`, senza idea del notch/status bar. Ogni altro elemento fluttuante
+   sopra la mappa (LocateButton, OfflineBanner) usa già il margine di
+   sicurezza; questo era l'unico rimasto a finire sotto batteria/orologio su
+   device reale. */
+.maplibregl-ctrl-top-right {
+  top: env(safe-area-inset-top, 0px);
+}
