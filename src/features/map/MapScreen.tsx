@@ -46,6 +46,17 @@ export function MapScreen() {
   }, [location, setUserLocation]);
 
   // Tracciamento continuo SOLO mentre un percorso è attivo (batteria).
+  //
+  // Dipende da activeRoute?.destinationId, non dall'intero oggetto
+  // activeRoute — updateRouteProgress (in useRouteTracking.ts) crea un nuovo
+  // oggetto activeRoute ad ogni aggiornamento di posizione mentre un percorso
+  // è attivo. Con l'intero oggetto come dipendenza, questo effect si
+  // ri-eseguiva (stopWatching + startWatching) ad ogni singolo tick GPS,
+  // registrando una nuova watchPosition con l'OS in un loop stretto —
+  // riscontrato su dispositivo reale come freeze immediato dell'app appena
+  // avviata una route (i log di sistema mostravano una nuova registrazione
+  // GPS ogni ~15-20ms). Stessa causa e stesso fix già applicati
+  // all'effect della route-line in MapView.tsx.
   useEffect(() => {
     if (activeRoute) {
       startWatching();
@@ -53,7 +64,8 @@ export function MapScreen() {
       stopWatching();
     }
     return () => stopWatching();
-  }, [activeRoute, startWatching, stopWatching]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeRoute?.destinationId, startWatching, stopWatching]);
 
   function handleLocateMe() {
     requestLocation();
