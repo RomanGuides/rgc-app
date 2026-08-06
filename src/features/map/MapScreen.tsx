@@ -36,6 +36,8 @@ export function MapScreen() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [legalOpen, setLegalOpen] = useState(false);
   const [sheetDetent, setSheetDetent] = useState<Detent>('resting');
+  // Solo per sessione, non persistito: vedi handleLocateMe sotto.
+  const [locationPrimed, setLocationPrimed] = useState(false);
 
   const { location, status, requestLocation, startWatching, stopWatching } = useGeolocation();
   const isOnline = useOnlineStatus();
@@ -99,7 +101,26 @@ export function MapScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRoute?.destinationId, startWatching, stopWatching]);
 
-  function handleLocateMe() {
+  // Se l'utente ha detto "Not now" a Welcome, il permesso resta "prompt"
+  // (indeciso) — il PRIMO tap sulla bussola in questo caso non chiama subito
+  // il dialogo di sistema a freddo una seconda volta: mostra prima una riga
+  // di spiegazione (vedi il testo sotto LocateButton), poi il tap
+  // SUCCESSIVO lo innesca davvero. Se il permesso è già deciso (concesso o
+  // negato) non c'è alcun dialogo da proteggere — comportamento invariato,
+  // richiesta immediata come sempre. Solo per sessione corrente (non
+  // persistito): a un riavvio dell'app, se ancora indeciso, si rispiega.
+  async function handleLocateMe() {
+    if (!locationPrimed && navigator.permissions?.query) {
+      try {
+        const result = await navigator.permissions.query({ name: 'geolocation' });
+        if (result.state === 'prompt') {
+          setLocationPrimed(true);
+          return;
+        }
+      } catch {
+        /* Permissions API non supportata per 'geolocation' — richiesta diretta, comportamento di sempre */
+      }
+    }
     requestLocation();
     bumpLocateMeSignal();
   }
@@ -119,6 +140,32 @@ export function MapScreen() {
           onBoundsChange={setMapBounds}
         />
         <LocateButton status={status} onClick={handleLocateMe} hidden={sheetDetent === 'full'} />
+        {locationPrimed && status === 'idle' && sheetDetent !== 'full' && (
+          <div
+            style={{
+              position: 'absolute',
+              // Sotto il bottone, non sopra: a top: safe+62px con un testo
+              // di due righe non c'è abbastanza margine verticale prima
+              // della status bar per stare sopra senza sovrapporlo — e un
+              // overlay che intercetta i tap sul bottone stesso sarebbe
+              // un bug peggiore del posizionamento non conforme alla spec.
+              top: 'calc(env(safe-area-inset-top, 0px) + 62px + 44px + 8px)',
+              right: 20,
+              maxWidth: 190,
+              zIndex: 6,
+              pointerEvents: 'none',
+              background: '#1A1614',
+              color: '#FFFFFF',
+              fontSize: '0.8125rem',
+              lineHeight: 1.4,
+              borderRadius: 12,
+              padding: '9px 12px',
+              textAlign: 'right',
+            }}
+          >
+            Turn on location to sort by how far away things are.
+          </div>
+        )}
         <DirectionsBar />
         <ArrivalToast />
         {!isOnline && <OfflineBanner />}

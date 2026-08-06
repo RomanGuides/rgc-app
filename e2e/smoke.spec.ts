@@ -76,6 +76,41 @@ test('RomeSheet: a location far from Rome shows the by-neighbourhood list, not "
   await context.close();
 });
 
+test('LocateButton: first tap primes with an explanation while permission is undecided, second tap actually asks', async ({ browser }) => {
+  // Playwright's `permissions` context option is binary (granted, via
+  // playwright.config.ts's default, or denied) — it can't simulate a true
+  // 'prompt' (undecided) geolocation permission, which is exactly the state
+  // this feature branches on (see MapScreen.tsx's handleLocateMe). Stubbed
+  // directly instead, to test that branch deterministically.
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'rgc_saved_places',
+      JSON.stringify({ state: { hasSeenWelcome: true, savedPlaceIds: [], arrivalNotes: {} }, version: 0 })
+    );
+    // @ts-expect-error — stubbing a browser API for the test, not real app code
+    navigator.permissions.query = async () => ({ state: 'prompt' });
+  });
+  await page.goto('/');
+
+  const locateButton = page.getByRole('button', { name: /Use my location/ });
+  await locateButton.click();
+  await expect(page.getByText('Turn on location to sort by how far away things are.')).toBeVisible();
+  // First tap only primes — no request fired yet, button label unchanged.
+  await expect(locateButton).toBeVisible();
+
+  await locateButton.click();
+  // The stub only affects permissions.query, not real geolocation — the
+  // context still inherits playwright.config.ts's granted Trevi Fountain
+  // coordinates, so this second, real request resolves normally. The point
+  // here is only that a request actually fired this time (hint disappears).
+  await expect(page.getByText('Turn on location to sort by how far away things are.')).not.toBeVisible();
+  await expect(page.getByRole('button', { name: /Located/ })).toBeVisible();
+
+  await context.close();
+});
+
 test('Rome tab (default) renders with markers and basemap', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('canvas')).toBeVisible();
