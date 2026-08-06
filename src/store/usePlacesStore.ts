@@ -50,6 +50,8 @@ interface PlacesStore {
   // preciso, senza rifarlo ad ogni aggiornamento silenzioso di posizione
   // durante un percorso attivo (altrimenti la mappa "scatterebbe" mentre si cammina).
   locateMeSignal: number;
+  // Mostrata una sola volta per installazione — vedi WelcomeScreen.tsx.
+  hasSeenWelcome: boolean;
 
   loadPlaces: () => void;
   toggleCategory: (cat: PlaceCategory) => void;
@@ -64,6 +66,7 @@ interface PlacesStore {
   showArrivalMessage: () => void;
   hideArrivalMessage: () => void;
   bumpLocateMeSignal: () => void;
+  setHasSeenWelcome: () => void;
 }
 
 export const usePlacesStore = create<PlacesStore>()(
@@ -79,6 +82,7 @@ export const usePlacesStore = create<PlacesStore>()(
       activeRoute: null,
       arrivalMessageVisible: false,
       locateMeSignal: 0,
+      hasSeenWelcome: false,
 
       loadPlaces: () => set({ places: getPlaces() }),
 
@@ -123,11 +127,16 @@ export const usePlacesStore = create<PlacesStore>()(
       showArrivalMessage: () => set({ arrivalMessageVisible: true }),
       hideArrivalMessage: () => set({ arrivalMessageVisible: false }),
       bumpLocateMeSignal: () => set((state) => ({ locateMeSignal: state.locateMeSignal + 1 })),
+      setHasSeenWelcome: () => set({ hasSeenWelcome: true }),
     }),
     {
       name: SAVE_STORAGE_KEY,
-      // Solo i luoghi salvati e le note d'arrivo sono persistiti — il resto è stato di sessione
-      partialize: (state) => ({ savedPlaceIds: state.savedPlaceIds, arrivalNotes: state.arrivalNotes }),
+      // Solo i luoghi salvati, le note d'arrivo e il flag di Welcome sono persistiti — il resto è stato di sessione
+      partialize: (state) => ({
+        savedPlaceIds: state.savedPlaceIds,
+        arrivalNotes: state.arrivalNotes,
+        hasSeenWelcome: state.hasSeenWelcome,
+      }),
     }
   )
 );

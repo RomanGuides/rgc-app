@@ -8,10 +8,50 @@ function placeMarkers(page: Page) {
   return page.locator('.maplibregl-marker').filter({ hasNotText: '📍' });
 }
 
+// MapScreen now auto-requests location on mount whenever the permission is
+// already decided (see MapScreen.tsx, added alongside WelcomeScreen) —
+// geolocation is pre-granted for every test (playwright.config.ts), so by
+// the time a test reaches this button it may already read "Located" rather
+// than "Use my location". Click it only if it hasn't auto-resolved yet.
+async function ensureLocated(page: Page) {
+  const useMyLocation = page.getByRole('button', { name: /Use my location/ });
+  if (await useMyLocation.isVisible().catch(() => false)) {
+    await useMyLocation.click();
+  }
+  await expect(page.getByRole('button', { name: /Located/ })).toBeVisible();
+}
+
 // Home and Explore tabs were removed in the redesign's nav-shell phase
 // (5 tabs → 3: Rome, Experiences, Saved). Home's content is staged for reuse
 // elsewhere (email banner → Experience Detail) — re-add an equivalent test
 // once that phase lands. Explore's browsing was superseded by Search (below).
+
+// WelcomeScreen (shown once per install, before any tab) would otherwise
+// block every test below it — seed the same persisted flag the real app
+// writes after a genuine first run, so these tests exercise the normal app
+// exactly like a returning user would see it. The one test that actually
+// covers WelcomeScreen (below) clears this itself.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'rgc_saved_places',
+      JSON.stringify({ state: { hasSeenWelcome: true, savedPlaceIds: [], arrivalNotes: {} }, version: 0 })
+    );
+  });
+});
+
+test('WelcomeScreen: shown on first run, "Not now" dismisses into Rome', async ({ page }) => {
+  // Registered after the file-level beforeEach's initScript, so it runs
+  // later on the same page load and wins — simulates a genuine first run.
+  await page.addInitScript(() => localStorage.removeItem('rgc_saved_places'));
+  await page.goto('/');
+  await expect(page.getByText('Rome, from people who live here.')).toBeVisible();
+  await expect(page.getByRole('button', { name: "Show me what's nearby" })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Not now' }).click();
+  await expect(page.getByText('Rome, from people who live here.')).not.toBeVisible();
+  await expect(page.locator('canvas')).toBeVisible();
+});
 
 test('Rome tab (default) renders with markers and basemap', async ({ page }) => {
   await page.goto('/');
@@ -63,8 +103,7 @@ test('Marker popup: clicking a place marker opens its card', async ({ page }) =>
 
 test('Directions: Walk there draws a route and shows the Directions bar', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: /Use my location/ }).click();
-  await expect(page.getByRole('button', { name: /Located/ })).toBeVisible();
+  await ensureLocated(page);
 
   await placeMarkers(page).first().click();
   await page.getByRole('button', { name: /Walk there/ }).click();
@@ -76,7 +115,10 @@ test('Directions: Walk there draws a route and shows the Directions bar', async 
 test('Search: typing filters results and selecting one opens its place card', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /Search Rome/ }).click();
-  await expect(page.getByText(/results|All places/)).toBeVisible();
+  // "Nearest to you" replaces "All places" once a location is known — see
+  // ensureLocated's comment above on why that may already be true here.
+  // .first(): RomeSheet underneath has its own "Nearest to you" heading too.
+  await expect(page.getByText(/results|All places|Nearest to you/).first()).toBeVisible();
 
   await page.getByPlaceholder(/Search places/).fill('colosseum');
   await expect(page.getByText('Colosseum', { exact: true })).toBeVisible();
@@ -102,8 +144,7 @@ test('Rome sheet: Legal & About opens from the full-detent footer, back closes i
 
 test('Clear Route: Stop Route removes the Directions bar', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: /Use my location/ }).click();
-  await expect(page.getByRole('button', { name: /Located/ })).toBeVisible();
+  await ensureLocated(page);
 
   await placeMarkers(page).first().click();
   await page.getByRole('button', { name: /Walk there/ }).click();

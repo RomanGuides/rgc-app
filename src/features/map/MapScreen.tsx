@@ -46,6 +46,31 @@ export function MapScreen() {
     loadPlaces();
   }, [loadPlaces]);
 
+  // Se il permesso di posizione è già stato deciso (concesso o negato — da
+  // WelcomeScreen, o da una sessione precedente), popola subito "Nearest to
+  // you"/l'elenco per zona senza aspettare un tap sulla bussola. Se invece è
+  // ancora "prompt" (indeciso — l'utente ha toccato "Not now"), non si
+  // richiede nulla qui: altrimenti si romperebbe la promessa di "Not now",
+  // mostrando un dialogo di sistema non richiesto. navigator.permissions non
+  // è garantito ovunque — se manca o fallisce, nessuna richiesta automatica,
+  // stesso comportamento di sempre (solo su tap esplicito della bussola).
+  useEffect(() => {
+    if (!navigator.permissions?.query) return;
+    let cancelled = false;
+    navigator.permissions
+      .query({ name: 'geolocation' })
+      .then((result) => {
+        if (!cancelled && result.state !== 'prompt') requestLocation();
+      })
+      .catch(() => {
+        /* Permissions API non supportata per 'geolocation' in questo browser/WebView — nessuna richiesta automatica */
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Aggiorna lo store ad ogni risoluzione di posizione (una tantum o durante
   // il tracciamento) — stessa logica che viveva in AroundMeBar.
   useEffect(() => {

@@ -7,6 +7,7 @@ A substantial redesign since the v1.0.0 baseline below — nav shell, screens, a
 ### App shell
 - Capacitor native wrapper for iOS and Android — the app now ships as a real native binary, not just a web page. Geolocation still uses the standard browser API, not a native plugin.
 - Tab bar cut from 5 tabs to 3: **Rome** (replaces Home + Map + Explore), **Experiences**, **Saved** (replaces My Rome).
+- A one-time Welcome screen ahead of the tabs, shown only on the very first launch: full-screen photo, a short line on what the app is, and a choice to enable location now (recommended, since it drives distance sorting) or skip it for later. Never shown again after the first choice.
 
 ### Rome (was Map, plus relevant parts of Home)
 - Full-bleed map with `RomeSheet`, a persistent bottom sheet with three detents, dragged via a real spring-physics simulation (not a fixed-duration CSS transition).

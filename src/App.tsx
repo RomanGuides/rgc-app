@@ -8,13 +8,21 @@ import { useState } from 'react';
 import { MapScreen } from './features/map/MapScreen';
 import { ExperiencesScreen } from './features/experiences/ExperiencesScreen';
 import { MyRomeScreen } from './features/myrome/MyRomeScreen';
+import { WelcomeScreen } from './features/welcome/WelcomeScreen';
 import { TabBar, type TabKey } from './design-system/components/TabBar';
+import { usePlacesStore } from './store/usePlacesStore';
 import './design-system/tokens.css';
 
 type Tab = TabKey;
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('rome');
+  const hasSeenWelcome = usePlacesStore((s) => s.hasSeenWelcome);
+  const setHasSeenWelcome = usePlacesStore((s) => s.setHasSeenWelcome);
+
+  if (!hasSeenWelcome) {
+    return <WelcomeScreen onDone={setHasSeenWelcome} />;
+  }
 
   return (
     <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column' }}>
