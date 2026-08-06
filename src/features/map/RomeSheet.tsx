@@ -23,6 +23,7 @@ import { getAppContentSection } from '../../services/appContentService';
 import { distMeters, formatDistance } from '../../utils/distance';
 import { buildWaterFountainSearchUrl } from '../../utils/waterFountainSearch';
 import { CATEGORY_META } from '../../config/categories.config';
+import { ROME_CENTER } from '../../config/app.config';
 import { SearchIcon, FilterIcon, CATEGORY_ICONS } from '../../design-system/components/Icons';
 import { EmptyState } from '../../design-system/components/EmptyState';
 import type { LocationStatus } from '../../hooks/useGeolocation';
@@ -31,6 +32,13 @@ import type { Place, PlaceCategory } from '../../data/types';
 export type Detent = 'peek' | 'resting' | 'full';
 
 const DETENT_FRACTIONS: Record<Detent, number> = { peek: 0.16, resting: 0.4, full: 0.9 };
+// Un permesso concesso ma una posizione lontana (a casa, in aeroporto prima
+// di partire) risolve comunque a una distanza reale — "Nearest to you"
+// mostrerebbe "9.000 km" invece di accorgersi che l'utente non è ancora
+// arrivato. 50km copre comodamente l'intera area metropolitana di Roma
+// (Fiumicino ~30km, Ciampino ~15km dal centro) senza scattare per chi è
+// già in zona.
+const OUTSIDE_ROME_THRESHOLD_METERS = 50000;
 const STIFFNESS = 320;
 const DAMPING = 34;
 const RUBBER_BAND = 0.35;
@@ -314,13 +322,20 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
         .slice(0, 2)
     : [];
 
+  const isOutsideRome = userLocation
+    ? distMeters(userLocation.lat, userLocation.lng, ROME_CENTER[1], ROME_CENTER[0]) > OUTSIDE_ROME_THRESHOLD_METERS
+    : false;
+
   // Stato 05 (Empty and Error States addendum): permesso di localizzazione
   // rifiutato esplicitamente — "Nearest to you" non ha senso senza distanze
   // reali, quindi viene sostituito (non svuotato) da un elenco per zona.
+  // Stessa sostituzione se la posizione è nota ma lontana da Roma (vedi
+  // isOutsideRome sopra): "Nearest to you" con "9.000 km" è tecnicamente
+  // corretto ma inutile, non diverso nella pratica da non sapere la posizione.
   // Aree canoniche garantite da scripts/check-place-areas.mjs — nessun
   // luogo può avere area nulla o fuori lista a build completata.
   const areaGroups: { area: string; places: Place[] }[] =
-    locationStatus === 'denied' && visiblePlaces.length > 0
+    (locationStatus === 'denied' || isOutsideRome) && visiblePlaces.length > 0
       ? Object.entries(
           visiblePlaces.reduce<Record<string, Place[]>>((acc, p) => {
             const area = p.area ?? 'Other';
@@ -462,7 +477,7 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
             </div>
           )}
 
-          {visiblePlaces.length > 0 && (locationStatus === 'denied'
+          {visiblePlaces.length > 0 && (locationStatus === 'denied' || isOutsideRome
             ? areaGroups.map((g) => (
                 <div key={g.area} style={{ marginBottom: 24 }}>
                   <div

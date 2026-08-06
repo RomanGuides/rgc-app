@@ -53,6 +53,29 @@ test('WelcomeScreen: shown on first run, "Not now" dismisses into Rome', async (
   await expect(page.locator('canvas')).toBeVisible();
 });
 
+test('RomeSheet: a location far from Rome shows the by-neighbourhood list, not "Nearest to you"', async ({ browser }) => {
+  // Own context, not the shared `page` fixture: needs a different
+  // `geolocation` than playwright.config.ts's default (Trevi Fountain), so
+  // the file-level beforeEach's seeding is replicated here manually too.
+  const context = await browser.newContext({ geolocation: { latitude: 51.5072, longitude: -0.1276 }, permissions: ['geolocation'] });
+  const page = await context.newPage();
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'rgc_saved_places',
+      JSON.stringify({ state: { hasSeenWelcome: true, savedPlaceIds: [], arrivalNotes: {} }, version: 0 })
+    );
+  });
+  await page.goto('/');
+  await ensureLocated(page);
+
+  await expect(page.getByText('Nearest to you')).not.toBeVisible();
+  // Area-grouped view (same one used when location is denied) — any real
+  // canonical area name from places.json confirms it rendered.
+  await expect(page.getByText(/places?$/).first()).toBeVisible();
+
+  await context.close();
+});
+
 test('Rome tab (default) renders with markers and basemap', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('canvas')).toBeVisible();
