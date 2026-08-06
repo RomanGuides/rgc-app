@@ -35,6 +35,9 @@ All notable changes to this project are documented in this file, starting from t
 - `useGeolocation.ts`'s continuous `watchPosition` (used during an active route) briefly went through `enableHighAccuracy: false` as an attempted mitigation for the ANR above, on the theory that our own high-accuracy request was contributing to device-wide CPU/GPS contention. On a real device this produced a ~200m position error (WiFi/cell-based positioning instead of real GPS) — enough to break arrival detection (25m threshold). Reverted to `enableHighAccuracy: true`: the ANR's actual CPU breakdown showed other background apps and `system_server` as the dominant load, not this app's own accuracy setting, so the precision cost wasn't justified by the marginal ANR benefit.
 - Starting a walking route froze the app immediately on a real device (confirmed via `adb logcat`: a brand-new GPS watch registered with the OS every ~15-20ms, non-stop). Root cause was the same class of bug as the `MapView.tsx` fix above, in a different effect: `MapScreen.tsx`'s tracking effect (`startWatching`/`stopWatching`) depended on the whole `activeRoute` object, which gets a new reference on every position update — each new reference re-ran the effect's cleanup and body, registering a fresh `watchPosition` in a tight loop, made worse by the `enableHighAccuracy: true` revert above producing far more frequent real position updates than before. Narrowed the dependency to `activeRoute?.destinationId`, same fix as `MapView.tsx`.
 
+### Removed
+- `src/features/home/` (`HomeScreen.tsx`, `homeConfig.ts`) — the pre-redesign Home tab, unrouted since the 5→3 tab cut (`App.tsx` only ever mounted `map`/`experiences`/`myrome`) but never deleted. Confirmed zero references anywhere else in the codebase before removal; bundle output (`dist/assets/index-*.js` size) was unchanged, confirming it was never actually reachable from the shipped app.
+
 ## [1.0.0] — 2026-08-01
 
 ### Added
