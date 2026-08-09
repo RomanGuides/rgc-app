@@ -27,7 +27,7 @@ import { Button } from '../../design-system/components/Button';
 import { SectionHeader } from '../../design-system/components/SectionHeader';
 import { OUR_STORY_MASTHEAD, OUR_STORY_PARAGRAPHS } from '../../config/story';
 import { LINKS } from '../../config/links';
-import { BookingWidgetModal } from './BookingWidgetModal';
+import { BookingWidgetModal, type BookableItem } from './BookingWidgetModal';
 
 // Copy editoriale esistente, riassociata per id — non più raggruppata per
 // momento della giornata (Sunrise/Golden Hour/After Dark), ora è un
@@ -81,8 +81,9 @@ function GuidePhoto({ avatar, name }: { avatar: string; name: string }) {
   );
 }
 
-function TourCard({ exp, onBook }: { exp: Experience; onBook: (exp: Experience) => void }) {
+function TourCard({ exp, onBook }: { exp: Experience; onBook: (item: BookableItem) => void }) {
   const copy = TOUR_COPY[exp.id];
+  const bookingUrl = exp.bookingUrl;
   return (
     <Card showMedia imageUrl={exp.imageUrl} mediaHeight={140} style={{ marginBottom: 'var(--space-4)' }}>
       {copy?.category && <Badge variant="red">{copy.category}</Badge>}
@@ -101,8 +102,8 @@ function TourCard({ exp, onBook }: { exp: Experience; onBook: (exp: Experience) 
           ))}
         </ul>
       )}
-      {exp.bookingUrl ? (
-        <Button variant="ghost" onClick={() => onBook(exp)}>
+      {bookingUrl ? (
+        <Button variant="ghost" onClick={() => onBook({ id: exp.id, name: exp.name, bookingUrl })}>
           Discover Experience →
         </Button>
       ) : (
@@ -114,11 +115,19 @@ function TourCard({ exp, onBook }: { exp: Experience; onBook: (exp: Experience) 
   );
 }
 
+// Non una vera Experience (nessuna tour dietro) — stesso canale Bokun, solo
+// un prodotto diverso. Vedi BookableItem in BookingWidgetModal.tsx.
+const GIFT_CARD_ITEM: BookableItem = {
+  id: 'gift-card',
+  name: 'Roman Guides Gift Card',
+  bookingUrl: LINKS.GIFT_CARD_BOOKING_URL,
+};
+
 export function ExperiencesScreen() {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [guides, setGuides] = useState<Guide[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [bookingExperience, setBookingExperience] = useState<Experience | null>(null);
+  const [bookingItem, setBookingItem] = useState<BookableItem | null>(null);
 
   useEffect(() => {
     setExperiences(getExperiences());
@@ -150,11 +159,24 @@ export function ExperiencesScreen() {
       </div>
 
       {/* ---------- The seven tours ---------- */}
-      <div style={{ marginBottom: 'var(--space-8)' }}>
+      <div style={{ marginBottom: 'var(--space-5)' }}>
         {experiences.map((exp) => (
-          <TourCard key={exp.id} exp={exp} onBook={setBookingExperience} />
+          <TourCard key={exp.id} exp={exp} onBook={setBookingItem} />
         ))}
       </div>
+
+      {/* ---------- Gift card ---------- */}
+      <Card showMedia={false} style={{ marginBottom: 'var(--space-8)' }}>
+        <div style={{ fontFamily: 'var(--display)', fontSize: '1.05rem', fontWeight: 700, marginBottom: 4 }}>
+          Give the gift of Rome
+        </div>
+        <div style={{ fontSize: '0.82rem', color: 'var(--stone)', lineHeight: 1.5, marginBottom: 'var(--space-3)' }}>
+          A Roman Guides gift card — for a friend visiting Rome, or your own next trip back.
+        </div>
+        <Button variant="ghost" onClick={() => setBookingItem(GIFT_CARD_ITEM)}>
+          Buy a Gift Card →
+        </Button>
+      </Card>
 
       {/* ---------- Meet the Guides ---------- */}
       <SectionHeader eyebrow="Your local experts" title="Meet the Guides" />
@@ -207,8 +229,8 @@ export function ExperiencesScreen() {
         </Card>
       </div>
     </div>
-    {bookingExperience && (
-      <BookingWidgetModal experience={bookingExperience} onClose={() => setBookingExperience(null)} />
+    {bookingItem && (
+      <BookingWidgetModal item={bookingItem} onClose={() => setBookingItem(null)} />
     )}
     </>
   );

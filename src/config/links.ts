@@ -15,4 +15,7 @@ export const LINKS = {
   // dalla terza azione ("Contact us") dello stato di errore di
   // BookingWidgetModal, e dalla schermata Legale/About.
   SUPPORT_CONTACT_URL: 'mailto:info@romanguides.com',
+  // Widget Bokun "Gift Card" (stesso meccanismo embed delle tour — vedi
+  // BookingWidgetModal.tsx — solo un prodotto diverso sullo stesso canale).
+  GIFT_CARD_BOOKING_URL: 'https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/gift-card/4806',
 } as const;

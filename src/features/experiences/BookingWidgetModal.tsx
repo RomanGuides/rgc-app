@@ -58,10 +58,19 @@ import { useEffect, useRef, useState } from 'react';
 import { App } from '@capacitor/app';
 import { CloseIcon, LockIcon } from '../../design-system/components/Icons';
 import { LINKS } from '../../config/links';
-import type { Experience } from '../../data/types';
+
+// Non tipizzato su Experience: questo modale sa incorporare QUALUNQUE
+// prodotto Bokun sullo stesso canale (tour, ma anche una gift card, vedi
+// ExperiencesScreen.tsx) — gli servono solo questi tre campi, mai gli altri
+// (guideIds, imageUrl, ecc.) che appartengono solo al modello dati delle tour.
+export interface BookableItem {
+  id: string;
+  name: string;
+  bookingUrl: string;
+}
 
 interface BookingWidgetModalProps {
-  experience: Experience;
+  item: BookableItem;
   onClose: () => void;
 }
 
@@ -110,11 +119,11 @@ function ensureBokunLoaderScript(bookingChannelUUID: string) {
   document.body.appendChild(script);
 }
 
-export function BookingWidgetModal({ experience, onClose }: BookingWidgetModalProps) {
+export function BookingWidgetModal({ item, onClose }: BookingWidgetModalProps) {
   const [status, setStatus] = useState<Status>('loading');
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const [displayHost, setDisplayHost] = useState<string | null>(getHostname(experience.bookingUrl));
+  const [displayHost, setDisplayHost] = useState<string | null>(getHostname(item.bookingUrl));
   // Solo per il fallback "nuova finestra" relayato dal nativo (vedi nota
   // tecnica sopra) — il widget principale di Bokun non passa da qui.
   const [fallbackSrc, setFallbackSrc] = useState<string | null>(null);
@@ -139,8 +148,7 @@ export function BookingWidgetModal({ experience, onClose }: BookingWidgetModalPr
   // bundle (non nostro) rileva il div da solo, sia al primo montaggio sia
   // ogni volta che l'utente riapre il modale per un'esperienza diversa.
   useEffect(() => {
-    const bookingUrl = experience.bookingUrl;
-    if (!bookingUrl) return;
+    const bookingUrl = item.bookingUrl;
     const channelUUID = getBookingChannelUUID(bookingUrl);
     if (channelUUID) ensureBokunLoaderScript(channelUUID);
 
@@ -173,7 +181,7 @@ export function BookingWidgetModal({ experience, onClose }: BookingWidgetModalPr
       observer.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [experience.id, attempt]);
+  }, [item.id, attempt]);
 
   // Back hardware Android chiude il modale — non deve navigare la cronologia
   // interna del widget. Solo Android emette questo evento; su iOS/web il
@@ -219,8 +227,8 @@ export function BookingWidgetModal({ experience, onClose }: BookingWidgetModalPr
   }
 
   function handleOpenInBrowser() {
-    const url = fallbackSrc ?? experience.bookingUrl;
-    if (url) window.open(url, '_blank', 'noopener,noreferrer');
+    const url = fallbackSrc ?? item.bookingUrl;
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   return (
@@ -246,7 +254,7 @@ export function BookingWidgetModal({ experience, onClose }: BookingWidgetModalPr
               whiteSpace: 'nowrap',
             }}
           >
-            {experience.name}
+            {item.name}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 3, color: '#6E645F', fontSize: '0.75rem' }}>
             <LockIcon width={12} height={12} />
@@ -271,10 +279,10 @@ export function BookingWidgetModal({ experience, onClose }: BookingWidgetModalPr
       <div style={{ flex: 1, position: 'relative', overflow: 'auto' }}>
         {status !== 'error' && !fallbackSrc && (
           <div
-            key={`${experience.id}-${attempt}`}
+            key={`${item.id}-${attempt}`}
             ref={widgetHostRef}
             className="bokunWidget"
-            data-src={experience.bookingUrl ?? undefined}
+            data-src={item.bookingUrl}
             style={{ minHeight: '100%' }}
           />
         )}
@@ -283,7 +291,7 @@ export function BookingWidgetModal({ experience, onClose }: BookingWidgetModalPr
           <iframe
             key={fallbackSrc}
             src={fallbackSrc}
-            title={`Book ${experience.name}`}
+            title={`Book ${item.name}`}
             allow="payment"
             onLoad={handleFallbackLoad}
             onError={handleFallbackError}

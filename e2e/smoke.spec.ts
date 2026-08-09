@@ -152,6 +152,19 @@ test('Experiences: Discover Experience opens the in-app booking widget, close cl
   await expect(widget).not.toBeVisible();
 });
 
+test('Experiences: Buy a Gift Card opens the same in-app booking widget, pointed at the gift-card product', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Experiences/ }).last().click();
+
+  await page.getByRole('button', { name: /Buy a Gift Card/ }).click();
+  const widget = page.locator('div.bokunWidget');
+  await expect(widget).toBeVisible();
+  await expect(widget).toHaveAttribute('data-src', /\/gift-card\//);
+
+  await page.getByRole('button', { name: /Close/ }).click();
+  await expect(widget).not.toBeVisible();
+});
+
 test('Marker popup: clicking a place marker opens its card', async ({ page }) => {
   await page.goto('/');
   await page.waitForTimeout(1000);
