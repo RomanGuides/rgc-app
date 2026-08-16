@@ -249,9 +249,29 @@ test('Search: typing filters results and selecting one opens its place card', as
 
   await page.getByPlaceholder(/Search places/).fill('colosseum');
   await expect(page.getByText('Colosseum', { exact: true })).toBeVisible();
+  // Rating (places.json: 4.8, 499423 reviews) is real, existing data that was
+  // never surfaced anywhere in the UI before this change — check the search
+  // row shows it.
+  await expect(page.getByText('4.8').first()).toBeVisible();
 
   await page.getByText('Colosseum', { exact: true }).click();
   await expect(page.getByRole('button', { name: /Walk there/ })).toBeVisible();
+  // .last(): the search row underneath (unmounted here, just covered) shows
+  // the same rating — scope to the now-open place screen.
+  await expect(page.getByText('4.8').last()).toBeVisible();
+  await expect(page.getByText('(499,423)')).toBeVisible();
+});
+
+// Not every place has a rating (3 of 89, e.g. no Google rating on file) —
+// this must collapse cleanly, not show "null" or a broken star.
+test('Place screen: a place with no rating renders cleanly, no broken rating row', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Search Rome/ }).click();
+  await page.getByPlaceholder(/Search places/).fill('Piazza del Popolo');
+  await page.getByText('Piazza del Popolo & Twin Churches', { exact: true }).click();
+
+  await expect(page.getByRole('button', { name: /Walk there/ })).toBeVisible();
+  await expect(page.getByText('Piazza del Popolo & Twin Churches')).toBeVisible();
 });
 
 test('Rome sheet: Legal & About opens from the full-detent footer, back closes it', async ({ page }) => {

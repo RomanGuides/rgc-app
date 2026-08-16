@@ -10,7 +10,7 @@ import { getCategoryMeta } from '../../config/categories.config';
 import { distMeters } from '../../utils/distance';
 import { levenshteinDistance, normalizeForMatch } from '../../utils/levenshtein';
 import { AVERAGE_WALKING_SPEED_MPS } from '../../config/routing.config';
-import { SearchIcon, ChevronLeftIcon } from '../../design-system/components/Icons';
+import { SearchIcon, ChevronLeftIcon, StarIcon } from '../../design-system/components/Icons';
 import type { Place } from '../../data/types';
 
 interface SearchScreenProps {
@@ -270,10 +270,19 @@ export function SearchScreen({ onClose }: SearchScreenProps) {
                 <div style={{ fontSize: '1.05rem', color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {p.name}
                 </div>
-                <div style={{ fontSize: '0.85rem', color: '#6E645F' }}>
-                  {meta.label}
-                  {p.area ? ` · ${p.area}` : ''}
-                  {minutes !== null ? ` · ${minutes} min walk` : ''}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: '#6E645F' }}>
+                  {p.rating != null && (
+                    <>
+                      <StarIcon width={11} height={11} style={{ color: 'var(--red)', flexShrink: 0 }} />
+                      <span style={{ color: '#443A33', fontWeight: 600 }}>{p.rating.toFixed(1)}</span>
+                      <span>·</span>
+                    </>
+                  )}
+                  <span>
+                    {meta.label}
+                    {p.area ? ` · ${p.area}` : ''}
+                    {minutes !== null ? ` · ${minutes} min walk` : ''}
+                  </span>
                 </div>
               </div>
             </button>

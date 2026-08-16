@@ -19,7 +19,7 @@ import type { Place, PlaceCategory } from '../../data/types';
 import { usePlacesStore } from '../../store/usePlacesStore';
 import { getCategoryMeta } from '../../config/categories.config';
 import { startWalkingDirections } from './startWalkingDirections';
-import { ChevronLeftIcon, HeartIcon } from '../../design-system/components/Icons';
+import { ChevronLeftIcon, HeartIcon, StarIcon } from '../../design-system/components/Icons';
 import restaurantPlaceholder from '../../assets/category/restaurant.jpg';
 import pastaPlaceholder from '../../assets/category/pasta.jpg';
 import pizzaPlaceholder from '../../assets/category/pizza.jpg';
@@ -180,9 +180,17 @@ export function PlaceScreen({ place: p }: PlaceScreenProps) {
             {meta.label}
             {p.area ? ` · ${p.area}` : ''}
           </div>
-          <div style={{ fontFamily: 'var(--display)', fontSize: '1.75rem', fontWeight: 700, lineHeight: 1.14, letterSpacing: '-0.01em', color: '#1A1614', marginBottom: 18 }}>
+          <div style={{ fontFamily: 'var(--display)', fontSize: '1.75rem', fontWeight: 700, lineHeight: 1.14, letterSpacing: '-0.01em', color: '#1A1614', marginBottom: p.rating != null ? 8 : 18 }}>
             {p.name}
           </div>
+
+          {p.rating != null && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 18, fontSize: '0.92rem' }}>
+              <StarIcon width={14} height={14} style={{ color: 'var(--red)', flexShrink: 0 }} />
+              <span style={{ fontWeight: 700, color: '#1A1614' }}>{p.rating.toFixed(1)}</span>
+              {p.ratingCount != null && <span style={{ color: '#8C7F79' }}>({p.ratingCount.toLocaleString()})</span>}
+            </div>
+          )}
 
           {facts.length > 0 && (
             <div
