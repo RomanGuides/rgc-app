@@ -29,33 +29,17 @@ import { OUR_STORY_MASTHEAD, OUR_STORY_PARAGRAPHS } from '../../config/story';
 import { LINKS } from '../../config/links';
 import { BookingWidgetModal, type BookableItem } from './BookingWidgetModal';
 import { GuideDetailScreen } from './GuideDetailScreen';
+import { TourDetailScreen } from './TourDetailScreen';
+import { ClockIcon, TagIcon, StarIcon } from '../../design-system/components/Icons';
+import { formatDuration } from '../../utils/formatDuration';
 
-// Copy editoriale esistente, riassociata per id — non più raggruppata per
-// momento della giornata (Sunrise/Golden Hour/After Dark), ora è un
-// attributo per tour dentro l'unica sezione "le sette tour".
-const TOUR_COPY: Record<string, { category?: string; description?: string; features?: string[] }> = {
-  'fiat-500-vintage-tour': {
-    category: 'Vintage Fiat 500 Experience',
-    description:
-      "Before Rome wakes up, the Eternal City belongs to you. Glide through peaceful streets, breathe the fresh morning air and experience iconic landmarks without traffic, crowds or the summer heat. It's the calmest, most authentic side of Rome — one that very few visitors ever get to see.",
-  },
-  'golf-cart-tour': {
-    category: 'Golf Cart Experience',
-    description:
-      'Explore Rome in total comfort while the city is still quiet. Beat the summer heat, discover more in less time and enjoy breathtaking viewpoints before the crowds arrive.',
-  },
-  'drunken-history-rome': {
-    category: 'Drunken History Experience',
-    description:
-      "As the golden light transforms Rome into a masterpiece, join our most entertaining walking experience. Sip authentic Italian drinks, enjoy delicious local bites and uncover the city's most scandalous, seductive and forbidden stories.",
-    features: [
-      'Welcome drink',
-      'Local beverages',
-      'Delicious Roman food',
-      'Guided walking experience',
-      'The most shocking stories of Ancient Rome',
-    ],
-  },
+// Etichetta breve per la card — distinta dalla descrizione vera e propria,
+// che ora vive in experiences.json (usata da TourDetailScreen).
+// Solo 3 tour su 7 ne hanno una scritta; le altre non mostrano il badge.
+const TOUR_CATEGORY: Record<string, string> = {
+  'fiat-500-vintage-tour': 'Vintage Fiat 500 Experience',
+  'golf-cart-tour': 'Golf Cart Experience',
+  'drunken-history-rome': 'Drunken History Experience',
 };
 
 export function GuidePhoto({ avatar, name, size = 52 }: { avatar: string; name: string; size?: number }) {
@@ -82,29 +66,85 @@ export function GuidePhoto({ avatar, name, size = 52 }: { avatar: string; name: 
   );
 }
 
-function TourCard({ exp, onBook }: { exp: Experience; onBook: (item: BookableItem) => void }) {
-  const copy = TOUR_COPY[exp.id];
-  const bookingUrl = exp.bookingUrl;
+// Stessa pillola "Best Seller" usata in TourDetailScreen — riflette una
+// scelta manuale del founder (bestSeller in experiences.json), non dati di
+// vendita reali che l'app non ha.
+function BestSellerBadge() {
+  return (
+    <div
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4,
+        fontSize: '0.62rem',
+        fontWeight: 800,
+        letterSpacing: '.04em',
+        textTransform: 'uppercase',
+        color: 'var(--ink)',
+        background: 'rgba(0,0,0,0.06)',
+        border: '1px solid rgba(0,0,0,0.15)',
+        borderRadius: 'var(--radius-pill)',
+        padding: '4px 10px 4px 8px',
+      }}
+    >
+      <StarIcon width={10} height={10} />
+      Best Seller
+    </div>
+  );
+}
+
+function TourCard({ exp, onSelect }: { exp: Experience; onSelect: (exp: Experience) => void }) {
+  const category = TOUR_CATEGORY[exp.id];
+  // Solo il primo paragrafo come anteprima — la descrizione intera (spesso
+  // più paragrafi) vive in TourDetailScreen, non ha senso ripeterla qui.
+  const teaser = exp.description?.split('\n\n')[0];
+  const durationLabel = exp.durationMinutes ? formatDuration(exp.durationMinutes) : null;
+  const priceLabel = exp.price != null ? `From €${exp.price.toFixed(0)}` : exp.priceNote ?? null;
   return (
     <Card showMedia imageUrl={exp.imageUrl} mediaHeight={140} style={{ marginBottom: 'var(--space-4)' }}>
-      {copy?.category && <Badge variant="red">{copy.category}</Badge>}
-      <div style={{ fontFamily: 'var(--display)', fontSize: '1.05rem', fontWeight: 700, margin: 'var(--space-2) 0 var(--space-2)' }}>
+      {(exp.bestSeller || category) && (
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 'var(--space-2)' }}>
+          {exp.bestSeller && <BestSellerBadge />}
+          {category && <Badge variant="red">{category}</Badge>}
+        </div>
+      )}
+      <div style={{ fontFamily: 'var(--display)', fontSize: '1.05rem', fontWeight: 700, margin: '0 0 var(--space-2)' }}>
         {exp.name}
       </div>
-      {copy?.description && (
-        <div style={{ fontSize: '0.82rem', color: 'var(--stone)', lineHeight: 1.5, marginBottom: 'var(--space-3)' }}>{copy.description}</div>
+      {(durationLabel || priceLabel) && (
+        <div style={{ display: 'flex', gap: 14, marginBottom: 'var(--space-2)' }}>
+          {durationLabel && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.78rem', color: 'var(--stone)' }}>
+              <ClockIcon width={14} height={14} />
+              {durationLabel}
+            </div>
+          )}
+          {priceLabel && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.78rem', color: 'var(--stone)' }}>
+              <TagIcon width={14} height={14} />
+              {priceLabel}
+            </div>
+          )}
+        </div>
       )}
-      {copy?.features && (
-        <ul style={{ margin: '0 0 var(--space-3)', padding: '0 0 0 18px', fontSize: '0.78rem', color: 'var(--stone)' }}>
-          {copy.features.map((f) => (
-            <li key={f} style={{ marginBottom: 4 }}>
-              {f}
-            </li>
-          ))}
-        </ul>
+      {teaser && (
+        <div
+          style={{
+            fontSize: '0.82rem',
+            color: 'var(--stone)',
+            lineHeight: 1.5,
+            marginBottom: 'var(--space-3)',
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}
+        >
+          {teaser}
+        </div>
       )}
-      {bookingUrl ? (
-        <Button variant="ghost" onClick={() => onBook({ id: exp.id, name: exp.name, bookingUrl })}>
+      {exp.bookingUrl ? (
+        <Button variant="ghost" onClick={() => onSelect(exp)}>
           Discover Experience →
         </Button>
       ) : (
@@ -130,6 +170,7 @@ export function ExperiencesScreen() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [bookingItem, setBookingItem] = useState<BookableItem | null>(null);
   const [selectedGuide, setSelectedGuide] = useState<Guide | null>(null);
+  const [selectedTour, setSelectedTour] = useState<Experience | null>(null);
 
   useEffect(() => {
     setExperiences(getExperiences());
@@ -163,7 +204,7 @@ export function ExperiencesScreen() {
       {/* ---------- The seven tours ---------- */}
       <div style={{ marginBottom: 'var(--space-5)' }}>
         {experiences.map((exp) => (
-          <TourCard key={exp.id} exp={exp} onBook={setBookingItem} />
+          <TourCard key={exp.id} exp={exp} onSelect={setSelectedTour} />
         ))}
       </div>
 
@@ -259,6 +300,13 @@ export function ExperiencesScreen() {
         </Card>
       </div>
     </div>
+    {selectedTour && selectedTour.bookingUrl && (
+      <TourDetailScreen
+        experience={selectedTour}
+        onClose={() => setSelectedTour(null)}
+        onCheckDates={() => setBookingItem({ id: selectedTour.id, name: selectedTour.name, bookingUrl: selectedTour.bookingUrl! })}
+      />
+    )}
     {bookingItem && (
       <BookingWidgetModal item={bookingItem} onClose={() => setBookingItem(null)} />
     )}

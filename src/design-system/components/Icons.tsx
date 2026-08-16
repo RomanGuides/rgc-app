@@ -175,6 +175,83 @@ export function GalleryIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+// Introdotte nel redesign v1 di TourDetailScreen (2026-08-16) per la riga
+// fatti/sezioni icon-driven — stessa BASE, nessuna eccezione al fill/colore.
+
+export function ClockIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3.5 2" />
+    </svg>
+  );
+}
+
+export function TagIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M12.6 3H5a2 2 0 0 0-2 2v7.6a2 2 0 0 0 .6 1.4l8.4 8.4a2 2 0 0 0 2.8 0l6-6a2 2 0 0 0 0-2.8L12.6 3Z" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+    </svg>
+  );
+}
+
+export function CalendarIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <rect x="3.5" y="5" width="17" height="16" rx="2" />
+      <path d="M8 3v4M16 3v4M3.5 10h17" />
+    </svg>
+  );
+}
+
+export function CheckCircleIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8 12.5 2.5 2.5L16 9.5" />
+    </svg>
+  );
+}
+
+export function WheelchairIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <circle cx="13" cy="4" r="1.6" />
+      <path d="M11 8v4l3 2.5M11 12h5M9.5 12A5.5 5.5 0 1 0 15 18.2" />
+      <path d="M14.5 14.5 18 20" />
+    </svg>
+  );
+}
+
+export function IdCardIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <circle cx="8.5" cy="11" r="2" />
+      <path d="M6 15.5c.6-1.3 1.6-2 2.5-2s1.9.7 2.5 2M14 9.5h5M14 13h5" />
+    </svg>
+  );
+}
+
+export function AlertCircleIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 8v5" />
+      <circle cx="12" cy="16.2" r="0.15" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function StarIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} fill="currentColor" stroke="none" {...props}>
+      <path d="m12 3 2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L12 16.9 6.4 20.1l1.4-6.3-4.8-4.3 6.4-.6L12 3Z" />
+    </svg>
+  );
+}
+
 export const CATEGORY_ICONS: Record<PlaceCategory, (props: SVGProps<SVGSVGElement>) => ReactElement> = {
   restaurant: UtensilsIcon,
   pasta: UtensilsIcon,

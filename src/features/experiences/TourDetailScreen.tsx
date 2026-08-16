@@ -1,0 +1,303 @@
+// Roman Guides Companion — TourDetailScreen
+// Prima di questo, "Discover Experience" mandava dritti al checkout Bokun —
+// funzionava, ma saltava il momento in cui si decide se prenotare, senza
+// sapere durata, prezzo esatto, cosa è incluso, punto d'incontro o
+// restrizioni d'età. Specificata da tempo, mai costruita perché i dati
+// reali non esistevano ancora (solo tre tour su sette avevano una
+// descrizione, nessuna aveva durata/prezzo/inclusioni strutturati).
+// Sbloccata il 2026-08-16 con dati reali confermati dal founder su Bokun.
+//
+// Redesign v2 (2026-08-16): dalla versione a solo testo (funzionante ma
+// giudicata poco "scannerizzabile" dal founder su device reale) verso lo
+// stile icon-driven di un mockup di riferimento — riga fatti con icone,
+// box "Who is it for?", griglia a spunta per gli inclusi, sezione "Good to
+// know" per le restrizioni reali (accessibilità/documento/avvisi salute,
+// da product-facts.md). Le vecchie "Highlights" a paragrafo lungo restano
+// rimosse: la griglia inclusi copre lo stesso bisogno senza inventare nuovo
+// copy marketing che i dati sorgente non hanno mai avuto.
+//
+// "Check dates", non "Book now": la schermata dopo (il checkout Bokun) è un
+// calendario/carrello, non una prenotazione immediata — un bottone deve
+// promettere quello che succede davvero.
+//
+// Stesso pattern di header-foto di PlaceScreen.tsx (272px, sfumatura,
+// bottone indietro cerchio 40px semi-trasparente) — coerenza visiva tra le
+// due "schede scheda intera" dell'app. Ogni riga di fatti e ogni sezione
+// collassa se il dato manca — mai un campo vuoto o "N/A".
+
+import type { ReactElement, SVGProps } from 'react';
+import {
+  ChevronLeftIcon,
+  ClockIcon,
+  TagIcon,
+  PersonIcon,
+  CheckCircleIcon,
+  WheelchairIcon,
+  IdCardIcon,
+  AlertCircleIcon,
+  CalendarIcon,
+  StarIcon,
+} from '../../design-system/components/Icons';
+import type { Experience } from '../../data/types';
+import { formatDuration } from '../../utils/formatDuration';
+
+interface TourDetailScreenProps {
+  experience: Experience;
+  onClose: () => void;
+  onCheckDates: () => void;
+}
+
+const LABEL_STYLE = {
+  fontSize: '0.68rem',
+  fontWeight: 600,
+  letterSpacing: '.08em',
+  textTransform: 'uppercase' as const,
+  color: '#8C7F79',
+};
+
+type IconComponent = (props: SVGProps<SVGSVGElement>) => ReactElement;
+
+function Fact({ icon: Icon, label, value }: { icon: IconComponent; label: string; value: string }) {
+  return (
+    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <Icon width={18} height={18} style={{ color: '#8C7F79' }} />
+      <div style={{ ...LABEL_STYLE, marginBottom: 0 }}>{label}</div>
+      <div style={{ fontSize: '0.94rem', lineHeight: 1.3, color: '#1A1614' }}>{value}</div>
+    </div>
+  );
+}
+
+function BulletList({ label, items }: { label: string; items?: string[] | null }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <div style={{ marginBottom: 22 }}>
+      <div style={{ ...LABEL_STYLE, marginBottom: 8 }}>{label}</div>
+      <ul style={{ margin: 0, padding: '0 0 0 18px', fontSize: '0.9375rem', color: '#443A33', lineHeight: 1.6 }}>
+        {items.map((item, i) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function InclusionsGrid({ items }: { items?: string[] | null }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <div style={{ marginBottom: 22 }}>
+      <div style={{ ...LABEL_STYLE, marginBottom: 10 }}>What's included</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 14px' }}>
+        {items.map((item, i) => (
+          <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+            <CheckCircleIcon width={16} height={16} style={{ flexShrink: 0, color: 'var(--red)', marginTop: 2 }} />
+            <span style={{ fontSize: '0.875rem', lineHeight: 1.4, color: '#443A33' }}>{item}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+interface GoodToKnowItem {
+  icon: IconComponent;
+  text: string;
+}
+
+function GoodToKnow({ items }: { items: GoodToKnowItem[] }) {
+  if (items.length === 0) return null;
+  return (
+    <div style={{ marginBottom: 22 }}>
+      <div style={{ ...LABEL_STYLE, marginBottom: 10 }}>Good to know</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {items.map((item, i) => (
+          <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+            <item.icon width={18} height={18} style={{ flexShrink: 0, color: '#8C7F79', marginTop: 1 }} />
+            <span style={{ fontSize: '0.9375rem', lineHeight: 1.5, color: '#443A33' }}>{item.text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: TourDetailScreenProps) {
+  const facts = [
+    exp.durationMinutes ? { icon: ClockIcon, label: 'Duration', value: formatDuration(exp.durationMinutes) } : null,
+    exp.price != null
+      ? { icon: TagIcon, label: 'Price', value: `From €${exp.price.toFixed(0)}` }
+      : exp.priceNote
+        ? { icon: TagIcon, label: 'Price', value: exp.priceNote }
+        : null,
+  ].filter((f): f is { icon: IconComponent; label: string; value: string } => f !== null);
+
+  const descriptionParagraphs = exp.description ? exp.description.split('\n\n') : [];
+
+  const goodToKnow: GoodToKnowItem[] = [
+    exp.wheelchairAccessible === true ? { icon: WheelchairIcon, text: 'Wheelchair accessible' } : null,
+    exp.wheelchairAccessible === false ? { icon: WheelchairIcon, text: 'Not wheelchair accessible' } : null,
+    exp.idRequired ? { icon: IdCardIcon, text: 'A valid photo ID or passport is required at entry' } : null,
+    ...(exp.healthAdvisories ?? []).map((text) => ({ icon: AlertCircleIcon, text })),
+  ].filter((g): g is GoodToKnowItem => g !== null);
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: '#FFFFFF', zIndex: 8, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div
+          style={{
+            position: 'relative',
+            height: 272,
+            background: exp.imageUrl
+              ? `linear-gradient(rgba(16,12,10,.42) 0%, rgba(16,12,10,.06) 45%, rgba(16,12,10,.40) 100%), url(${exp.imageUrl}) center/cover`
+              : '#F3EFEB',
+            flexShrink: 0,
+          }}
+        >
+          <button
+            onClick={onClose}
+            aria-label="Back"
+            style={{
+              position: 'absolute',
+              top: 'calc(env(safe-area-inset-top, 0px) + 14px)',
+              left: 16,
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              background: 'rgba(16,12,10,.42)',
+              backdropFilter: 'blur(8px)',
+              border: 'none',
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <ChevronLeftIcon width={20} height={20} />
+          </button>
+        </div>
+
+        <div style={{ padding: '26px 28px calc(110px + env(safe-area-inset-bottom, 0px))' }}>
+          {exp.bestSeller && (
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+                fontSize: '0.62rem',
+                fontWeight: 800,
+                letterSpacing: '.04em',
+                textTransform: 'uppercase',
+                color: '#1A1614',
+                background: 'rgba(0,0,0,0.06)',
+                border: '1px solid rgba(0,0,0,0.15)',
+                borderRadius: 'var(--radius-pill)',
+                padding: '4px 10px 4px 8px',
+                marginBottom: 12,
+              }}
+            >
+              <StarIcon width={11} height={11} />
+              Best Seller
+            </div>
+          )}
+
+          <div style={{ fontFamily: 'var(--display)', fontSize: '1.75rem', fontWeight: 700, lineHeight: 1.14, letterSpacing: '-0.01em', color: '#1A1614', marginBottom: 18 }}>
+            {exp.name}
+          </div>
+
+          {facts.length > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                gap: 14,
+                borderTop: '1px solid rgba(26,22,20,.09)',
+                borderBottom: '1px solid rgba(26,22,20,.09)',
+                padding: '14px 0 16px',
+                marginBottom: 18,
+              }}
+            >
+              {facts.map((f) => (
+                <Fact key={f.label} icon={f.icon} label={f.label} value={f.value} />
+              ))}
+            </div>
+          )}
+
+          {exp.ageRequirement && (
+            <div
+              style={{
+                background: '#F7F4F1',
+                borderRadius: 14,
+                padding: '14px 16px',
+                display: 'flex',
+                gap: 12,
+                alignItems: 'flex-start',
+                marginBottom: 22,
+              }}
+            >
+              <PersonIcon width={20} height={20} style={{ flexShrink: 0, color: '#8C7F79', marginTop: 2 }} />
+              <div>
+                <div style={{ ...LABEL_STYLE, marginBottom: 4 }}>Who is it for?</div>
+                <div style={{ fontSize: '0.9375rem', lineHeight: 1.5, color: '#443A33' }}>{exp.ageRequirement}</div>
+              </div>
+            </div>
+          )}
+
+          {descriptionParagraphs.map((p, i) => (
+            <p key={i} style={{ fontSize: '1.0625rem', lineHeight: 1.6, color: '#443A33', margin: '0 0 14px' }}>
+              {p}
+            </p>
+          ))}
+
+          <InclusionsGrid items={exp.inclusions} />
+          <BulletList label="Not included" items={exp.exclusions} />
+          <GoodToKnow items={goodToKnow} />
+
+          {exp.meetingPoint && (
+            <div style={{ marginBottom: 22 }}>
+              <div style={{ ...LABEL_STYLE, marginBottom: 6 }}>Meeting point</div>
+              <div style={{ fontSize: '0.9375rem', lineHeight: 1.5, color: '#443A33' }}>{exp.meetingPoint}</div>
+            </div>
+          )}
+
+          {exp.cancellationPolicy && (
+            <div>
+              <div style={{ ...LABEL_STYLE, marginBottom: 6 }}>Cancellation policy</div>
+              <div style={{ fontSize: '0.9375rem', lineHeight: 1.5, color: '#443A33' }}>{exp.cancellationPolicy}</div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div
+        style={{
+          padding: '14px 28px calc(16px + env(safe-area-inset-bottom, 0px))',
+          borderTop: '1px solid rgba(26,22,20,.08)',
+          flexShrink: 0,
+          background: '#FFFFFF',
+        }}
+      >
+        <button
+          onClick={onCheckDates}
+          style={{
+            width: '100%',
+            height: 54,
+            borderRadius: 16,
+            background: '#CC0029',
+            color: '#fff',
+            fontSize: '1.05rem',
+            fontWeight: 600,
+            border: 'none',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+          }}
+        >
+          <CalendarIcon width={20} height={20} />
+          Check dates
+        </button>
+      </div>
+    </div>
+  );
+}

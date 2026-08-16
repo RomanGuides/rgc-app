@@ -156,11 +156,48 @@ test('Experiences: tapping a guide opens their full bio, back closes it', async 
 // the OpenRouteService-backed Directions tests). Only the app's own side of
 // the contract is checked here: the placeholder div Bokun's script looks
 // for is mounted with the right data-src, and opening/closing works.
-test('Experiences: Discover Experience opens the in-app booking widget, close closes it', async ({ page }) => {
+test('Experiences: Discover Experience opens the tour detail with real facts, not the checkout directly', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /Experiences/ }).last().click();
 
   await page.getByRole('button', { name: /Discover Experience/ }).first().click();
+  await expect(page.getByRole('button', { name: /Check dates/ })).toBeVisible();
+  await expect(page.getByText('Duration')).toBeVisible();
+  // .last(): the list card underneath (unmounted here, just covered) now
+  // shows its own compact duration/price row too — scope to the detail screen.
+  await expect(page.getByText('2h 15m').last()).toBeVisible();
+  await expect(page.getByText('From €119').last()).toBeVisible();
+
+  await page.getByRole('button', { name: /Back/ }).click();
+  await expect(page.getByRole('button', { name: /Check dates/ })).not.toBeVisible();
+});
+
+// Redesign v2 (2026-08-16): Best Seller badge (founder's manual pick, not
+// derived from sales data) and the icon-driven "Good to know" section
+// sourced from real product-facts.md restrictions — Colosseum Underground
+// (2nd card in experiences.json) is bestSeller:true, wheelchairAccessible:
+// true, idRequired:true, a solid combination to assert all three at once.
+test('Experiences: Best Seller badge shows on the list and carries into the tour detail with real "Good to know" facts', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Experiences/ }).last().click();
+
+  await expect(page.getByText('Best Seller').first()).toBeVisible();
+
+  await page.getByRole('button', { name: /Discover Experience/ }).nth(1).click();
+  // .last(): 3 list cards carry the same badge (Colosseum Underground, Drunken
+  // History, Colosseum Arena) plus this now-open detail screen — scope to it.
+  await expect(page.getByText('Best Seller').last()).toBeVisible();
+  await expect(page.getByText('From €99').last()).toBeVisible();
+  await expect(page.getByText('Wheelchair accessible')).toBeVisible();
+  await expect(page.getByText(/valid photo ID or passport/)).toBeVisible();
+});
+
+test('Experiences: Check dates opens the in-app booking widget; closing it returns to the tour detail, not the list', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Experiences/ }).last().click();
+  await page.getByRole('button', { name: /Discover Experience/ }).first().click();
+
+  await page.getByRole('button', { name: /Check dates/ }).click();
   const widget = page.locator('div.bokunWidget');
   await expect(widget).toBeVisible();
   await expect(widget).toHaveAttribute('data-src', /widgets\.bokun\.io/);
@@ -168,6 +205,7 @@ test('Experiences: Discover Experience opens the in-app booking widget, close cl
 
   await page.getByRole('button', { name: /Close/ }).click();
   await expect(widget).not.toBeVisible();
+  await expect(page.getByRole('button', { name: /Check dates/ })).toBeVisible();
 });
 
 test('Experiences: Buy a Gift Card opens the same in-app booking widget, pointed at the gift-card product', async ({ page }) => {

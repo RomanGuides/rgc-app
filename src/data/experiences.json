@@ -9,7 +9,31 @@
     "imageUrl": "https://romanguides.com/wp-content/uploads-webpc/uploads/App%20Roman%20Guides/Experiences/Rosie%20e%20Clementina%20Morning.png",
     "reviewUrl": "https://www.tripadvisor.it/UserReviewEdit-g187791-d33407068-Tour_with_Fiat_500_Vintage-Rome_Lazio.html",
     "reviewEmoji": "🚗",
-    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1071036"
+    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1071036",
+    "durationMinutes": 135,
+    "price": 119.0,
+    "priceNote": null,
+    "currency": "EUR",
+    "ageRequirement": "Adult 15–99, Child 5–14, Infant 0–4",
+    "meetingPoint": "Pick-up from an agreed point within the city center of Rome (Bokun \"All pick-up places\" selector, not a single fixed address)",
+    "description": "Before Rome wakes up, the Eternal City belongs to you. Glide through peaceful streets, breathe the fresh morning air and experience iconic landmarks without traffic, crowds or the summer heat. It's the calmest, most authentic side of Rome — one that very few visitors ever get to see.",
+    "inclusions": [
+      "Tour in a vintage Fiat 500",
+      "Pick-up from an agreed point within the city of Rome",
+      "English-speaking guide/tour leader",
+      "Photo stops (where possible)"
+    ],
+    "exclusions": [
+      "Extra drinks",
+      "Main or additional courses beyond the set menu",
+      "Transfer to the hotel afterwards",
+      "Tips (optional)"
+    ],
+    "cancellationPolicy": "Free cancellation up to 10 days before the tour. No refund within 10 days of the tour.",
+    "wheelchairAccessible": false,
+    "idRequired": false,
+    "healthAdvisories": null,
+    "bestSeller": false
   },
   {
     "id": "colosseum-underground",
@@ -21,7 +45,30 @@
     "imageUrl": "https://romanguides.com/wp-content/uploads-webpc/uploads/App%20Roman%20Guides/Experiences/Colosseo.png",
     "reviewUrl": "https://www.tripadvisor.it/UserReviewEdit-g187791-d33035018-Colosseum_Underground_and_Arena_Platform-Rome_Lazio.html",
     "reviewEmoji": "🏛️",
-    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1006774"
+    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1006774",
+    "durationMinutes": 92,
+    "price": 99.0,
+    "priceNote": null,
+    "currency": "EUR",
+    "ageRequirement": "Adult 18–99, Child 0–17 (Bokun's own \"Know before you go\" notes also state a minimum age of 2 — the two figures aren't reconciled in the source data)",
+    "meetingPoint": "Via del Colosseo, 31, Roma, 00184",
+    "description": "Go beneath the Colosseum into the tunnels where gladiators and wild animals once waited before being lifted into the Arena through hidden trapdoors. A small-group tour with a passionate guide, plus independent access to the Roman Forum and Palatine Hill afterward.",
+    "inclusions": [
+      "Colosseum entrance ticket",
+      "Underground access",
+      "Arena access",
+      "Guided Colosseum tour",
+      "Professional live guide",
+      "Headset",
+      "Roman Forum and Palatine Hill entrance",
+      "Small-group experience"
+    ],
+    "exclusions": ["Tip or gratuity", "Access to the Attic"],
+    "cancellationPolicy": "Underground route: non-refundable, all sales final. Arena Floor route: free cancellation up to 10 days before the tour, no refund within 10 days.",
+    "wheelchairAccessible": true,
+    "idRequired": true,
+    "healthAdvisories": null,
+    "bestSeller": true
   },
   {
     "id": "drunken-history-rome",
@@ -33,7 +80,21 @@
     "imageUrl": "https://romanguides.com/wp-content/uploads-webpc/uploads/App%20Roman%20Guides/Experiences/Drunken%20History.jpeg",
     "reviewUrl": "https://www.tripadvisor.it/UserReviewEdit-g187791-d33039210-Drunken_History_Rome_Passion_Romance_in_Ancient_Rome-Rome_Lazio.html",
     "reviewEmoji": "🍷",
-    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1006773"
+    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1006773",
+    "durationMinutes": 180,
+    "price": 89.0,
+    "priceNote": null,
+    "currency": "EUR",
+    "ageRequirement": "18+ only — no child or infant option on this tour",
+    "meetingPoint": "Via del Colosseo, 31, Roma, 00184",
+    "description": "As the golden light transforms Rome into a masterpiece, join our most entertaining walking experience. Sip authentic Italian drinks, enjoy delicious local bites and uncover the city's most scandalous, seductive and forbidden stories.",
+    "inclusions": ["Welcome Prosecco", "Shot", "Pizza & Spritz", "Signature Cocktail"],
+    "exclusions": ["Everything not listed above"],
+    "cancellationPolicy": "Free cancellation up to 10 days before the tour. No refund within 10 days of the tour.",
+    "wheelchairAccessible": false,
+    "idRequired": false,
+    "healthAdvisories": ["Not recommended for pregnant travelers", "Not recommended for people with heart conditions"],
+    "bestSeller": true
   },
   {
     "id": "golf-cart-tour",
@@ -45,7 +106,21 @@
     "imageUrl": "https://romanguides.com/wp-content/uploads-webpc/uploads/App%20Roman%20Guides/Experiences/Golf%20morning.png",
     "reviewUrl": null,
     "reviewEmoji": null,
-    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1151390"
+    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1151390",
+    "durationMinutes": 150,
+    "price": 79.0,
+    "priceNote": null,
+    "currency": "EUR",
+    "ageRequirement": "Adult 17–99, Child 6–16, Infant 0–5",
+    "meetingPoint": "Circus Maximus, Via del Circo Massimo, Roma, 00184",
+    "description": "Explore Rome in total comfort while the city is still quiet. Beat the summer heat, discover more in less time and enjoy breathtaking viewpoints before the crowds arrive.",
+    "inclusions": ["Golf cart transportation", "Live guide"],
+    "exclusions": ["Tip & gratuity"],
+    "cancellationPolicy": "Free cancellation up to 10 days before the tour. No refund within 10 days of the tour.",
+    "wheelchairAccessible": false,
+    "idRequired": false,
+    "healthAdvisories": null,
+    "bestSeller": false
   },
   {
     "id": "colosseum-arena",
@@ -57,7 +132,29 @@
     "imageUrl": "https://romanguides.com/wp-content/uploads-webpc/uploads/App%20Roman%20Guides/Experiences/colosseum-arena.jpg",
     "reviewUrl": null,
     "reviewEmoji": null,
-    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1091736"
+    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1091736",
+    "durationMinutes": 150,
+    "price": 119.0,
+    "priceNote": null,
+    "currency": "EUR",
+    "ageRequirement": "Adult 17–99, Child 6–16, Infant 0–5",
+    "meetingPoint": "Via del Colosseo, 31, Roma, 00184",
+    "description": "Step onto the Colosseum's legendary Arena Floor — the same ground where gladiators once fought — with a small group and a guide who brings the amphitheater to life. Includes independent access to the Roman Forum and Palatine Hill afterward.",
+    "inclusions": [
+      "Colosseum entrance ticket",
+      "Arena Floor access",
+      "Guided Colosseum tour",
+      "Professional live guide",
+      "Headset",
+      "Roman Forum and Palatine Hill entrance",
+      "Small-group experience"
+    ],
+    "exclusions": ["Extra food and drinks", "Gratuities"],
+    "cancellationPolicy": "Free cancellation up to 10 days before the tour. No refund within 10 days of the tour.",
+    "wheelchairAccessible": true,
+    "idRequired": true,
+    "healthAdvisories": null,
+    "bestSeller": true
   },
   {
     "id": "private-tour-colosseum",
@@ -69,7 +166,29 @@
     "imageUrl": "https://romanguides.com/wp-content/uploads-webpc/uploads/App%20Roman%20Guides/Experiences/private-tours.jpg",
     "reviewUrl": null,
     "reviewEmoji": null,
-    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1052898"
+    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1052898",
+    "durationMinutes": 150,
+    "price": null,
+    "priceNote": "Custom pricing based on group size — get in touch for a quote",
+    "currency": "EUR",
+    "ageRequirement": "Adult 18–99, Child 4–17, Infant 0–3",
+    "meetingPoint": "Colosseo, Via del Colosseo 31, Roma, 00184",
+    "description": "A private guide, just for your group, through the Colosseum's Arena Floor, the Roman Forum and Palatine Hill — at your own pace, with time for questions and photos along the way. Colosseum tickets are nominative: every traveler's full name is needed at booking, and a matching valid passport/ID at entry.",
+    "inclusions": [
+      "Private guided tour",
+      "Professional licensed local guide",
+      "Colosseum entrance ticket with Arena Floor access",
+      "Roman Forum entrance",
+      "Palatine Hill entrance",
+      "Headset/audio system when required",
+      "Dedicated assistance throughout the experience"
+    ],
+    "exclusions": ["Access to the Colosseum Underground"],
+    "cancellationPolicy": "Free cancellation up to 10 days before the tour. No refund within 10 days of the tour.",
+    "wheelchairAccessible": true,
+    "idRequired": true,
+    "healthAdvisories": ["Not recommended for people with back problems", "Not recommended for people with heart conditions"],
+    "bestSeller": false
   },
   {
     "id": "st-peters-basilica-tour",
@@ -81,6 +200,34 @@
     "imageUrl": "https://romanguides.com/wp-content/uploads-webpc/uploads/App%20Roman%20Guides/Experiences/Basilica%20s.Pietro.jpg",
     "reviewUrl": null,
     "reviewEmoji": null,
-    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1054837"
+    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1054837",
+    "durationMinutes": 60,
+    "price": 25.0,
+    "priceNote": null,
+    "currency": "EUR",
+    "ageRequirement": "Adult 18–99, Child 5–17, Infant 0–4",
+    "meetingPoint": "Piazza del Risorgimento, facing the green kiosk, Roma, 00100",
+    "description": "A guided walk through one of the world's great churches — Michelangelo's Pietà, Bernini's Baldachin, centuries of papal history — with free time to explore on your own afterward.",
+    "inclusions": [
+      "Guided tour of St. Peter's Basilica",
+      "Professional expert guide",
+      "Headset for clear audio",
+      "Small-group experience",
+      "Assistance at the meeting point",
+      "Free time inside the Basilica after the guided portion"
+    ],
+    "exclusions": [
+      "Entry tickets (the Basilica is free to enter)",
+      "St. Peter's Dome climb (optional upgrade, payable on-site)",
+      "Skip-the-line access (none exists for St. Peter's Basilica)",
+      "Food and drinks",
+      "Access to the Vatican Museums or Sistine Chapel",
+      "Hotel pickup and drop-off"
+    ],
+    "cancellationPolicy": "Free cancellation up to 10 days before the tour. No refund within 10 days of the tour.",
+    "wheelchairAccessible": false,
+    "idRequired": false,
+    "healthAdvisories": ["Not recommended for people with back problems", "Not recommended for people with heart conditions"],
+    "bestSeller": false
   }
 ]

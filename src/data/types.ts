@@ -58,6 +58,30 @@ export interface Experience {
   reviewUrl?: string | null; // link diretto per lasciare una recensione (TripAdvisor/Google/GYG)
   reviewEmoji?: string | null; // es. 🏛️ per Colosseo, 🚗 per Fiat 500 — coerenza visiva coi bottoni recensione
   bookingUrl?: string | null; // link diretto alla pagina di prenotazione Bokun per questa specifica esperienza
+
+  // Campi per TourDetailScreen — dati operativi reali confermati dal founder
+  // su Bokun (2026-08-09/10), non derivati/stimati. Tutti opzionali: un
+  // campo assente non rende nulla nella schermata, non si inventa un valore.
+  durationMinutes?: number | null;
+  price?: number | null; // null quando il prezzo non è fisso (es. Private Tours) — vedi priceNote
+  priceNote?: string | null; // es. "Custom pricing based on group size", mostrato al posto del prezzo quando price è null
+  currency?: string | null;
+  ageRequirement?: string | null; // testo breve, non un singolo numero — alcune tour hanno fasce età contrastanti nei dati sorgente, meglio riportarle che risolverle a caso
+  meetingPoint?: string | null;
+  description?: string | null; // breve, 2-3 frasi — il cliente deve capire l'offerta al volo, non leggere un racconto
+  inclusions?: string[] | null;
+  exclusions?: string[] | null;
+  cancellationPolicy?: string | null;
+
+  // "Good to know" — restrizioni reali da product-facts.md (fonte Bokun,
+  // confermate dal founder 2026-08-09), non dedotte. Ognuno collassa se assente.
+  wheelchairAccessible?: boolean | null;
+  idRequired?: boolean | null; // documento valido richiesto all'ingresso (es. Colosseo)
+  healthAdvisories?: string[] | null; // es. "Not recommended for people with heart conditions"
+
+  // Manuale, non calcolato da vendite reali (nessun dato di vendita nell'app) —
+  // scelto dal founder in base a cosa vende meglio davvero (2026-08-16).
+  bestSeller?: boolean;
 }
 
 // Testimonianza reale di un ospite — mostrata in My Guides ("What Guests Are Saying")
