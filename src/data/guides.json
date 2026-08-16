@@ -1,29 +1,45 @@
 [
   {
-    "id": "endrin",
-    "name": "Endrin",
-    "displayTitle": "Meet Endrin, Founder of Roman Guides",
+    "id": "eni",
+    "name": "Eni",
+    "displayTitle": "Meet Eni, Your Roman Storyteller",
     "quote": "\"Rome isn't just a city to me—it's my home, my heartbeat, and my greatest story to share.\"",
-    "bio": "Founder of Roman Guides. Passionate about Ancient Rome and creating experiences that feel personal, never scripted. Loves telling the untold side of Roman history, with humour, food and a good drink.",
+    "bio": "I wasn't born in Rome — I was born in Albania, and moved here at 18 to continue my studies. What I didn't expect was to completely fall in love with this city. The more I explored Rome, the more fascinated I became by its history, its architecture and the incredible genius of ancient Roman civilization. That curiosity became a passion, and that passion became my profession. Today, being a guide isn't simply my job — it's my way of sharing the city that changed my life. Rome has become my home, and nothing makes me happier than helping others fall in love with it too.",
     "avatar": "https://romanguides.com/wp-content/uploads-webpc/uploads/App%20Roman%20Guides/GUides/Eni.jpg",
-    "whatsappUrl": "https://wa.me/393516260186?text=Hi%20Endrin!%20I%27m%20using%20the%20Roman%20Guides%20app%20and%20I%27d%20like%20your%20help%20planning%20my%20Rome%20adventure."
+    "whatsappUrl": "https://wa.me/393516260186?text=Hi%20Eni!%20I%27m%20using%20the%20Roman%20Guides%20app%20and%20I%27d%20like%20your%20help%20planning%20my%20Rome%20adventure."
   },
   {
-    "id": "alex",
-    "name": "Alex",
-    "displayTitle": "Meet Alex, Archaeologist and Storyteller",
+    "id": "arjan",
+    "name": "Arjan",
+    "displayTitle": "Meet Arjan, Your Local Friend in Rome",
     "quote": "\"Every tour should feel like exploring Rome with a local friend.\"",
-    "bio": "Archaeologist and storyteller. Turns the Colosseum into a place full of people, not just stones.",
+    "bio": "Born in Albania and shaped by experiences across Europe, Arjan first worked as a tour guide in Prague, where he discovered his passion for bringing history to life. After moving to Rome in 2013, he spent years working in the tourism industry, but his true calling was always guiding. Today, he has returned to the profession he loves most, sharing the beauty, stories, and hidden corners of the Eternal City with travelers from around the world. Friendly, knowledgeable, and passionate, Arjan believes every tour should feel like exploring Rome with a local friend.",
     "avatar": "https://romanguides.com/wp-content/uploads-webpc/uploads/App%20Roman%20Guides/GUides/Arjan.png",
-    "whatsappUrl": "https://wa.me/393516260186?text=Hi%20Alex!%20I%27m%20using%20the%20Roman%20Guides%20app%20and%20I%27d%20like%20your%20help%20planning%20my%20Rome%20adventure."
+    "whatsappUrl": "https://wa.me/393516260186?text=Hi%20Arjan!%20I%27m%20using%20the%20Roman%20Guides%20app%20and%20I%27d%20like%20your%20help%20planning%20my%20Rome%20adventure."
   },
   {
-    "id": "luca",
-    "name": "Luca",
-    "displayTitle": "Meet Luca, Your Local City Explorer",
+    "id": "giovanni",
+    "name": "Giovanni",
+    "displayTitle": "Meet Giovanni, Your Roman History Enthusiast",
     "quote": "\"I love bringing ancient history to life for every guest.\"",
-    "bio": "Relaxed city explorer. Knows every shortcut, viewpoint and hidden corner of Rome.",
+    "bio": "Born in Romania, Giovanni spent his childhood there before moving to Rome, a city he soon came to call home. From the very beginning, he built his career in the tourism industry, where his natural talent for languages and his passion for history quickly set him apart. Over the years, those qualities helped him become one of Rome's most charismatic and highly regarded tour guides. Energetic, engaging, and passionate about sharing the city's rich heritage, Giovanni loves bringing ancient history to life and ensuring every guest leaves with unforgettable memories of the Eternal City.",
     "avatar": "https://romanguides.com/wp-content/uploads-webpc/uploads/App%20Roman%20Guides/GUides/Giovanni%20.jpeg",
-    "whatsappUrl": "https://wa.me/393516260186?text=Hi%20Luca!%20I%27m%20using%20the%20Roman%20Guides%20app%20and%20I%27d%20like%20your%20help%20planning%20my%20Rome%20adventure."
+    "whatsappUrl": "https://wa.me/393516260186?text=Hi%20Giovanni!%20I%27m%20using%20the%20Roman%20Guides%20app%20and%20I%27d%20like%20your%20help%20planning%20my%20Rome%20adventure."
+  },
+  {
+    "id": "realda",
+    "name": "Realda",
+    "displayTitle": "Meet Realda, Art, History & the Beauty of Rome",
+    "bio": "Born in Albania and raised in Italy, Realda discovered her passion for art and history from an early age. Growing up surrounded by Italy's extraordinary cultural heritage, she quickly developed a fascination for the stories, masterpieces and artists that have shaped the country — and Rome in particular. A specialist in art history and passionate about art in all its forms, Realda has become one of the most talented guides on the Roman Guides team. Her tours combine deep knowledge with enthusiasm, allowing guests to look beyond the beauty of Rome's monuments and understand the stories, ideas and people behind them. Since 2024, Realda has been an officially licensed tour guide in Rome, turning her passion and expertise into a profession dedicated to sharing the city's incredible cultural heritage. Her ability to bring art and history to life, together with her attention to detail and engaging personality, makes every tour with Realda a truly memorable experience.",
+    "avatar": "",
+    "whatsappUrl": "https://wa.me/393516260186?text=Hi%20Realda!%20I%27m%20using%20the%20Roman%20Guides%20app%20and%20I%27d%20like%20your%20help%20planning%20my%20Rome%20adventure."
+  },
+  {
+    "id": "said",
+    "name": "Said",
+    "displayTitle": "Meet Said, History, Rome & Family Tours",
+    "bio": "Originally from Tunisia, Said came to Rome to study and soon found himself captivated by the extraordinary history of the city he now calls home. What began as an academic journey quickly became a genuine passion for Rome, its ancient stories and the people who come from all over the world to discover them. As a father of two, Said has a natural connection with families and children. Over time, we noticed something special in the way he leads family tours: he knows how to make history engaging, fun and accessible, turning even the most complex stories into something children can truly enjoy. His warm personality, patience and ability to connect with people of all ages make him a perfect guide for families looking to experience Rome not just as a collection of monuments, but as a living story. At Roman Guides, Said brings together his passion for Rome, his personal experience as a father and his natural talent for making every guest feel welcome.",
+    "avatar": "",
+    "whatsappUrl": "https://wa.me/393516260186?text=Hi%20Said!%20I%27m%20using%20the%20Roman%20Guides%20app%20and%20I%27d%20like%20your%20help%20planning%20my%20Rome%20adventure."
   }
 ]

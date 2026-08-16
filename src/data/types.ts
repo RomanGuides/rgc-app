@@ -72,9 +72,9 @@ export interface Guide {
   id: string;
   name: string;
   displayTitle: string;
-  quote: string;
+  quote?: string; // non tutte le guide hanno una citazione scritta — mai inventarne una quando manca
   bio: string;
-  avatar: string;
+  avatar: string; // stringa vuota se non c'è ancora una foto reale — GuidePhoto mostra un cerchio con l'iniziale
   whatsappUrl: string;
 }
 

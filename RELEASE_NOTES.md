@@ -26,8 +26,8 @@ A substantial redesign since the v1.0.0 baseline below — nav shell, screens, a
 
 ### Experiences (restructured; now also "who we are")
 - New order: a short masthead, all seven bookable tours immediately, Meet the Guides, guest quotes, and Our Story — absorbing content that used to live on My Rome.
-- Guide names/bios and Our Story are the founder's real August 2026 copy, not placeholder text.
-- **Booking now happens inside the app.** "Discover Experience" opens Bokun's checkout in a full-screen in-app view instead of handing off to the system browser — no more fully leaving the app to pay. Bokun still handles the entire booking and payment flow (see `docs/BokunIntegration.md`).
+- Guide names/bios and Our Story are the founder's real copy, not placeholder text — corrected 2026-08-16 (two names shipped as placeholders through an earlier pass; real roster is Eni, Arjan, Giovanni, Realda, Said). Tapping a guide now opens their full bio, photo, and quote (previously only a one-line summary was shown anywhere).
+- **Booking now happens inside the app.** "Discover Experience" opens Bokun's checkout in a full-screen in-app view instead of handing off to the system browser — no more fully leaving the app to pay. Bokun still handles the entire booking and payment flow (see `docs/BokunIntegration.md`). A gift card can be purchased the same way.
 
 ### Saved (was My Rome)
 - Reduced to just the shortlist: title, count, and the saved-places list, now sorted by distance instead of save order.

@@ -28,6 +28,7 @@ import { SectionHeader } from '../../design-system/components/SectionHeader';
 import { OUR_STORY_MASTHEAD, OUR_STORY_PARAGRAPHS } from '../../config/story';
 import { LINKS } from '../../config/links';
 import { BookingWidgetModal, type BookableItem } from './BookingWidgetModal';
+import { GuideDetailScreen } from './GuideDetailScreen';
 
 // Copy editoriale esistente, riassociata per id — non più raggruppata per
 // momento della giornata (Sunrise/Golden Hour/After Dark), ora è un
@@ -57,13 +58,13 @@ const TOUR_COPY: Record<string, { category?: string; description?: string; featu
   },
 };
 
-function GuidePhoto({ avatar, name }: { avatar: string; name: string }) {
+export function GuidePhoto({ avatar, name, size = 52 }: { avatar: string; name: string; size?: number }) {
   const isRealUrl = avatar.startsWith('http');
   return (
     <div
       style={{
-        width: 52,
-        height: 52,
+        width: size,
+        height: size,
         borderRadius: '50%',
         flexShrink: 0,
         background: isRealUrl ? `url(${avatar}) center/cover` : 'linear-gradient(160deg, var(--red), var(--red-dk))',
@@ -73,7 +74,7 @@ function GuidePhoto({ avatar, name }: { avatar: string; name: string }) {
         color: '#fff',
         fontFamily: 'var(--display)',
         fontWeight: 700,
-        fontSize: '1.1rem',
+        fontSize: size * 0.38,
       }}
     >
       {!isRealUrl && name.charAt(0)}
@@ -128,6 +129,7 @@ export function ExperiencesScreen() {
   const [guides, setGuides] = useState<Guide[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [bookingItem, setBookingItem] = useState<BookableItem | null>(null);
+  const [selectedGuide, setSelectedGuide] = useState<Guide | null>(null);
 
   useEffect(() => {
     setExperiences(getExperiences());
@@ -182,13 +184,41 @@ export function ExperiencesScreen() {
       <SectionHeader eyebrow="Your local experts" title="Meet the Guides" />
       <div style={{ marginTop: 'var(--space-3)', marginBottom: 'var(--space-8)' }}>
         {guides.map((g) => (
-          <div key={g.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
+          <button
+            key={g.id}
+            onClick={() => setSelectedGuide(g)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-3)',
+              width: '100%',
+              marginBottom: 'var(--space-4)',
+              border: 'none',
+              background: 'none',
+              padding: 0,
+              textAlign: 'left',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
             <GuidePhoto avatar={g.avatar} name={g.name} />
             <div style={{ minWidth: 0 }}>
               <div style={{ fontFamily: 'var(--display)', fontSize: '0.95rem', fontWeight: 700, color: 'var(--ink)' }}>{g.name}</div>
-              <div style={{ fontSize: '0.82rem', color: 'var(--stone)', lineHeight: 1.4 }}>{g.bio}</div>
+              <div
+                style={{
+                  fontSize: '0.82rem',
+                  color: 'var(--stone)',
+                  lineHeight: 1.4,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                }}
+              >
+                {g.bio}
+              </div>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
@@ -231,6 +261,9 @@ export function ExperiencesScreen() {
     </div>
     {bookingItem && (
       <BookingWidgetModal item={bookingItem} onClose={() => setBookingItem(null)} />
+    )}
+    {selectedGuide && (
+      <GuideDetailScreen guide={selectedGuide} onClose={() => setSelectedGuide(null)} />
     )}
     </>
   );

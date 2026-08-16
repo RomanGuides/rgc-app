@@ -131,6 +131,24 @@ test('Experiences tab renders (tours, guides, story)', async ({ page }) => {
   await expect(page.getByText('Our Story')).toBeVisible();
 });
 
+test('Experiences: tapping a guide opens their full bio, back closes it', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Experiences/ }).last().click();
+
+  // The list row's accessible name is the guide's short name + the (visually
+  // 2-line-clamped, but fully present in the DOM) bio text — match on the
+  // name prefix, not the full displayTitle, which only appears in the detail screen.
+  await page.getByRole('button', { name: /^Eni/ }).click();
+  await expect(page.getByText('Meet Eni, Your Roman Storyteller')).toBeVisible();
+  // The list row underneath (unmounted here, just covered) has the same bio
+  // text — scope to the detail screen's own <p> to avoid ambiguity.
+  const fullBio = page.getByRole('paragraph').filter({ hasText: "I wasn't born in Rome" });
+  await expect(fullBio).toBeVisible();
+
+  await page.getByRole('button', { name: /Back/ }).click();
+  await expect(fullBio).not.toBeVisible();
+});
+
 // The widget div hands off to Bokun's own script (BokunWidgetsLoader.js +
 // their BokunWidgets bundle, loaded from widgets.bokun.io/static.bokun.io)
 // to render the actual booking iframe — asserting on ITS loaded content
