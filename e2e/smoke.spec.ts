@@ -1,11 +1,17 @@
 import { test, expect, type Page } from '@playwright/test';
 
-// The user's own "me" location pin (📍) is also a `.maplibregl-marker` and,
-// once "Use my location" has run, can sort before real place markers in DOM
+// The user's own "me" location pin is also a `.maplibregl-marker` and, once
+// "Use my location" has run, can sort before real place markers in DOM
 // order — it has no click handler, so `.first()` alone can silently grab it
-// instead of an actual place. Always exclude it explicitly.
+// instead of an actual place. Always exclude it explicitly, by the stable
+// `rgc-me-marker` class MapView.tsx sets on it — NOT by its inner content
+// (a `hasNotText: '📍'` filter used to do this, but broke silently the
+// moment that emoji was replaced with an SVG icon in the audit UX pass of
+// 2026-08-16: the marker had no click handler, so a test click landing on
+// it instead of the intended place marker did nothing, and did so via a
+// generic "element not found" timeout with no hint of the real cause).
 function placeMarkers(page: Page) {
-  return page.locator('.maplibregl-marker').filter({ hasNotText: '📍' });
+  return page.locator('.maplibregl-marker:not(.rgc-me-marker)');
 }
 
 // MapScreen now auto-requests location on mount whenever the permission is
@@ -228,6 +234,53 @@ test('Marker popup: clicking a place marker opens its card', async ({ page }) =>
   await expect(page.getByRole('button', { name: /Walk there/ })).toBeVisible();
 });
 
+// UX audit #5 (2026-08-16): Place.bookingUrl exists for exactly one place
+// (Colosseum, same Bokun product as the Colosseum Underground tour) but was
+// never read by PlaceScreen — "Book this tour" now appears only for it,
+// primary over the now-secondary "Walk there", reusing the same
+// BookingWidgetModal as Experiences (not a second implementation).
+test('Place screen: Colosseum (the one place with a real bookingUrl) shows a primary Book this tour CTA', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Search Rome/ }).click();
+  await page.getByPlaceholder(/Search places/).fill('Colosseum');
+  await page.getByText('Colosseum', { exact: true }).click();
+
+  await expect(page.getByRole('button', { name: /Book this tour/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Walk there/ })).toBeVisible();
+
+  await page.getByRole('button', { name: /Book this tour/ }).click();
+  const widget = page.locator('div.bokunWidget');
+  await expect(widget).toBeVisible();
+  await expect(widget).toHaveAttribute('data-src', /widgets\.bokun\.io/);
+});
+
+// UX audit #3 (2026-08-16): the filter button had no visual indicator of an
+// active (non-default) category filter — a tourist could filter down and
+// forget, wondering later why the list looks incomplete.
+test('RomeSheet: filter button shows an active indicator only when a category is deselected', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Filter by category' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Filter by category' }).click();
+  await page.getByRole('button', { name: /Restaurants/ }).click();
+  await expect(page.getByRole('button', { name: /Filter by category \(filter active\)/ })).toBeVisible();
+
+  await page.getByRole('button', { name: /Restaurants/ }).click();
+  await expect(page.getByRole('button', { name: 'Filter by category' })).toBeVisible();
+});
+
+// UX audit #4 (2026-08-16): tip_of_the_day's imageUrl/ctaUrl were already in
+// appContent.json but the "Tonight" block only ever read title/subtitle —
+// no photo, not tappable. Now wrapped in the same external-link pattern
+// already used elsewhere in this file (Leave a review, Find Water Nearby).
+test('RomeSheet: Tonight links out to its real ctaUrl', async ({ page }) => {
+  await page.goto('/');
+  const tonightLink = page.getByRole('link', { name: /Best Carbonara in Rome/ });
+  await expect(tonightLink).toBeVisible();
+  await expect(tonightLink).toHaveAttribute('href', 'https://www.instagram.com/romanguides/');
+  await expect(tonightLink).toHaveAttribute('target', '_blank');
+});
+
 test('Directions: Walk there draws a route and shows the Directions bar', async ({ page }) => {
   await page.goto('/');
   await ensureLocated(page);
@@ -236,7 +289,11 @@ test('Directions: Walk there draws a route and shows the Directions bar', async 
   await page.getByRole('button', { name: /Walk there/ }).click();
 
   await expect(page.getByRole('button', { name: /Stop Route/ })).toBeVisible();
-  await expect(page.getByText(/min/)).toBeVisible();
+  // \bmin\b, not /min/: with the marker-click fix above now actually opening
+  // PlaceScreen underneath, its own "Allow" fact (e.g. "60-90 minutes", for
+  // places that have a visitDuration) also substring-matches a bare /min/,
+  // which "minutes" contains — \b excludes it (no word boundary before "utes").
+  await expect(page.getByText(/\bmin\b/)).toBeVisible();
 });
 
 test('Search: typing filters results and selecting one opens its place card', async ({ page }) => {

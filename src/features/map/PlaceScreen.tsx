@@ -9,10 +9,19 @@
 // Know, Nearby) semplicemente non compaiono se il dato manca — stesso
 // principio già usato per i tour senza video in Experiences.
 //
-// Nota: la spec di questa schermata non menziona bottoni "Official Website"/
-// "More Info"/"Book This Tour" (esistevano nelle vecchie card) — solo
-// "Walk there" in fondo. Trattato come omissione intenzionale (la spec è
-// molto dettagliata ed esplicita per questa schermata), non un dimenticato.
+// Nota: la spec originale di questa schermata non menzionava bottoni
+// "Official Website"/"More Info"/"Book This Tour" (esistevano nelle vecchie
+// card) — solo "Walk there" in fondo, trattato come omissione intenzionale.
+//
+// Rivisto nell'audit UX del 2026-08-16: Place.bookingUrl esiste nel modello
+// dati proprio per "i pochi luoghi con un vero tour Roman Guides collegato"
+// ma non veniva mai letto qui — un solo luogo lo popola (Colosseo, stesso
+// prodotto Bokun del tour Colosseum Underground), lasciando quel percorso di
+// prenotazione morto nonostante il dato esistesse già. "Book this tour" ora
+// compare SOLO quando bookingUrl è presente (riusa BookingWidgetModal, stesso
+// meccanismo di ExperiencesScreen — nessuna seconda implementazione), primario
+// sopra "Walk there" che diventa secondario in quel caso; per tutti gli altri
+// luoghi (senza bookingUrl) il comportamento resta identico a prima.
 
 import { useEffect, useState } from 'react';
 import type { Place, PlaceCategory } from '../../data/types';
@@ -20,6 +29,7 @@ import { usePlacesStore } from '../../store/usePlacesStore';
 import { getCategoryMeta } from '../../config/categories.config';
 import { startWalkingDirections } from './startWalkingDirections';
 import { ChevronLeftIcon, HeartIcon, StarIcon } from '../../design-system/components/Icons';
+import { BookingWidgetModal, type BookableItem } from '../experiences/BookingWidgetModal';
 import restaurantPlaceholder from '../../assets/category/restaurant.jpg';
 import pastaPlaceholder from '../../assets/category/pasta.jpg';
 import pizzaPlaceholder from '../../assets/category/pizza.jpg';
@@ -29,7 +39,19 @@ import cocktailBarPlaceholder from '../../assets/category/cocktail_bar.jpg';
 
 interface PlaceScreenProps {
   place: Place;
+  // Vero durante l'animazione di chiusura — vedi MapScreen.tsx: lo store
+  // azzera selectedPlace (dal bottone indietro QUI, ma anche da
+  // startWalkingDirections.ts quando un percorso parte con successo) prima
+  // che l'uscita possa animarsi, quindi MapScreen tiene questo componente
+  // montato per altri PLACE_SCREEN_TRANSITION_MS passando closing=true,
+  // invece di smontarlo di scatto.
+  closing?: boolean;
 }
+
+// Condivisa con MapScreen.tsx (che smonta questo componente dopo lo stesso
+// intervallo) — un'unica fonte di verità così le due durate non divergono
+// mai, cosa che lascerebbe un fotogramma statico o tagliato a metà.
+export const PLACE_SCREEN_TRANSITION_MS = 200;
 
 // Foto segnaposto per le categorie gastronomiche, una per categoria — usata
 // solo quando il luogo non ha una imageUrl propria (o la sua fallisce a
@@ -57,10 +79,15 @@ function Fact({ label, value }: { label: string; value: string }) {
   );
 }
 
+// Bordo sinistro sottile (audit UX 2026-08-16): Local secret/Did you know/
+// Nearby condividevano lo stesso trattamento tipografico senza alcuna
+// separazione visiva, così quando più di uno era presente si fondevano in
+// un unico blocco di testo. Un accento discreto, non un box pieno come
+// "Insider tip" — resta un dettaglio di testo, non diventa una card.
 function EditorialBlock({ label, text }: { label: string; text?: string | null }) {
   if (!text) return null;
   return (
-    <div style={{ marginBottom: 18 }}>
+    <div style={{ marginBottom: 18, paddingLeft: 12, borderLeft: '2px solid rgba(26,22,20,.12)' }}>
       <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: '#8C7F79', marginBottom: 6 }}>
         {label}
       </div>
@@ -69,7 +96,7 @@ function EditorialBlock({ label, text }: { label: string; text?: string | null }
   );
 }
 
-export function PlaceScreen({ place: p }: PlaceScreenProps) {
+export function PlaceScreen({ place: p, closing }: PlaceScreenProps) {
   const selectPlace = usePlacesStore((s) => s.selectPlace);
   const savedPlaceIds = usePlacesStore((s) => s.savedPlaceIds);
   const toggleSaved = usePlacesStore((s) => s.toggleSaved);
@@ -79,6 +106,19 @@ export function PlaceScreen({ place: p }: PlaceScreenProps) {
   const meta = getCategoryMeta(p.category);
   const isSaved = savedPlaceIds.includes(p.id);
   const [noteDraft, setNoteDraft] = useState(arrivalNotes[p.id] ?? '');
+  const [bookingItem, setBookingItem] = useState<BookableItem | null>(null);
+
+  // Push-in dal bordo destro, non un fade/scale da modale (spec: "This is
+  // the screen the product rests on", non un dialogo). Lo stato iniziale e
+  // quello finale non possono coincidere nello stesso render — il browser
+  // deve dipingere `translateX(100%)` almeno una volta prima che passare a
+  // `0%` produca una transizione invece di comparire già a posto.
+  const [entered, setEntered] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  const translateX = closing || !entered ? '100%' : '0%';
 
   // Catena di fallback per l'header: foto vera del luogo → foto segnaposto
   // di categoria (solo gastronomiche, import statico — sempre valido) →
@@ -117,7 +157,19 @@ export function PlaceScreen({ place: p }: PlaceScreenProps) {
   ].filter((f): f is { label: string; value: string } => f !== null);
 
   return (
-    <div style={{ position: 'absolute', inset: 0, background: '#FFFFFF', zIndex: 7, display: 'flex', flexDirection: 'column' }}>
+    <div
+      style={{
+        position: 'absolute',
+        inset: 0,
+        background: '#FFFFFF',
+        zIndex: 7,
+        display: 'flex',
+        flexDirection: 'column',
+        transform: `translateX(${translateX})`,
+        transition: `transform ${PLACE_SCREEN_TRANSITION_MS}ms cubic-bezier(0.32, 0.72, 0, 1)`,
+        willChange: 'transform',
+      }}
+    >
       <div style={{ flex: 1, overflowY: 'auto' }}>
         <div
           style={{
@@ -250,25 +302,69 @@ export function PlaceScreen({ place: p }: PlaceScreenProps) {
         </div>
       </div>
 
-      <div style={{ background: '#FAF8F6', padding: '16px 20px max(16px, env(safe-area-inset-bottom, 0px))' }}>
+      <div
+        style={{
+          background: '#FAF8F6',
+          padding: '16px 20px max(16px, env(safe-area-inset-bottom, 0px))',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: p.bookingUrl ? 10 : 0,
+        }}
+      >
+        {p.bookingUrl && (
+          <button
+            onClick={() => setBookingItem({ id: p.id, name: p.name, bookingUrl: p.bookingUrl! })}
+            style={{
+              width: '100%',
+              height: 54,
+              borderRadius: 16,
+              background: '#CC0029',
+              color: '#fff',
+              fontSize: '1.05rem',
+              fontWeight: 600,
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            Book this tour
+          </button>
+        )}
         <button
           onClick={() => startWalkingDirections(p)}
-          style={{
-            width: '100%',
-            height: 54,
-            borderRadius: 16,
-            background: '#CC0029',
-            color: '#fff',
-            fontSize: '1.05rem',
-            fontWeight: 600,
-            border: 'none',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
+          style={
+            p.bookingUrl
+              ? {
+                  width: '100%',
+                  height: 54,
+                  borderRadius: 16,
+                  background: 'transparent',
+                  color: '#CC0029',
+                  fontSize: '1.05rem',
+                  fontWeight: 600,
+                  border: '1.5px solid #CC0029',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }
+              : {
+                  width: '100%',
+                  height: 54,
+                  borderRadius: 16,
+                  background: '#CC0029',
+                  color: '#fff',
+                  fontSize: '1.05rem',
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }
+          }
         >
           Walk there
         </button>
       </div>
+
+      {bookingItem && <BookingWidgetModal item={bookingItem} onClose={() => setBookingItem(null)} />}
     </div>
   );
 }

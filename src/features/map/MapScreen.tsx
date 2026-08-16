@@ -5,12 +5,12 @@
 // — la logica di geolocalizzazione/tracciamento vive ora qui, un solo posto
 // invece che sparsa nei componenti UI rimossi.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MapView } from './MapView';
 import { RomeSheet, type Detent } from './RomeSheet';
 import { LocateButton } from './LocateButton';
 import { SearchScreen } from './SearchScreen';
-import { PlaceScreen } from './PlaceScreen';
+import { PlaceScreen, PLACE_SCREEN_TRANSITION_MS } from './PlaceScreen';
 import { LegalScreen } from '../legal/LegalScreen';
 import { DirectionsBar } from './DirectionsBar';
 import { ArrivalToast } from './ArrivalToast';
@@ -38,6 +38,42 @@ export function MapScreen() {
   const [sheetDetent, setSheetDetent] = useState<Detent>('resting');
   // Solo per sessione, non persistito: vedi handleLocateMe sotto.
   const [locationPrimed, setLocationPrimed] = useState(false);
+
+  // PlaceScreen ora si anima in chiusura (PLACE_SCREEN_TRANSITION_MS) invece
+  // di sparire di scatto — ma lo store azzera selectedPlace (dal bottone
+  // indietro di PlaceScreen, o da startWalkingDirections.ts quando un
+  // percorso parte) prima che l'animazione possa partire. Questo stato
+  // locale tiene il componente montato con l'ultimo luogo noto per la durata
+  // dell'animazione, passandogli closing=true, invece di affidarsi al valore
+  // dello store (già null a quel punto) per decidere cosa mostrare.
+  const [placeScreenPlace, setPlaceScreenPlace] = useState(selectedPlaceForCentering);
+  const [placeScreenClosing, setPlaceScreenClosing] = useState(false);
+  const closeTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (selectedPlaceForCentering) {
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
+      setPlaceScreenClosing(false);
+      setPlaceScreenPlace(selectedPlaceForCentering);
+    } else if (placeScreenPlace) {
+      setPlaceScreenClosing(true);
+      closeTimerRef.current = window.setTimeout(() => {
+        setPlaceScreenPlace(null);
+        setPlaceScreenClosing(false);
+        closeTimerRef.current = null;
+      }, PLACE_SCREEN_TRANSITION_MS);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPlaceForCentering]);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
+    };
+  }, []);
 
   const { location, status, requestLocation, startWatching, stopWatching } = useGeolocation();
   const isOnline = useOnlineStatus();
@@ -135,7 +171,11 @@ export function MapScreen() {
           onSelectPlace={selectPlace}
           userLocation={userLocation}
           activeRoute={activeRoute}
-          selectedPlace={selectedPlaceForCentering}
+          // placeScreenPlace, non lo store grezzo: resta valorizzato per
+          // tutta l'animazione di chiusura di PlaceScreen, così il marker
+          // selezionato si "spegne" insieme allo schermo invece di scattare
+          // a spento nell'istante in cui si tocca indietro.
+          selectedPlace={placeScreenPlace}
           locateMeSignal={locateMeSignal}
           onBoundsChange={setMapBounds}
         />
@@ -179,7 +219,7 @@ export function MapScreen() {
           />
         )}
       </div>
-      {selectedPlaceForCentering && <PlaceScreen place={selectedPlaceForCentering} />}
+      {placeScreenPlace && <PlaceScreen place={placeScreenPlace} closing={placeScreenClosing} />}
       {searchOpen && <SearchScreen onClose={() => setSearchOpen(false)} />}
       {legalOpen && <LegalScreen onClose={() => setLegalOpen(false)} />}
     </div>

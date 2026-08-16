@@ -260,6 +260,15 @@ export function MapView({ places, onSelectPlace, userLocation, activeRoute, sele
 
     if (!meMarkerRef.current) {
       const el = document.createElement('div');
+      // Classe stabile per distinguerlo dai marker-luogo reali (usata da
+      // e2e/smoke.spec.ts's placeMarkers()) — prima di questa modifica quel
+      // filtro si affidava al testo "📍" nel marker per escluderlo. Sostituire
+      // l'emoji con un'icona SVG (sotto) ha tolto quel testo, così un click
+      // di test destinato al primo marker-luogo reale finiva invece su questo
+      // marker senza alcun gestore di click, azzerando silenziosamente il
+      // test — bug reale trovato da un test Playwright che falliva.
+      el.classList.add('rgc-me-marker');
+      el.setAttribute('aria-label', 'Your location');
       el.style.width = '30px';
       el.style.height = '30px';
       el.style.borderRadius = '50% 50% 50% 0';
@@ -270,7 +279,13 @@ export function MapView({ places, onSelectPlace, userLocation, activeRoute, sele
       el.style.display = 'flex';
       el.style.alignItems = 'center';
       el.style.justifyContent = 'center';
-      el.innerHTML = '<span style="transform:rotate(45deg);font-size:13px;">📍</span>';
+      // Sostituisce l'emoji 📍 (audit UX 2026-08-16) con la stessa icona
+      // persona del design system (PersonIcon in Icons.tsx) marcata a mano
+      // come stringa SVG — questo marker è un elemento DOM grezzo di
+      // MapLibre, non un componente React. Solo questo marker: i marker di
+      // categoria restano emoji di proposito, fuori scope.
+      el.innerHTML =
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(45deg)"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 20a7.5 7.5 0 0 1 15 0"></path></svg>';
       meMarkerRef.current = new maplibregl.Marker({ element: el });
     }
     meMarkerRef.current.setLngLat([userLocation.lng, userLocation.lat]).addTo(map);
@@ -304,6 +319,51 @@ export function MapView({ places, onSelectPlace, userLocation, activeRoute, sele
       duration: 600,
     });
   }, [selectedPlace]);
+
+  // Stato "selezionato" sul marker stesso (audit UX 2026-08-16): prima non
+  // c'era alcun modo di sapere, tornando da PlaceScreen, quale marker si
+  // stesse guardando — soprattutto con più marker vicini (es. l'area Fori).
+  // Stesso marker esistente (nessun nuovo tipo), solo dimensione + alone
+  // quando il suo id combacia con selectedPlace. Riapplicato anche dopo ogni
+  // syncIndividualMarkers (pan/zoom possono ricreare l'elemento del marker
+  // selezionato), stesso pattern già usato per l'opacità del percorso attivo.
+  //
+  // MAI style.transform qui: Marker._update() di MapLibre (marker.ts riga
+  // ~720) lo sovrascrive ad ogni render con la propria stringa di
+  // posizionamento (anchor + translate in px). Una prima versione usava
+  // transform: scale(...) per l'ingrandimento — sovrascriveva la posizione
+  // del marker sulla mappa (non solo l'aspetto), spostandolo fuori dal punto
+  // reale e rompendo silenziosamente il click (confermato da un test
+  // Playwright che falliva: il marker esisteva nel DOM ma il tap non
+  // arrivava più nel punto giusto). width/height restano sicuri: l'ancora è
+  // una percentuale CSS relativa alla dimensione dell'elemento, si
+  // ricalcola da sola.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    function applySelectedHighlight() {
+      Object.entries(domMarkersRef.current).forEach(([id, marker]) => {
+        const el = marker.getElement();
+        const isSelected = selectedPlace?.id === id;
+        el.style.width = isSelected ? '36px' : '30px';
+        el.style.height = isSelected ? '36px' : '30px';
+        el.style.boxShadow = isSelected
+          ? '0 0 0 5px rgba(204,0,41,0.28), 0 2px 6px rgba(0,0,0,0.35)'
+          : '0 2px 6px rgba(0,0,0,0.35)';
+        el.style.zIndex = isSelected ? '1' : '0';
+        el.style.transition = 'width 0.2s ease, height 0.2s ease, box-shadow 0.2s ease';
+      });
+    }
+
+    applySelectedHighlight();
+    // Nuovi marker creati mentre una selezione è già attiva (dopo un pan/zoom
+    // che li rimonta) devono nascere già con lo stato evidenziato corretto.
+    map.on('sourcedata', applySelectedHighlight);
+    return () => {
+      map.off('sourcedata', applySelectedHighlight);
+    };
+  }, [selectedPlace?.id]);
 
   // Concierge Map — percorso attivo: disegna la linea, centra la mappa sul
   // tragitto con margine, e attenua i marker che non sono la destinazione.

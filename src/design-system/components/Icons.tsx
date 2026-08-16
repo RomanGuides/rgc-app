@@ -87,6 +87,27 @@ export function CloseIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+// LocateButton (audit UX 2026-08-16): sostituiscono 🧭/📍, gli ultimi due
+// glifi emoji rimasti nella UI della mappa vera e propria (i marker di
+// categoria restano emoji di proposito, fuori scope per questa modifica).
+export function CompassIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m15 9-4.2 2.8L9 16l4.2-2.8L15 9Z" />
+    </svg>
+  );
+}
+
+export function LocationPinIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z" />
+      <circle cx="12" cy="9.5" r="2.3" />
+    </svg>
+  );
+}
+
 // Riga di fiducia sotto il nome del tour in BookingWidgetModal — l'unico
 // indizio visivo che la pagina sia autentica per chi sta per inserire la carta.
 export function LockIcon(props: SVGProps<SVGSVGElement>) {

@@ -16,7 +16,7 @@
 // nuova dipendenza) con proiezione della velocità al rilascio e resistenza
 // rubber-band oltre i limiti. Vedi animateToDetent()/onDragMove() sotto.
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { usePlacesStore } from '../../store/usePlacesStore';
 import { getAppContentSection } from '../../services/appContentService';
@@ -52,6 +52,20 @@ interface RomeSheetProps {
   forceFullDetent?: boolean; // stato 04: offline — il foglio sale a full così la lista porta lo schermo
   onDetentChange?: (detent: Detent) => void; // MapScreen ne ha bisogno per nascondere LocateButton al detent full (altrimenti il bottone filtro ci finisce sotto, stesso angolo di schermo)
   onOpenLegal?: () => void;
+}
+
+// "Tonight" (tip_of_the_day) ha un ctaUrl reale (oggi un link Instagram) da
+// tempo nei dati, mai letto qui — il blocco era testo puro, non toccabile.
+// Stesso pattern di link esterno già usato per "Leave a review"/"Find Water
+// Nearby" in questo stesso file. Senza ctaUrl resta un blocco informativo,
+// non un bottone finto.
+function TonightTapTarget({ href, children }: { href?: string | null; children: ReactNode }) {
+  if (!href) return <>{children}</>;
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>
+      {children}
+    </a>
+  );
 }
 
 export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDetentChange, onOpenLegal }: RomeSheetProps) {
@@ -313,6 +327,11 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
   const tonight = getAppContentSection('tip_of_the_day');
   const getAround = getAppContentSection('get_around');
   const emergency = getAppContentSection('emergency');
+  // Un puntino sul bottone Filtro quando è attivo un sottoinsieme di categorie
+  // — prima non c'era alcun indizio visivo sul bottone stesso, un utente
+  // poteva filtrare e dimenticarsene, chiedendosi perché "Nearest to you"
+  // sembra incompleto.
+  const isFiltered = activeCategories.size < Object.keys(CATEGORY_META).length;
 
   const visiblePlaces = places.filter((p) => activeCategories.has(p.category));
   const nearest: (Place & { distanceMeters: number })[] = userLocation
@@ -409,7 +428,7 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
               ref={filterButtonRef}
               onPointerDown={(e) => e.stopPropagation()}
               onClick={handleFilterToggle}
-              aria-label="Filter by category"
+              aria-label={isFiltered ? 'Filter by category (filter active)' : 'Filter by category'}
               style={{
                 width: 32,
                 height: 32,
@@ -423,9 +442,24 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
                 color: 'var(--ink)',
                 cursor: 'pointer',
                 flexShrink: 0,
+                position: 'relative',
               }}
             >
               <FilterIcon width={16} height={16} />
+              {isFiltered && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: -1,
+                    right: -1,
+                    width: 9,
+                    height: 9,
+                    borderRadius: '50%',
+                    background: 'var(--red)',
+                    border: '1.5px solid #FFFFFF',
+                  }}
+                />
+              )}
             </button>
           </div>
           <div style={{ height: 22 }} />
@@ -441,13 +475,30 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
         >
           {tonight && (
             <div style={{ marginBottom: 24 }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: '#6E645F', marginBottom: 4 }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: '#6E645F', marginBottom: 8 }}>
                 Tonight
               </div>
-              <div style={{ fontFamily: 'var(--display)', fontSize: '1.4rem', fontWeight: 700, color: '#1A1614', marginBottom: 4 }}>
-                {tonight.title}
-              </div>
-              {tonight.subtitle && <div style={{ fontSize: '0.85rem', color: '#6E645F' }}>{tonight.subtitle}</div>}
+              <TonightTapTarget href={tonight.ctaUrl}>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  {tonight.imageUrl && (
+                    <div
+                      style={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: 12,
+                        flexShrink: 0,
+                        background: `url(${tonight.imageUrl}) center/cover`,
+                      }}
+                    />
+                  )}
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontFamily: 'var(--display)', fontSize: '1.2rem', fontWeight: 700, color: '#1A1614', marginBottom: 2 }}>
+                      {tonight.title}
+                    </div>
+                    {tonight.subtitle && <div style={{ fontSize: '0.85rem', color: '#6E645F', lineHeight: 1.35 }}>{tonight.subtitle}</div>}
+                  </div>
+                </div>
+              </TonightTapTarget>
             </div>
           )}
 

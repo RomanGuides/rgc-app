@@ -4,6 +4,7 @@
 // logica (requestLocation + segnale per centrare la mappa), solo icona.
 
 import type { LocationStatus } from '../../hooks/useGeolocation';
+import { CompassIcon, LocationPinIcon } from '../../design-system/components/Icons';
 
 interface LocateButtonProps {
   status: LocationStatus;
@@ -37,7 +38,7 @@ export function LocateButton({ status, onClick, hidden }: LocateButtonProps) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: '1.2rem',
+        color: 'var(--ink)',
         cursor: 'pointer',
         zIndex: 6,
         opacity: hidden ? 0 : status === 'locating' ? 0.6 : 1,
@@ -45,7 +46,7 @@ export function LocateButton({ status, onClick, hidden }: LocateButtonProps) {
         transition: 'opacity 0.2s ease',
       }}
     >
-      {located ? '📍' : '🧭'}
+      {located ? <LocationPinIcon width={20} height={20} /> : <CompassIcon width={20} height={20} />}
     </button>
   );
 }
