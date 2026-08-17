@@ -38,7 +38,8 @@ import {
   StarIcon,
 } from '../../design-system/components/Icons';
 import { formatDuration } from '../../utils/formatDuration';
-import { BestSellerBadge, TOUR_TYPE_LABELS, TOUR_TYPE_ORDER, GIFT_CARD_ITEM } from '../experiences/ExperiencesScreen';
+import { TOUR_TYPE_LABELS, TOUR_TYPE_ORDER, GIFT_CARD_ITEM } from '../experiences/ExperiencesScreen';
+import { BestSellerBadge } from '../../design-system/components/Badge';
 import { BookingWidgetModal, type BookableItem } from '../experiences/BookingWidgetModal';
 import { TourDetailScreen } from '../experiences/TourDetailScreen';
 import type { TabKey } from '../../design-system/components/TabBar';

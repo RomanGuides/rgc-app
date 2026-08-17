@@ -23,7 +23,7 @@ import { getGuides } from '../../services/guidesService';
 import { getTestimonials } from '../../services/testimonialsService';
 import { Card } from '../../design-system/components/Card';
 import { BrandMark } from '../../design-system/components/BrandMark';
-import { Badge } from '../../design-system/components/Badge';
+import { Badge, BestSellerBadge } from '../../design-system/components/Badge';
 import { Button } from '../../design-system/components/Button';
 import { SectionHeader } from '../../design-system/components/SectionHeader';
 import { OUR_STORY_MASTHEAD, OUR_STORY_PARAGRAPHS } from '../../config/story';
@@ -31,7 +31,7 @@ import { LINKS } from '../../config/links';
 import { BookingWidgetModal, type BookableItem } from './BookingWidgetModal';
 import { GuideDetailScreen } from './GuideDetailScreen';
 import { TourDetailScreen } from './TourDetailScreen';
-import { ClockIcon, TagIcon, StarIcon } from '../../design-system/components/Icons';
+import { ClockIcon, TagIcon } from '../../design-system/components/Icons';
 import { formatDuration } from '../../utils/formatDuration';
 
 // Etichetta breve per la card — distinta dalla descrizione vera e propria,
@@ -99,33 +99,9 @@ export function GuidePhoto({ avatar, name, size = 52 }: { avatar: string; name: 
   );
 }
 
-// Esportata: riusata anche da HomeScreen.tsx per il carosello Top Experiences
-// — stessa pillola "Best Seller" usata in TourDetailScreen, riflette una
-// scelta manuale del founder (bestSeller in experiences.json), non dati di
-// vendita reali che l'app non ha.
-export function BestSellerBadge() {
-  return (
-    <div
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 4,
-        fontSize: '0.62rem',
-        fontWeight: 800,
-        letterSpacing: '.04em',
-        textTransform: 'uppercase',
-        color: 'var(--ink)',
-        background: 'rgba(0,0,0,0.06)',
-        border: '1px solid rgba(0,0,0,0.15)',
-        borderRadius: 'var(--radius-pill)',
-        padding: '4px 10px 4px 8px',
-      }}
-    >
-      <StarIcon width={10} height={10} />
-      Best Seller
-    </div>
-  );
-}
+// BestSellerBadge viveva qui, riusata da HomeScreen.tsx e copiata a mano (con
+// drift di colore) in TourDetailScreen.tsx — consolidata in Badge.tsx
+// (audit brand 2026-08-17), tutti e tre i punti ora importano da lì.
 
 function TourCard({ exp, onSelect }: { exp: Experience; onSelect: (exp: Experience) => void }) {
   const category = TOUR_CATEGORY[exp.id];

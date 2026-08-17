@@ -294,6 +294,34 @@ export function GiftIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+// Spostate qui da TabBar.tsx (audit brand 2026-08-17): la tab bar aveva un
+// proprio set icone locale (19×19, stessa semantica stroke/cap/join di BASE
+// ma un oggetto ICON_PROPS separato) invece di attingere da questo file —
+// esattamente la "seconda famiglia icone" che il design system dice di non
+// avere. HomeIcon e TicketIcon non avevano un equivalente qui e sono
+// migrate; l'icona "Rome" della tab bar era già concettualmente un pin di
+// localizzazione (ridisegnato in proprio) — consolidata su LocationPinIcon,
+// già esistente; l'icona "Saved" era un cuore identico byte per byte a
+// HeartIcon già esistente.
+
+export function HomeIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M4 11.5 12 4l8 7.5" />
+      <path d="M6 10v10h12V10" />
+    </svg>
+  );
+}
+
+export function TicketIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M3 9h18M8 4v5M16 4v5" />
+    </svg>
+  );
+}
+
 export const CATEGORY_ICONS: Record<PlaceCategory, (props: SVGProps<SVGSVGElement>) => ReactElement> = {
   restaurant: UtensilsIcon,
   pasta: UtensilsIcon,

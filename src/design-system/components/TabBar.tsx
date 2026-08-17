@@ -3,7 +3,13 @@
 // cerchiata da un tratto di pennello, lo stesso segno che circonda il
 // wordmark nel logo Roman Guides — porta il marchio dentro la
 // navigazione invece di limitarsi a un'icona generica.
+//
+// Le icone (audit brand 2026-08-17) vengono ora da Icons.tsx invece di un
+// set locale a parte — questo file prima duplicava la stessa semantica
+// stroke-2/round-cap/no-fill in un secondo oggetto ICON_PROPS, la "seconda
+// famiglia icone" che il design system dice esplicitamente di non avere.
 
+import { HomeIcon, LocationPinIcon, TicketIcon, HeartIcon } from './Icons';
 import type { ReactNode } from 'react';
 
 export type TabKey = 'home' | 'rome' | 'experiences' | 'saved';
@@ -14,57 +20,11 @@ interface TabDef {
   icon: ReactNode;
 }
 
-const ICON_PROPS = {
-  viewBox: '0 0 24 24',
-  fill: 'none',
-  stroke: 'currentColor',
-  strokeWidth: 2,
-  strokeLinecap: 'round' as const,
-  strokeLinejoin: 'round' as const,
-  width: 19,
-  height: 19,
-};
-
-function HomeIcon() {
-  return (
-    <svg {...ICON_PROPS}>
-      <path d="M4 11.5 12 4l8 7.5" />
-      <path d="M6 10v10h12V10" />
-    </svg>
-  );
-}
-
-function MapIcon() {
-  return (
-    <svg {...ICON_PROPS}>
-      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-      <circle cx="12" cy="10" r="2.6" />
-    </svg>
-  );
-}
-
-function ExperiencesIcon() {
-  return (
-    <svg {...ICON_PROPS}>
-      <rect x="3" y="4" width="18" height="16" rx="2" />
-      <path d="M3 9h18M8 4v5M16 4v5" />
-    </svg>
-  );
-}
-
-function MyRomeIcon() {
-  return (
-    <svg {...ICON_PROPS}>
-      <path d="M20.8 4.9a5.4 5.4 0 0 0-7.6 0L12 6.1l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6l1.2 1.2L12 21l7.6-7.3 1.2-1.2a5.4 5.4 0 0 0 0-7.6Z" />
-    </svg>
-  );
-}
-
 const TABS: TabDef[] = [
-  { key: 'home', label: 'Home', icon: <HomeIcon /> },
-  { key: 'rome', label: 'Rome', icon: <MapIcon /> },
-  { key: 'experiences', label: 'Experiences', icon: <ExperiencesIcon /> },
-  { key: 'saved', label: 'Saved', icon: <MyRomeIcon /> },
+  { key: 'home', label: 'Home', icon: <HomeIcon width={19} height={19} /> },
+  { key: 'rome', label: 'Rome', icon: <LocationPinIcon width={19} height={19} /> },
+  { key: 'experiences', label: 'Experiences', icon: <TicketIcon width={19} height={19} /> },
+  { key: 'saved', label: 'Saved', icon: <HeartIcon width={19} height={19} /> },
 ];
 
 // Tratto di pennello — stesso path per ogni tab, leggermente irregolare

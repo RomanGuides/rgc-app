@@ -1,13 +1,16 @@
 // Roman Guides Companion — Button component
 // Porting del pattern .btn della landing: pillola, hover che scurisce e
-// solleva con bagliore colorato, varianti ghost/gold, pressione che comprime
-// leggermente. Sostituisce lo stile inline ripetuto in ogni componente.
+// solleva con bagliore colorato, varianti ghost/primary, pressione che
+// comprime leggermente. Sostituisce lo stile inline ripetuto in ogni
+// componente. La variante "gold" (audit brand 2026-08-17: mai un colore oro
+// da nessuna parte, renderizzava nero/bianco) è stata rimossa — zero utilizzi
+// in tutto il codebase, verificato prima di toglierla.
 
 import type { ReactNode, MouseEvent } from 'react';
 
 interface ButtonProps {
   children: ReactNode;
-  variant?: 'primary' | 'ghost' | 'gold';
+  variant?: 'primary' | 'ghost';
   fullWidth?: boolean;
   onClick?: () => void;
   href?: string;
@@ -36,16 +39,15 @@ export function Button({ children, variant = 'primary', fullWidth, onClick, href
   const variantStyle =
     variant === 'ghost'
       ? { background: 'transparent', color: 'var(--red)', borderColor: 'var(--line)' }
-      : variant === 'gold'
-      ? { background: 'var(--black)', borderColor: 'var(--black)', color: 'var(--white)' }
       : { background: 'var(--red)', borderColor: 'var(--red)', color: 'var(--white)' };
 
   function handleEnter(e: MouseEvent<HTMLElement>) {
     e.currentTarget.style.transform = 'translateY(-1px)';
     if (variant === 'ghost') {
-      e.currentTarget.style.background = 'rgba(255,0,51,0.06)';
-    } else if (variant === 'gold') {
-      e.currentTarget.style.background = '#262626';
+      // rgb(227,6,19) = --red (#e30613) — aggiornato insieme al token nella
+      // Fase 2 del brand (era rgba(255,0,51,...), il vecchio rosso, rimasto
+      // stonato dopo il cambio token perché qui era scritto come letterale).
+      e.currentTarget.style.background = 'rgba(227,6,19,0.06)';
     } else {
       e.currentTarget.style.background = 'var(--red-dk)';
       e.currentTarget.style.boxShadow = 'var(--shadow-button-hover)';

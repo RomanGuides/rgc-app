@@ -36,8 +36,8 @@ import {
   IdCardIcon,
   AlertCircleIcon,
   CalendarIcon,
-  StarIcon,
 } from '../../design-system/components/Icons';
+import { BestSellerBadge } from '../../design-system/components/Badge';
 import type { Experience } from '../../data/types';
 import { formatDuration } from '../../utils/formatDuration';
 
@@ -178,25 +178,8 @@ export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: Tou
 
         <div style={{ padding: '26px 28px calc(110px + env(safe-area-inset-bottom, 0px))' }}>
           {exp.bestSeller && (
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 4,
-                fontSize: '0.62rem',
-                fontWeight: 800,
-                letterSpacing: '.04em',
-                textTransform: 'uppercase',
-                color: '#1A1614',
-                background: 'rgba(0,0,0,0.06)',
-                border: '1px solid rgba(0,0,0,0.15)',
-                borderRadius: 'var(--radius-pill)',
-                padding: '4px 10px 4px 8px',
-                marginBottom: 12,
-              }}
-            >
-              <StarIcon width={11} height={11} />
-              Best Seller
+            <div style={{ marginBottom: 12 }}>
+              <BestSellerBadge />
             </div>
           )}
 
