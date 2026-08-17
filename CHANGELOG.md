@@ -5,6 +5,7 @@ All notable changes to this project are documented in this file, starting from t
 ## [Unreleased]
 
 ### Added
+- **Privacy Policy/Terms of Service draft strengthened** (`src/config/legal.ts`) with the two pieces GDPR requires that the original draft was missing: a "Who we are" section naming the actual data controller (BEN SRLS, VAT/Tax ID IT14780641008, Via dei Santissimi Quattro 77, 00184 Roma, trading as Roman Guides — identity provided by the founder, 2026-08-17) and a "Your rights" section (access/correction/deletion/portability/objection, plus the right to complain to Italy's Garante per la Protezione dei Dati Personali). Terms of Service now names the same operator identity. Still explicitly a strengthened **draft**, not a legal review — `ROADMAP.md`'s existing item (lawyer review required before any App/Play Store submission) is unchanged by this.
 - Capacitor native wrapper for iOS and Android (`ios/`, `android/`, `capacitor.config.ts`), enabling native App Store/Play Store builds of the existing web app. No app logic changed — geolocation still uses the standard browser API, not a native plugin (deferred to a future change). Location permission strings declared on both platforms (`NSLocationWhenInUseUsageDescription` on iOS, `ACCESS_COARSE_LOCATION`/`ACCESS_FINE_LOCATION` on Android).
 - `npm run cap:sync` / `cap:ios` / `cap:android` scripts for the native build workflow.
 - `.gitignore` hardened for native signing material (`*.jks`, `*.keystore`, `*.mobileprovision`).

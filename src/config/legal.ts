@@ -1,23 +1,36 @@
 // Roman Guides Companion — Legal/About copy
 //
-// BOZZA, non testo legale definitivo. Scritta per riflettere accuratamente
-// cosa fa davvero l'app oggi (nessun account, salvataggi solo locali,
-// posizione mai inviata a un server nostro, OpenRouteService per gli
-// indicazioni, Bokun per prenotazione/pagamento, nessuna analytics/tracking)
-// — ma non sostituisce una revisione legale vera prima della pubblicazione
-// sugli store. Vedi ROADMAP.md.
+// BOZZA rafforzata (2026-08-17), non testo legale definitivo. Scritta per
+// riflettere accuratamente cosa fa davvero l'app oggi (nessun account,
+// salvataggi solo locali, posizione mai inviata a un server nostro,
+// OpenRouteService per le indicazioni, Bokun per prenotazione/pagamento,
+// nessuna analytics/tracking) e per includere gli elementi che il GDPR
+// richiede esplicitamente (identità del titolare, diritti dell'interessato,
+// autorità di reclamo) — ma non sostituisce una revisione legale vera prima
+// della pubblicazione sugli store. Identità societaria fornita dal founder
+// (2026-08-17): BEN SRLS, P.IVA/C.F. IT14780641008, Via dei Santissimi
+// Quattro 77, 00184 Roma (RM), Italia. Vedi ROADMAP.md.
 
 export interface LegalSection {
   title: string;
   paragraphs: string[];
 }
 
+const DATA_CONTROLLER = 'BEN SRLS';
+const DATA_CONTROLLER_DETAILS = 'VAT/Tax ID IT14780641008, Via dei Santissimi Quattro 77, 00184 Roma (RM), Italy';
+
 export const PRIVACY_POLICY: LegalSection[] = [
+  {
+    title: 'Who we are',
+    paragraphs: [
+      `Roman Guides Companion is operated by ${DATA_CONTROLLER} (${DATA_CONTROLLER_DETAILS}), trading as Roman Guides — the data controller for anything this policy describes.`,
+    ],
+  },
   {
     title: 'What we collect',
     paragraphs: [
       "Roman Guides Companion doesn't have accounts or sign-in — there's no profile of you on any server we run.",
-      'If you allow location access, your device\'s GPS position is used only on your device, to sort places by distance and to draw walking directions. We never send it to a server we control, and we never store it.',
+      'If you allow location access, your device\'s GPS position is used only on your device, to sort places by distance and to draw walking directions. We never send it to a server we control, and we never store it. We only ask for it with your explicit permission, and you can withdraw that permission at any time from your device\'s settings.',
       'Places you save are stored only on your device (local app storage). Uninstalling the app, or clearing its data, deletes them — we never see this list.',
     ],
   },
@@ -36,6 +49,13 @@ export const PRIVACY_POLICY: LegalSection[] = [
     ],
   },
   {
+    title: 'Your rights',
+    paragraphs: [
+      "Because the app itself never collects or stores personal data on a server we control, there is generally nothing on our systems to access, correct, or delete — your saved places and preferences live only on your own device, under your own control. If you've booked a tour, your booking and payment data is held by Bokun, our booking partner; contact them directly, or us, to exercise your rights over that data (access, correction, deletion, restriction, portability, and objection to processing).",
+      'If you believe your data has been handled improperly, you have the right to lodge a complaint with your national data protection authority — in Italy, the Garante per la Protezione dei Dati Personali.',
+    ],
+  },
+  {
     title: 'Children',
     paragraphs: ['This app is not directed at children and we do not knowingly collect information from children.'],
   },
@@ -49,7 +69,7 @@ export const TERMS_OF_SERVICE: LegalSection[] = [
   {
     title: 'Using this app',
     paragraphs: [
-      'Roman Guides Companion is a free companion app: place recommendations, walking directions, and a way to book Roman Guides tours. Using it means you accept these terms.',
+      `Roman Guides Companion is a free companion app operated by ${DATA_CONTROLLER} (${DATA_CONTROLLER_DETAILS}), trading as Roman Guides: place recommendations, walking directions, and a way to book Roman Guides tours. Using it means you accept these terms.`,
       "We curate every place in this app ourselves, but places change — opening hours, prices, and availability can be out of date. We do our best to keep things accurate, but we can't guarantee it.",
     ],
   },
