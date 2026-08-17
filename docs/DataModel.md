@@ -21,7 +21,11 @@ The core entity, backing the Map, Experiences, and Saved tabs. Fields include:
 A place's category still carries a **tier** via `CATEGORY_META[category].tier` (`'premium'` for `gallery`, `'utility'` for everything else), but as of the Phase 4 redesign this no longer selects a different rendering component — `PlaceScreen.tsx` (`src/features/map/PlaceScreen.tsx`) is the single template for every place, and each editorial section simply doesn't render when its field is missing on the data. `tier` is otherwise unused in `src/` today.
 
 ### `Experience`
-Video-based highlighted experiences shown on the Experiences tab, each tied to a specific guide.
+The 7 bookable tours, shown on the Experiences tab (grouped by `tourType`) and pushed from Home's "Top Experiences" carousel. Also carries the structured operational fields `TourDetailScreen.tsx` renders (`durationMinutes`, `price`/`priceNote`, `ageRequirement`, `inclusions`/`exclusions`, `wheelchairAccessible`, `idRequired`, `healthAdvisories`, etc.) — all optional, confirmed by the founder against Bokun, not estimated.
+
+`tourType: 'classic-tour' | 'experience' | 'food-tour' | 'cooking-class'` (added 2026-08-16, alongside Home) groups the tour list — a real, separate taxonomy from `Place.category`, added because the founder is about to add 6 more tours (including the catalog's first food tours/cooking classes) and a flat 13-item list would stop being scannable. A `tourType` with zero current tours (`food-tour`/`cooking-class` today) simply doesn't render a section anywhere, rather than showing an empty one.
+
+`bestSeller: boolean` is a manual founder pick (not derived from any real sales data the app has) driving the "Best Seller" badge, shown on the tour list, Home's carousel, and `TourDetailScreen`.
 
 ### `Testimonial`
 Customer reviews shown on My Rome.

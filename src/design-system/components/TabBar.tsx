@@ -6,7 +6,7 @@
 
 import type { ReactNode } from 'react';
 
-export type TabKey = 'rome' | 'experiences' | 'saved';
+export type TabKey = 'home' | 'rome' | 'experiences' | 'saved';
 
 interface TabDef {
   key: TabKey;
@@ -24,6 +24,15 @@ const ICON_PROPS = {
   width: 19,
   height: 19,
 };
+
+function HomeIcon() {
+  return (
+    <svg {...ICON_PROPS}>
+      <path d="M4 11.5 12 4l8 7.5" />
+      <path d="M6 10v10h12V10" />
+    </svg>
+  );
+}
 
 function MapIcon() {
   return (
@@ -52,6 +61,7 @@ function MyRomeIcon() {
 }
 
 const TABS: TabDef[] = [
+  { key: 'home', label: 'Home', icon: <HomeIcon /> },
   { key: 'rome', label: 'Rome', icon: <MapIcon /> },
   { key: 'experiences', label: 'Experiences', icon: <ExperiencesIcon /> },
   { key: 'saved', label: 'Saved', icon: <MyRomeIcon /> },

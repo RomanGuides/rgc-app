@@ -11,7 +11,7 @@
     "reviewEmoji": "🚗",
     "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1071036",
     "durationMinutes": 135,
-    "price": 119.0,
+    "price": 119,
     "priceNote": null,
     "currency": "EUR",
     "ageRequirement": "Adult 15–99, Child 5–14, Infant 0–4",
@@ -33,7 +33,8 @@
     "wheelchairAccessible": false,
     "idRequired": false,
     "healthAdvisories": null,
-    "bestSeller": false
+    "bestSeller": false,
+    "tourType": "experience"
   },
   {
     "id": "colosseum-underground",
@@ -47,7 +48,7 @@
     "reviewEmoji": "🏛️",
     "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1006774",
     "durationMinutes": 92,
-    "price": 99.0,
+    "price": 99,
     "priceNote": null,
     "currency": "EUR",
     "ageRequirement": "Adult 18–99, Child 0–17 (Bokun's own \"Know before you go\" notes also state a minimum age of 2 — the two figures aren't reconciled in the source data)",
@@ -63,12 +64,16 @@
       "Roman Forum and Palatine Hill entrance",
       "Small-group experience"
     ],
-    "exclusions": ["Tip or gratuity", "Access to the Attic"],
+    "exclusions": [
+      "Tip or gratuity",
+      "Access to the Attic"
+    ],
     "cancellationPolicy": "Underground route: non-refundable, all sales final. Arena Floor route: free cancellation up to 10 days before the tour, no refund within 10 days.",
     "wheelchairAccessible": true,
     "idRequired": true,
     "healthAdvisories": null,
-    "bestSeller": true
+    "bestSeller": true,
+    "tourType": "classic-tour"
   },
   {
     "id": "drunken-history-rome",
@@ -82,19 +87,30 @@
     "reviewEmoji": "🍷",
     "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1006773",
     "durationMinutes": 180,
-    "price": 89.0,
+    "price": 89,
     "priceNote": null,
     "currency": "EUR",
     "ageRequirement": "18+ only — no child or infant option on this tour",
     "meetingPoint": "Via del Colosseo, 31, Roma, 00184",
     "description": "As the golden light transforms Rome into a masterpiece, join our most entertaining walking experience. Sip authentic Italian drinks, enjoy delicious local bites and uncover the city's most scandalous, seductive and forbidden stories.",
-    "inclusions": ["Welcome Prosecco", "Shot", "Pizza & Spritz", "Signature Cocktail"],
-    "exclusions": ["Everything not listed above"],
+    "inclusions": [
+      "Welcome Prosecco",
+      "Shot",
+      "Pizza & Spritz",
+      "Signature Cocktail"
+    ],
+    "exclusions": [
+      "Everything not listed above"
+    ],
     "cancellationPolicy": "Free cancellation up to 10 days before the tour. No refund within 10 days of the tour.",
     "wheelchairAccessible": false,
     "idRequired": false,
-    "healthAdvisories": ["Not recommended for pregnant travelers", "Not recommended for people with heart conditions"],
-    "bestSeller": true
+    "healthAdvisories": [
+      "Not recommended for pregnant travelers",
+      "Not recommended for people with heart conditions"
+    ],
+    "bestSeller": true,
+    "tourType": "experience"
   },
   {
     "id": "golf-cart-tour",
@@ -108,19 +124,25 @@
     "reviewEmoji": null,
     "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1151390",
     "durationMinutes": 150,
-    "price": 79.0,
+    "price": 79,
     "priceNote": null,
     "currency": "EUR",
     "ageRequirement": "Adult 17–99, Child 6–16, Infant 0–5",
     "meetingPoint": "Circus Maximus, Via del Circo Massimo, Roma, 00184",
     "description": "Explore Rome in total comfort while the city is still quiet. Beat the summer heat, discover more in less time and enjoy breathtaking viewpoints before the crowds arrive.",
-    "inclusions": ["Golf cart transportation", "Live guide"],
-    "exclusions": ["Tip & gratuity"],
+    "inclusions": [
+      "Golf cart transportation",
+      "Live guide"
+    ],
+    "exclusions": [
+      "Tip & gratuity"
+    ],
     "cancellationPolicy": "Free cancellation up to 10 days before the tour. No refund within 10 days of the tour.",
     "wheelchairAccessible": false,
     "idRequired": false,
     "healthAdvisories": null,
-    "bestSeller": false
+    "bestSeller": false,
+    "tourType": "experience"
   },
   {
     "id": "colosseum-arena",
@@ -134,7 +156,7 @@
     "reviewEmoji": null,
     "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1091736",
     "durationMinutes": 150,
-    "price": 119.0,
+    "price": 119,
     "priceNote": null,
     "currency": "EUR",
     "ageRequirement": "Adult 17–99, Child 6–16, Infant 0–5",
@@ -149,12 +171,16 @@
       "Roman Forum and Palatine Hill entrance",
       "Small-group experience"
     ],
-    "exclusions": ["Extra food and drinks", "Gratuities"],
+    "exclusions": [
+      "Extra food and drinks",
+      "Gratuities"
+    ],
     "cancellationPolicy": "Free cancellation up to 10 days before the tour. No refund within 10 days of the tour.",
     "wheelchairAccessible": true,
     "idRequired": true,
     "healthAdvisories": null,
-    "bestSeller": true
+    "bestSeller": true,
+    "tourType": "classic-tour"
   },
   {
     "id": "private-tour-colosseum",
@@ -183,12 +209,18 @@
       "Headset/audio system when required",
       "Dedicated assistance throughout the experience"
     ],
-    "exclusions": ["Access to the Colosseum Underground"],
+    "exclusions": [
+      "Access to the Colosseum Underground"
+    ],
     "cancellationPolicy": "Free cancellation up to 10 days before the tour. No refund within 10 days of the tour.",
     "wheelchairAccessible": true,
     "idRequired": true,
-    "healthAdvisories": ["Not recommended for people with back problems", "Not recommended for people with heart conditions"],
-    "bestSeller": false
+    "healthAdvisories": [
+      "Not recommended for people with back problems",
+      "Not recommended for people with heart conditions"
+    ],
+    "bestSeller": false,
+    "tourType": "classic-tour"
   },
   {
     "id": "st-peters-basilica-tour",
@@ -202,7 +234,7 @@
     "reviewEmoji": null,
     "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1054837",
     "durationMinutes": 60,
-    "price": 25.0,
+    "price": 25,
     "priceNote": null,
     "currency": "EUR",
     "ageRequirement": "Adult 18–99, Child 5–17, Infant 0–4",
@@ -227,7 +259,11 @@
     "cancellationPolicy": "Free cancellation up to 10 days before the tour. No refund within 10 days of the tour.",
     "wheelchairAccessible": false,
     "idRequired": false,
-    "healthAdvisories": ["Not recommended for people with back problems", "Not recommended for people with heart conditions"],
-    "bestSeller": false
+    "healthAdvisories": [
+      "Not recommended for people with back problems",
+      "Not recommended for people with heart conditions"
+    ],
+    "bestSeller": false,
+    "tourType": "classic-tour"
   }
 ]

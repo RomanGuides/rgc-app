@@ -273,6 +273,27 @@ export function StarIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+// Introdotte per la tab Home (2026-08-16) — stessa BASE, nessuna eccezione.
+
+export function ShieldCheckIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M12 3 5 6v5c0 4.6 3 8.3 7 10 4-1.7 7-5.4 7-10V6l-7-3Z" />
+      <path d="m9 12 2 2 4-4.5" />
+    </svg>
+  );
+}
+
+export function GiftIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...BASE} {...props}>
+      <rect x="3.5" y="9" width="17" height="12" rx="1.5" />
+      <path d="M3.5 13h17M12 9v12" />
+      <path d="M12 9C9 9 8 7.3 8 6a2 2 0 0 1 4 0 2 2 0 0 1 4 0c0 1.3-1 3-4 3Z" />
+    </svg>
+  );
+}
+
 export const CATEGORY_ICONS: Record<PlaceCategory, (props: SVGProps<SVGSVGElement>) => ReactElement> = {
   restaurant: UtensilsIcon,
   pasta: UtensilsIcon,

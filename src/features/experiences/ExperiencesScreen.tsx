@@ -16,8 +16,8 @@
 // delle stesse 2 tour, bottone WhatsApp/TripAdvisor per guida, card "video in
 // arrivo") è stato spostato in docs/parked-content.md, non cancellato.
 
-import { useEffect, useState } from 'react';
-import type { Experience, Guide, Testimonial } from '../../data/types';
+import { useEffect, useRef, useState } from 'react';
+import type { Experience, Guide, TourType, Testimonial } from '../../data/types';
 import { getExperiences } from '../../services/experiencesService';
 import { getGuides } from '../../services/guidesService';
 import { getTestimonials } from '../../services/testimonialsService';
@@ -41,6 +41,38 @@ const TOUR_CATEGORY: Record<string, string> = {
   'golf-cart-tour': 'Golf Cart Experience',
   'drunken-history-rome': 'Drunken History Experience',
 };
+
+// Tab Home (2026-08-16): "le sette tour" diventa un elenco raggruppato per
+// tourType — food-tour/cooking-class non hanno ancora prodotti reali (le 6
+// nuove tour del founder non sono ancora arrivate), quindi quei gruppi
+// semplicemente non compaiono finché experiences.json non ne contiene almeno
+// una, stesso principio "mai una sezione vuota" già usato ovunque in questo file.
+// Esportate: HomeScreen.tsx le riusa per la riga di tessere-categoria, stessa
+// tassonomia, nessuna seconda lista di etichette da tenere sincronizzata.
+export const TOUR_TYPE_LABELS: Record<TourType, string> = {
+  'classic-tour': 'Classic Tours',
+  experience: 'Experiences',
+  'food-tour': 'Food Tours',
+  'cooking-class': 'Cooking Classes',
+};
+export const TOUR_TYPE_ORDER: TourType[] = ['classic-tour', 'experience', 'food-tour', 'cooking-class'];
+
+function TourTypeHeading({ children }: { children: string }) {
+  return (
+    <div
+      style={{
+        fontSize: '0.78rem',
+        fontWeight: 700,
+        letterSpacing: '.06em',
+        textTransform: 'uppercase',
+        color: 'var(--stone)',
+        marginBottom: 'var(--space-3)',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 export function GuidePhoto({ avatar, name, size = 52 }: { avatar: string; name: string; size?: number }) {
   const isRealUrl = avatar.startsWith('http');
@@ -66,10 +98,11 @@ export function GuidePhoto({ avatar, name, size = 52 }: { avatar: string; name: 
   );
 }
 
-// Stessa pillola "Best Seller" usata in TourDetailScreen — riflette una
+// Esportata: riusata anche da HomeScreen.tsx per il carosello Top Experiences
+// — stessa pillola "Best Seller" usata in TourDetailScreen, riflette una
 // scelta manuale del founder (bestSeller in experiences.json), non dati di
 // vendita reali che l'app non ha.
-function BestSellerBadge() {
+export function BestSellerBadge() {
   return (
     <div
       style={{
@@ -156,27 +189,52 @@ function TourCard({ exp, onSelect }: { exp: Experience; onSelect: (exp: Experien
   );
 }
 
-// Non una vera Experience (nessuna tour dietro) — stesso canale Bokun, solo
-// un prodotto diverso. Vedi BookableItem in BookingWidgetModal.tsx.
-const GIFT_CARD_ITEM: BookableItem = {
+// Esportata: HomeScreen.tsx la riusa per la sua stessa scorciatoia Gift
+// Cards — non una vera Experience (nessuna tour dietro), stesso canale
+// Bokun, solo un prodotto diverso. Vedi BookableItem in BookingWidgetModal.tsx.
+export const GIFT_CARD_ITEM: BookableItem = {
   id: 'gift-card',
   name: 'Roman Guides Gift Card',
   bookingUrl: LINKS.GIFT_CARD_BOOKING_URL,
 };
 
-export function ExperiencesScreen() {
+interface ExperiencesScreenProps {
+  // Tab Home (2026-08-16): la scorciatoia "Meet the Guides" deve arrivare
+  // davvero alle guide, non solo aprire il tab e lasciare che l'utente
+  // scorra oltre tour e gift card per trovarle. `undefined`/mancante = nessun
+  // scroll, comportamento invariato per l'accesso normale dalla tab bar.
+  scrollTarget?: 'guides' | null;
+  onScrollTargetHandled?: () => void;
+}
+
+export function ExperiencesScreen({ scrollTarget, onScrollTargetHandled }: ExperiencesScreenProps = {}) {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [guides, setGuides] = useState<Guide[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [bookingItem, setBookingItem] = useState<BookableItem | null>(null);
   const [selectedGuide, setSelectedGuide] = useState<Guide | null>(null);
   const [selectedTour, setSelectedTour] = useState<Experience | null>(null);
+  const guidesSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setExperiences(getExperiences());
     setGuides(getGuides());
     setTestimonials(getTestimonials());
   }, []);
+
+  // Guarded on guides.length > 0, not just scrollTarget: on first mount,
+  // experiences/guides are still [] (populated by the effect above, which
+  // only takes effect on the NEXT commit) — scrolling before that landed on
+  // whatever short, still-empty layout existed at that instant, well short
+  // of the guides section's real position once tours/guides actually
+  // render (found via real-device testing: it only scrolled "a little").
+  useEffect(() => {
+    if (scrollTarget === 'guides' && guides.length > 0) {
+      guidesSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      onScrollTargetHandled?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scrollTarget, guides]);
 
   return (
     <>
@@ -201,11 +259,20 @@ export function ExperiencesScreen() {
         </div>
       </div>
 
-      {/* ---------- The seven tours ---------- */}
+      {/* ---------- Tours, grouped by type ---------- */}
       <div style={{ marginBottom: 'var(--space-5)' }}>
-        {experiences.map((exp) => (
-          <TourCard key={exp.id} exp={exp} onSelect={setSelectedTour} />
-        ))}
+        {TOUR_TYPE_ORDER.map((type) => {
+          const group = experiences.filter((exp) => exp.tourType === type);
+          if (group.length === 0) return null;
+          return (
+            <div key={type} style={{ marginBottom: 'var(--space-5)' }}>
+              <TourTypeHeading>{TOUR_TYPE_LABELS[type]}</TourTypeHeading>
+              {group.map((exp) => (
+                <TourCard key={exp.id} exp={exp} onSelect={setSelectedTour} />
+              ))}
+            </div>
+          );
+        })}
       </div>
 
       {/* ---------- Gift card ---------- */}
@@ -222,7 +289,9 @@ export function ExperiencesScreen() {
       </Card>
 
       {/* ---------- Meet the Guides ---------- */}
-      <SectionHeader eyebrow="Your local experts" title="Meet the Guides" />
+      <div ref={guidesSectionRef}>
+        <SectionHeader eyebrow="Your local experts" title="Meet the Guides" />
+      </div>
       <div style={{ marginTop: 'var(--space-3)', marginBottom: 'var(--space-8)' }}>
         {guides.map((g) => (
           <button
@@ -276,7 +345,7 @@ export function ExperiencesScreen() {
             ))}
           </div>
           <a
-            href="https://g.page/r/CeVG3u7HbgowEBM/review"
+            href={LINKS.GOOGLE_REVIEW_URL}
             target="_blank"
             rel="noopener noreferrer"
             style={{ fontSize: '0.85rem', color: 'var(--red)', fontWeight: 600, textDecoration: 'none' }}

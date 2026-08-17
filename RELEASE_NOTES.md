@@ -6,7 +6,7 @@ A substantial redesign since the v1.0.0 baseline below — nav shell, screens, a
 
 ### App shell
 - Capacitor native wrapper for iOS and Android — the app now ships as a real native binary, not just a web page. Geolocation still uses the standard browser API, not a native plugin.
-- Tab bar cut from 5 tabs to 3: **Rome** (replaces Home + Map + Explore), **Experiences**, **Saved** (replaces My Rome).
+- Tab bar cut from 5 tabs to 3: **Rome** (replaces Home + Map + Explore), **Experiences**, **Saved** (replaces My Rome). **Update, 2026-08-16:** a 4th tab, **Home**, was added back as the default/first tab — not a reversal of this cut, but a deliberately scoped exception: a "business card" first screen (hero photo, a Top Experiences carousel pushing every tour, navigation shortcuts, trust section, review links) with no content duplicated from Rome/Experiences. See `CHANGELOG.md` for the full breakdown.
 - A one-time Welcome screen ahead of the tabs, shown only on the very first launch: full-screen photo, a short line on what the app is, and a choice to enable location now (recommended, since it drives distance sorting) or skip it for later. Never shown again after the first choice.
 
 ### Rome (was Map, plus relevant parts of Home)

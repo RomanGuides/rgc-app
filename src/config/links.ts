@@ -18,4 +18,10 @@ export const LINKS = {
   // Widget Bokun "Gift Card" (stesso meccanismo embed delle tour — vedi
   // BookingWidgetModal.tsx — solo un prodotto diverso sullo stesso canale).
   GIFT_CARD_BOOKING_URL: 'https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/gift-card/4806',
+  // Prima viveva solo come stringa inline in ExperiencesScreen.tsx — centralizzato
+  // qui (tab Home, 2026-08-16) perché ora lo stesso link serve in due schermate.
+  GOOGLE_REVIEW_URL: 'https://g.page/r/CeVG3u7HbgowEBM/review',
+  // Pagina TripAdvisor dell'attività (non un link di recensione per singola
+  // tour come i reviewUrl in experiences.json) — confermato dal founder, 2026-08-16.
+  TRIPADVISOR_REVIEW_URL: 'https://www.tripadvisor.it/Attraction_Review-g187791-d33021458-Reviews-Roman_Guides-Rome_Lazio.html',
 } as const;

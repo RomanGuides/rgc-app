@@ -27,10 +27,14 @@ async function ensureLocated(page: Page) {
   await expect(page.getByRole('button', { name: /Located/ })).toBeVisible();
 }
 
-// Home and Explore tabs were removed in the redesign's nav-shell phase
-// (5 tabs → 3: Rome, Experiences, Saved). Home's content is staged for reuse
-// elsewhere (email banner → Experience Detail) — re-add an equivalent test
-// once that phase lands. Explore's browsing was superseded by Search (below).
+// Home (tab bar's first/default entry, added 2026-08-16 — a scoped-down
+// "business card" screen, not the pre-redesign Home this comment used to
+// describe as removed) is now what a fresh `page.goto('/')` lands on, not
+// Rome. Every test below that needs the map/sheet/search must switch to
+// Rome explicitly first. Explore's browsing was superseded by Search.
+async function goToRome(page: Page) {
+  await page.getByRole('button', { name: /Rome/ }).last().click();
+}
 
 // WelcomeScreen (shown once per install, before any tab) would otherwise
 // block every test below it — seed the same persisted flag the real app
@@ -46,7 +50,7 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test('WelcomeScreen: shown on first run, "Not now" dismisses into Rome', async ({ page }) => {
+test('WelcomeScreen: shown on first run, "Not now" dismisses into the app (Home, the default tab)', async ({ page }) => {
   // Registered after the file-level beforeEach's initScript, so it runs
   // later on the same page load and wins — simulates a genuine first run.
   await page.addInitScript(() => localStorage.removeItem('rgc_saved_places'));
@@ -56,7 +60,7 @@ test('WelcomeScreen: shown on first run, "Not now" dismisses into Rome', async (
 
   await page.getByRole('button', { name: 'Not now' }).click();
   await expect(page.getByText('Rome, from people who live here.')).not.toBeVisible();
-  await expect(page.locator('canvas')).toBeVisible();
+  await expect(page.getByText('Top Experiences')).toBeVisible();
 });
 
 test('RomeSheet: a location far from Rome shows the by-neighbourhood list, not "Nearest to you"', async ({ browser }) => {
@@ -72,6 +76,7 @@ test('RomeSheet: a location far from Rome shows the by-neighbourhood list, not "
     );
   });
   await page.goto('/');
+  await goToRome(page);
   await ensureLocated(page);
 
   await expect(page.getByText('Nearest to you')).not.toBeVisible();
@@ -99,6 +104,7 @@ test('LocateButton: first tap primes with an explanation while permission is und
     navigator.permissions.query = async () => ({ state: 'prompt' });
   });
   await page.goto('/');
+  await goToRome(page);
 
   const locateButton = page.getByRole('button', { name: /Use my location/ });
   await locateButton.click();
@@ -117,8 +123,62 @@ test('LocateButton: first tap primes with an explanation while permission is und
   await context.close();
 });
 
-test('Rome tab (default) renders with markers and basemap', async ({ page }) => {
+// Home tab (added 2026-08-16) — a "business card" + navigation shortcuts,
+// not a duplicate of Rome/Experiences content. Real data only: no fabricated
+// tour names/categories, reuses the existing 'hero' AppContent entry and the
+// same TourDetailScreen/BookingWidgetModal as everywhere else in the app.
+test('Home: default tab shows the hero masthead and pushes Top Experiences', async ({ page }) => {
   await page.goto('/');
+  await expect(page.getByText('Meet your trusted Rome travel agency.')).toBeVisible();
+  await expect(page.getByText('Top Experiences')).toBeVisible();
+  // Best Sellers sort first in this carousel — at least one badge should show.
+  await expect(page.getByText('Best Seller').first()).toBeVisible();
+});
+
+test('Home: tapping a Top Experience card opens its real tour detail', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Colosseum Underground/ }).first().click();
+  await expect(page.getByRole('button', { name: /Check dates/ })).toBeVisible();
+});
+
+test('Home: a category pill switches to Experiences, grouped by the same tourType', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Classic Tours' }).click();
+  await expect(page.getByText('Classic Tours')).toBeVisible();
+  await expect(page.getByText('Colosseum Arena')).toBeVisible();
+});
+
+test('Home: navigation shortcuts reach Rome and Experiences, and open the gift card widget', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Meet the Guides' }).click();
+  await expect(page.getByText('Meet the Guides')).toBeVisible();
+
+  await page.getByRole('button', { name: /^Home$/ }).click();
+  await page.getByRole('button', { name: 'Browse the Map' }).click();
+  await expect(page.locator('canvas')).toBeVisible();
+
+  await page.getByRole('button', { name: /^Home$/ }).click();
+  await page.getByRole('button', { name: 'Gift Cards' }).click();
+  const widget = page.locator('div.bokunWidget');
+  await expect(widget).toBeVisible();
+  await expect(widget).toHaveAttribute('data-src', /\/gift-card\//);
+});
+
+test('Home: review buttons link to Google and TripAdvisor', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: /Review us on Google/ })).toHaveAttribute(
+    'href',
+    'https://g.page/r/CeVG3u7HbgowEBM/review'
+  );
+  await expect(page.getByRole('link', { name: /Review us on TripAdvisor/ })).toHaveAttribute(
+    'href',
+    'https://www.tripadvisor.it/Attraction_Review-g187791-d33021458-Reviews-Roman_Guides-Rome_Lazio.html'
+  );
+});
+
+test('Rome tab renders with markers and basemap', async ({ page }) => {
+  await page.goto('/');
+  await goToRome(page);
   await expect(page.locator('canvas')).toBeVisible();
   await expect(page.locator('.maplibregl-marker').first()).toBeVisible();
 });
@@ -229,6 +289,7 @@ test('Experiences: Buy a Gift Card opens the same in-app booking widget, pointed
 
 test('Marker popup: clicking a place marker opens its card', async ({ page }) => {
   await page.goto('/');
+  await goToRome(page);
   await page.waitForTimeout(1000);
   await placeMarkers(page).first().click();
   await expect(page.getByRole('button', { name: /Walk there/ })).toBeVisible();
@@ -241,6 +302,7 @@ test('Marker popup: clicking a place marker opens its card', async ({ page }) =>
 // BookingWidgetModal as Experiences (not a second implementation).
 test('Place screen: Colosseum (the one place with a real bookingUrl) shows a primary Book this tour CTA', async ({ page }) => {
   await page.goto('/');
+  await goToRome(page);
   await page.getByRole('button', { name: /Search Rome/ }).click();
   await page.getByPlaceholder(/Search places/).fill('Colosseum');
   await page.getByText('Colosseum', { exact: true }).click();
@@ -259,6 +321,7 @@ test('Place screen: Colosseum (the one place with a real bookingUrl) shows a pri
 // forget, wondering later why the list looks incomplete.
 test('RomeSheet: filter button shows an active indicator only when a category is deselected', async ({ page }) => {
   await page.goto('/');
+  await goToRome(page);
   await expect(page.getByRole('button', { name: 'Filter by category' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Filter by category' }).click();
@@ -275,6 +338,7 @@ test('RomeSheet: filter button shows an active indicator only when a category is
 // already used elsewhere in this file (Leave a review, Find Water Nearby).
 test('RomeSheet: Tonight links out to its real ctaUrl', async ({ page }) => {
   await page.goto('/');
+  await goToRome(page);
   const tonightLink = page.getByRole('link', { name: /Best Carbonara in Rome/ });
   await expect(tonightLink).toBeVisible();
   await expect(tonightLink).toHaveAttribute('href', 'https://www.instagram.com/romanguides/');
@@ -283,6 +347,7 @@ test('RomeSheet: Tonight links out to its real ctaUrl', async ({ page }) => {
 
 test('Directions: Walk there draws a route and shows the Directions bar', async ({ page }) => {
   await page.goto('/');
+  await goToRome(page);
   await ensureLocated(page);
 
   await placeMarkers(page).first().click();
@@ -298,6 +363,7 @@ test('Directions: Walk there draws a route and shows the Directions bar', async 
 
 test('Search: typing filters results and selecting one opens its place card', async ({ page }) => {
   await page.goto('/');
+  await goToRome(page);
   await page.getByRole('button', { name: /Search Rome/ }).click();
   // "Nearest to you" replaces "All places" once a location is known — see
   // ensureLocated's comment above on why that may already be true here.
@@ -323,6 +389,7 @@ test('Search: typing filters results and selecting one opens its place card', as
 // this must collapse cleanly, not show "null" or a broken star.
 test('Place screen: a place with no rating renders cleanly, no broken rating row', async ({ page }) => {
   await page.goto('/');
+  await goToRome(page);
   await page.getByRole('button', { name: /Search Rome/ }).click();
   await page.getByPlaceholder(/Search places/).fill('Piazza del Popolo');
   await page.getByText('Piazza del Popolo & Twin Churches', { exact: true }).click();
@@ -333,6 +400,7 @@ test('Place screen: a place with no rating renders cleanly, no broken rating row
 
 test('Rome sheet: Legal & About opens from the full-detent footer, back closes it', async ({ page }) => {
   await page.goto('/');
+  await goToRome(page);
   // Tap sull'handle: alterna resting/full (endDrag tratta un movimento sotto
   // soglia come tap) — solo a detent "full" compare la riga Legal & About.
   await page.getByRole('button', { name: /Expand or collapse/ }).click();
@@ -348,6 +416,7 @@ test('Rome sheet: Legal & About opens from the full-detent footer, back closes i
 
 test('Clear Route: Stop Route removes the Directions bar', async ({ page }) => {
   await page.goto('/');
+  await goToRome(page);
   await ensureLocated(page);
 
   await placeMarkers(page).first().click();

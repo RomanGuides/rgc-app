@@ -47,9 +47,18 @@ export interface Place {
   nearbyRecommendations?: string | null;
 }
 
+// Tipo di prodotto (2026-08-16, tab Home) — non ha nulla a che vedere con
+// PlaceCategory: quella è la tassonomia dei 89 luoghi (ristoranti/bar/...),
+// questa raggruppa le tour stesse. Introdotta insieme alla tab Home perché
+// il founder sta per aggiungere 6 nuove tour, incluse le prime food-tour/
+// cooking-class del catalogo — senza un campo per distinguerle, "le sette
+// tour" sarebbe presto un elenco piatto di 13 prodotti molto diversi tra loro.
+export type TourType = 'classic-tour' | 'experience' | 'food-tour' | 'cooking-class';
+
 export interface Experience {
   id: string;
   name: string;
+  tourType: TourType;
   videoUrl?: string | null; // opzionale — non tutte le esperienze hanno un video (es. biglietti/tour senza reel dedicato)
   videoDuration?: string | null;
   guideIds: string[];

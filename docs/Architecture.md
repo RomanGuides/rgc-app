@@ -16,9 +16,9 @@ This document describes the current implementation of Roman Guides Companion —
 
 ## App shell — no router
 
-`src/App.tsx` holds the active tab in a plain `useState<Tab>`, where `Tab` is `'home' | 'map' | 'experiences' | 'explore' | 'myrome'`. There is no `react-router` or any URL-based routing — the app has no deep links, and the default tab on load is `'map'`. Screens are conditionally rendered (`{activeTab === 'home' && <HomeScreen />}`), not mounted/hidden — switching away from a tab unmounts it, so each screen's own `useEffect` re-runs its data load every time it's revisited.
+`src/App.tsx` holds the active tab in a plain `useState<Tab>`, where `Tab` (aliased from `TabKey`, `src/design-system/components/TabBar.tsx`) is `'home' | 'rome' | 'experiences' | 'saved'` — 4 tabs as of the 2026-08-16 addition of Home (see `docs/DataModel.md`'s `TourType` note and `CHANGELOG.md` for why; the redesign this doc used to describe had cut the tab bar to 3, `'rome' | 'experiences' | 'saved'`, before Home was added back as a scoped exception). There is no `react-router` or any URL-based routing — the app has no deep links, and the default tab on load is `'home'`. Screens are conditionally rendered (`{activeTab === 'home' && <HomeScreen ... />}`), not mounted/hidden — switching away from a tab unmounts it, so each screen's own `useEffect` re-runs its data load every time it's revisited.
 
-Cross-tab navigation (e.g. tapping a place in Explore to view it on the Map) is done via a prop-drilled `onNavigate: (tab: Tab) => void` callback passed down from `App.tsx` to each screen — there is no separate navigation service or event bus.
+Cross-tab navigation (e.g. a shortcut tile on Home switching to Rome) is done via a prop-drilled `onNavigate: (tab: TabKey) => void` callback passed down from `App.tsx` to each screen — there is no separate navigation service or event bus. One exception needs more than a tab switch: Home's "Meet the Guides" shortcut must land on Experiences' guides section specifically, not just its top (tours + gift card render above it) — `App.tsx` holds a one-shot `experiencesScrollTarget` state, set by a dedicated `onMeetGuides` callback (separate from `onNavigate`) and cleared by `ExperiencesScreen` once it scrolls there via a ref and `scrollIntoView`.
 
 ## Folder structure
 
