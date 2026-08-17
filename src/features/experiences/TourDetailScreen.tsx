@@ -52,17 +52,26 @@ const LABEL_STYLE = {
   fontWeight: 600,
   letterSpacing: '.08em',
   textTransform: 'uppercase' as const,
-  color: '#8C7F79',
+  color: 'var(--stone)',
 };
+
+// Le sezioni sotto (BulletList/InclusionsGrid/GoodToKnow/meeting point)
+// condividevano lo stesso wrapper a una proprietà, ripetuto a mano 4 volte
+// (audit token Fase 5).
+const SECTION_MARGIN = { marginBottom: 22 };
+
+// Testo a corpo condiviso da "Who is it for?"/meeting point/cancellation
+// policy — stesso identico oggetto copiato 3 volte (audit token Fase 5).
+const BODY_TEXT_STYLE = { fontSize: '0.9375rem', lineHeight: 1.5, color: 'var(--ink)' };
 
 type IconComponent = (props: SVGProps<SVGSVGElement>) => ReactElement;
 
 function Fact({ icon: Icon, label, value }: { icon: IconComponent; label: string; value: string }) {
   return (
     <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <Icon width={18} height={18} style={{ color: '#8C7F79' }} />
+      <Icon width={18} height={18} style={{ color: 'var(--stone)' }} />
       <div style={{ ...LABEL_STYLE, marginBottom: 0 }}>{label}</div>
-      <div style={{ fontSize: '0.94rem', lineHeight: 1.3, color: '#1A1614' }}>{value}</div>
+      <div style={{ fontSize: '0.94rem', lineHeight: 1.3, color: 'var(--ink)' }}>{value}</div>
     </div>
   );
 }
@@ -70,9 +79,9 @@ function Fact({ icon: Icon, label, value }: { icon: IconComponent; label: string
 function BulletList({ label, items }: { label: string; items?: string[] | null }) {
   if (!items || items.length === 0) return null;
   return (
-    <div style={{ marginBottom: 22 }}>
+    <div style={SECTION_MARGIN}>
       <div style={{ ...LABEL_STYLE, marginBottom: 8 }}>{label}</div>
-      <ul style={{ margin: 0, padding: '0 0 0 18px', fontSize: '0.9375rem', color: '#443A33', lineHeight: 1.6 }}>
+      <ul style={{ margin: 0, padding: '0 0 0 18px', fontSize: '0.9375rem', color: 'var(--ink)', lineHeight: 1.6 }}>
         {items.map((item, i) => (
           <li key={i}>{item}</li>
         ))}
@@ -84,13 +93,13 @@ function BulletList({ label, items }: { label: string; items?: string[] | null }
 function InclusionsGrid({ items }: { items?: string[] | null }) {
   if (!items || items.length === 0) return null;
   return (
-    <div style={{ marginBottom: 22 }}>
+    <div style={SECTION_MARGIN}>
       <div style={{ ...LABEL_STYLE, marginBottom: 10 }}>What's included</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 14px' }}>
         {items.map((item, i) => (
           <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
             <CheckCircleIcon width={16} height={16} style={{ flexShrink: 0, color: 'var(--red)', marginTop: 2 }} />
-            <span style={{ fontSize: '0.875rem', lineHeight: 1.4, color: '#443A33' }}>{item}</span>
+            <span style={{ fontSize: '0.875rem', lineHeight: 1.4, color: 'var(--ink)' }}>{item}</span>
           </div>
         ))}
       </div>
@@ -106,13 +115,13 @@ interface GoodToKnowItem {
 function GoodToKnow({ items }: { items: GoodToKnowItem[] }) {
   if (items.length === 0) return null;
   return (
-    <div style={{ marginBottom: 22 }}>
+    <div style={SECTION_MARGIN}>
       <div style={{ ...LABEL_STYLE, marginBottom: 10 }}>Good to know</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {items.map((item, i) => (
           <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-            <item.icon width={18} height={18} style={{ flexShrink: 0, color: '#8C7F79', marginTop: 1 }} />
-            <span style={{ fontSize: '0.9375rem', lineHeight: 1.5, color: '#443A33' }}>{item.text}</span>
+            <item.icon width={18} height={18} style={{ flexShrink: 0, color: 'var(--stone)', marginTop: 1 }} />
+            <span style={{ fontSize: '0.9375rem', lineHeight: 1.5, color: 'var(--ink)' }}>{item.text}</span>
           </div>
         ))}
       </div>
@@ -140,7 +149,7 @@ export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: Tou
   ].filter((g): g is GoodToKnowItem => g !== null);
 
   return (
-    <div style={{ position: 'absolute', inset: 0, background: '#FFFFFF', zIndex: 8, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ position: 'absolute', inset: 0, background: 'var(--surface)', zIndex: 8, display: 'flex', flexDirection: 'column' }}>
       <div style={{ flex: 1, overflowY: 'auto' }}>
         <div
           style={{
@@ -148,7 +157,7 @@ export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: Tou
             height: 272,
             background: exp.imageUrl
               ? `linear-gradient(rgba(16,12,10,.42) 0%, rgba(16,12,10,.06) 45%, rgba(16,12,10,.40) 100%), url(${exp.imageUrl}) center/cover`
-              : '#F3EFEB',
+              : 'var(--bg-app)',
             flexShrink: 0,
           }}
         >
@@ -165,7 +174,7 @@ export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: Tou
               background: 'rgba(16,12,10,.42)',
               backdropFilter: 'blur(8px)',
               border: 'none',
-              color: '#fff',
+              color: 'var(--white)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -183,7 +192,7 @@ export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: Tou
             </div>
           )}
 
-          <div style={{ fontFamily: 'var(--display)', fontSize: '1.75rem', fontWeight: 700, lineHeight: 1.14, letterSpacing: '-0.01em', color: '#1A1614', marginBottom: 18 }}>
+          <div style={{ fontFamily: 'var(--display)', fontSize: '1.75rem', fontWeight: 700, lineHeight: 1.14, letterSpacing: '-0.01em', color: 'var(--ink)', marginBottom: 18 }}>
             {exp.name}
           </div>
 
@@ -192,8 +201,8 @@ export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: Tou
               style={{
                 display: 'flex',
                 gap: 14,
-                borderTop: '1px solid rgba(26,22,20,.09)',
-                borderBottom: '1px solid rgba(26,22,20,.09)',
+                borderTop: '1px solid var(--line)',
+                borderBottom: '1px solid var(--line)',
                 padding: '14px 0 16px',
                 marginBottom: 18,
               }}
@@ -207,7 +216,7 @@ export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: Tou
           {exp.ageRequirement && (
             <div
               style={{
-                background: '#F7F4F1',
+                background: 'var(--surface-2)',
                 borderRadius: 14,
                 padding: '14px 16px',
                 display: 'flex',
@@ -216,16 +225,16 @@ export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: Tou
                 marginBottom: 22,
               }}
             >
-              <PersonIcon width={20} height={20} style={{ flexShrink: 0, color: '#8C7F79', marginTop: 2 }} />
+              <PersonIcon width={20} height={20} style={{ flexShrink: 0, color: 'var(--stone)', marginTop: 2 }} />
               <div>
                 <div style={{ ...LABEL_STYLE, marginBottom: 4 }}>Who is it for?</div>
-                <div style={{ fontSize: '0.9375rem', lineHeight: 1.5, color: '#443A33' }}>{exp.ageRequirement}</div>
+                <div style={BODY_TEXT_STYLE}>{exp.ageRequirement}</div>
               </div>
             </div>
           )}
 
           {descriptionParagraphs.map((p, i) => (
-            <p key={i} style={{ fontSize: '1.0625rem', lineHeight: 1.6, color: '#443A33', margin: '0 0 14px' }}>
+            <p key={i} style={{ fontSize: '1.0625rem', lineHeight: 1.6, color: 'var(--ink)', margin: '0 0 14px' }}>
               {p}
             </p>
           ))}
@@ -235,16 +244,16 @@ export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: Tou
           <GoodToKnow items={goodToKnow} />
 
           {exp.meetingPoint && (
-            <div style={{ marginBottom: 22 }}>
+            <div style={SECTION_MARGIN}>
               <div style={{ ...LABEL_STYLE, marginBottom: 6 }}>Meeting point</div>
-              <div style={{ fontSize: '0.9375rem', lineHeight: 1.5, color: '#443A33' }}>{exp.meetingPoint}</div>
+              <div style={BODY_TEXT_STYLE}>{exp.meetingPoint}</div>
             </div>
           )}
 
           {exp.cancellationPolicy && (
             <div>
               <div style={{ ...LABEL_STYLE, marginBottom: 6 }}>Cancellation policy</div>
-              <div style={{ fontSize: '0.9375rem', lineHeight: 1.5, color: '#443A33' }}>{exp.cancellationPolicy}</div>
+              <div style={BODY_TEXT_STYLE}>{exp.cancellationPolicy}</div>
             </div>
           )}
         </div>
@@ -253,9 +262,9 @@ export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: Tou
       <div
         style={{
           padding: '14px 28px calc(16px + env(safe-area-inset-bottom, 0px))',
-          borderTop: '1px solid rgba(26,22,20,.08)',
+          borderTop: '1px solid var(--line)',
           flexShrink: 0,
-          background: '#FFFFFF',
+          background: 'var(--surface)',
         }}
       >
         <button
@@ -263,9 +272,9 @@ export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: Tou
           style={{
             width: '100%',
             height: 54,
-            borderRadius: 16,
-            background: '#CC0029',
-            color: '#fff',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--red)',
+            color: 'var(--white)',
             fontSize: '1.05rem',
             fontWeight: 600,
             border: 'none',

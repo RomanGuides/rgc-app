@@ -28,11 +28,11 @@ export function LocateButton({ status, onClick, hidden }: LocateButtonProps) {
       style={{
         position: 'absolute',
         top: 'calc(env(safe-area-inset-top, 0px) + 62px)',
-        right: 20,
+        right: 'var(--space-5)',
         width: 44,
         height: 44,
         borderRadius: '50%',
-        background: '#FFFFFF',
+        background: 'var(--surface)',
         border: 'none',
         boxShadow: '0 1px 3px rgba(26,22,20,.10), 0 8px 22px rgba(26,22,20,.14)',
         display: 'flex',

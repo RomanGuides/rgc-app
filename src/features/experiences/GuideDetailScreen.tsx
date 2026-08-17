@@ -21,7 +21,7 @@ interface GuideDetailScreenProps {
 
 export function GuideDetailScreen({ guide, onClose }: GuideDetailScreenProps) {
   return (
-    <div style={{ position: 'absolute', inset: 0, background: '#FFFFFF', zIndex: 8, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ position: 'absolute', inset: 0, background: 'var(--surface)', zIndex: 8, display: 'flex', flexDirection: 'column' }}>
       <div
         style={{
           display: 'flex',
@@ -63,7 +63,7 @@ export function GuideDetailScreen({ guide, onClose }: GuideDetailScreenProps) {
           </div>
         )}
 
-        <p style={{ fontSize: '1.0625rem', lineHeight: 1.6, color: '#443A33', margin: 0 }}>{guide.bio}</p>
+        <p style={{ fontSize: '1.0625rem', lineHeight: 1.6, color: 'var(--ink)', margin: 0 }}>{guide.bio}</p>
       </div>
     </div>
   );

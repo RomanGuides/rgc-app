@@ -54,7 +54,7 @@
 // incorniciata (X-Frame-Options), quel fallback fallirà a sua volta, e
 // "Open in browser" nello stato di errore resta la via d'uscita reale.
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { App } from '@capacitor/app';
 import { CloseIcon, LockIcon } from '../../design-system/components/Icons';
 import { LINKS } from '../../config/links';
@@ -107,6 +107,13 @@ function getHostname(url: string | null | undefined): string | null {
 function getBookingChannelUUID(bookingUrl: string): string | null {
   const match = bookingUrl.match(/\/online-sales\/([^/]+)\//);
   return match ? match[1] : null;
+}
+
+// Base condivisa dei tre pannelli a tutto schermo (contenitore/skeleton/
+// errore) — stesso identico oggetto copiato tre volte, ognuno con qualche
+// proprietà in più (audit token Fase 5).
+function fullScreenPanelStyle(extra: CSSProperties = {}): CSSProperties {
+  return { position: 'absolute', inset: 0, background: 'var(--surface)', display: 'flex', flexDirection: 'column', ...extra };
 }
 
 function ensureBokunLoaderScript(bookingChannelUUID: string) {
@@ -232,14 +239,14 @@ export function BookingWidgetModal({ item, onClose }: BookingWidgetModalProps) {
   }
 
   return (
-    <div style={{ position: 'absolute', inset: 0, zIndex: 9, background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+    <div style={fullScreenPanelStyle({ zIndex: 9 })}>
       <div
         style={{
           display: 'flex',
           alignItems: 'flex-start',
           gap: 10,
           padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px',
-          borderBottom: '1px solid rgba(26,22,20,.08)',
+          borderBottom: '1px solid var(--line)',
           flexShrink: 0,
         }}
       >
@@ -256,7 +263,7 @@ export function BookingWidgetModal({ item, onClose }: BookingWidgetModalProps) {
           >
             {item.name}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 3, color: '#6E645F', fontSize: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 3, color: 'var(--stone)', fontSize: '0.75rem' }}>
             <LockIcon width={12} height={12} />
             <span>{displayHost ?? 'Secure payment page'}</span>
           </div>
@@ -271,8 +278,11 @@ export function BookingWidgetModal({ item, onClose }: BookingWidgetModalProps) {
       </div>
 
       {status === 'loading' && (
-        <div style={{ height: 3, background: 'rgba(204,0,41,.15)', overflow: 'hidden', flexShrink: 0 }}>
-          <div style={{ height: '100%', width: '100%', background: '#CC0029', animation: 'bookingLoadingBar 1.2s ease-in-out infinite' }} />
+        // rgb(227,6,19) = --red (#e30613) — la barra usava il vecchio rosso
+        // #CC0029 letterale (traccia e riempimento), stonato dopo il cambio
+        // token della Fase 2 (audit token Fase 5).
+        <div style={{ height: 3, background: 'rgba(227,6,19,.15)', overflow: 'hidden', flexShrink: 0 }}>
+          <div style={{ height: '100%', width: '100%', background: 'var(--red)', animation: 'bookingLoadingBar 1.2s ease-in-out infinite' }} />
         </div>
       )}
 
@@ -300,28 +310,28 @@ export function BookingWidgetModal({ item, onClose }: BookingWidgetModalProps) {
         )}
 
         {status === 'loading' && !hasLoadedOnce && (
-          <div style={{ position: 'absolute', inset: 0, background: '#FFFFFF', padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={fullScreenPanelStyle({ padding: 20, gap: 14 })}>
             {[220, 52, 44, 44, 150].map((h, i) => (
               <div
                 key={i}
-                style={{ height: h, borderRadius: 12, background: '#F3EFEB', animation: 'skeletonPulse 1.4s ease-in-out infinite' }}
+                style={{ height: h, borderRadius: 'var(--radius-sm)', background: 'var(--bg-app)', animation: 'skeletonPulse 1.4s ease-in-out infinite' }}
               />
             ))}
           </div>
         )}
 
         {status === 'error' && (
-          <div style={{ position: 'absolute', inset: 0, background: '#FFFFFF', padding: '32px 24px', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: '1.0625rem', lineHeight: 1.55, color: '#443A33', marginBottom: 26 }}>
+          <div style={fullScreenPanelStyle({ padding: '32px 24px' })}>
+            <div style={{ fontSize: '1.0625rem', lineHeight: 1.55, color: 'var(--ink)', marginBottom: 26 }}>
               The booking page could not load. Your connection dropped, or Bokun is briefly unavailable.
             </div>
             <button
               onClick={handleRetry}
               style={{
                 height: 54,
-                borderRadius: 16,
-                background: '#CC0029',
-                color: '#fff',
+                borderRadius: 'var(--radius-md)',
+                background: 'var(--red)',
+                color: 'var(--white)',
                 fontSize: '1.05rem',
                 fontWeight: 600,
                 border: 'none',
@@ -340,7 +350,7 @@ export function BookingWidgetModal({ item, onClose }: BookingWidgetModalProps) {
             </button>
             <a
               href={LINKS.SUPPORT_CONTACT_URL}
-              style={{ color: '#6E645F', fontWeight: 600, fontSize: '1.0625rem', textDecoration: 'none' }}
+              style={{ color: 'var(--stone)', fontWeight: 600, fontSize: '1.0625rem', textDecoration: 'none' }}
             >
               Contact us
             </a>

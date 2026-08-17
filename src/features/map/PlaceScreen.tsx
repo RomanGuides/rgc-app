@@ -71,12 +71,54 @@ const CATEGORY_PLACEHOLDER_IMAGES: Partial<Record<PlaceCategory, string>> = {
 function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ fontSize: '0.66rem', fontWeight: 600, letterSpacing: '.07em', textTransform: 'uppercase', color: '#8C7F79', marginBottom: 4 }}>
+      <div style={{ fontSize: '0.66rem', fontWeight: 600, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 'var(--space-1)' }}>
         {label}
       </div>
-      <div style={{ fontSize: '0.94rem', lineHeight: 1.3, color: '#1A1614' }}>{value}</div>
+      <div style={{ fontSize: '0.94rem', lineHeight: 1.3, color: 'var(--ink)' }}>{value}</div>
     </div>
   );
+}
+
+// Stile condiviso dei due pulsanti circolari sopra la foto (indietro/salva) —
+// identici salvo lato e colore, prima due oggetti di stile copiati a mano
+// (audit token Fase 5).
+function circleIconButtonStyle(side: 'left' | 'right', color: string) {
+  return {
+    position: 'absolute' as const,
+    top: 'calc(env(safe-area-inset-top, 0px) + 14px)',
+    [side]: 16,
+    width: 40,
+    height: 40,
+    borderRadius: '50%',
+    background: 'rgba(16,12,10,.42)',
+    backdropFilter: 'blur(8px)',
+    border: 'none',
+    color,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+  };
+}
+
+// Stile condiviso dei due CTA in fondo (Book this tour/Walk there) — prima
+// tre oggetti quasi identici copiati a mano (audit token Fase 5).
+const CTA_BUTTON_BASE = {
+  width: '100%',
+  height: 54,
+  borderRadius: 'var(--radius-md)',
+  fontSize: '1.05rem',
+  fontWeight: 600,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+} as const;
+
+function primaryCtaStyle() {
+  return { ...CTA_BUTTON_BASE, background: 'var(--red)', color: 'var(--white)', border: 'none' };
+}
+
+function secondaryCtaStyle() {
+  return { ...CTA_BUTTON_BASE, background: 'transparent', color: 'var(--red)', border: '1.5px solid var(--red)' };
 }
 
 // Bordo sinistro sottile (audit UX 2026-08-16): Local secret/Did you know/
@@ -87,11 +129,11 @@ function Fact({ label, value }: { label: string; value: string }) {
 function EditorialBlock({ label, text }: { label: string; text?: string | null }) {
   if (!text) return null;
   return (
-    <div style={{ marginBottom: 18, paddingLeft: 12, borderLeft: '2px solid rgba(26,22,20,.12)' }}>
-      <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: '#8C7F79', marginBottom: 6 }}>
+    <div style={{ marginBottom: 18, paddingLeft: 'var(--space-3)', borderLeft: '2px solid var(--line)' }}>
+      <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 6 }}>
         {label}
       </div>
-      <div style={{ fontSize: '0.95rem', lineHeight: 1.5, color: '#443A33' }}>{text}</div>
+      <div style={{ fontSize: '0.95rem', lineHeight: 1.5, color: 'var(--ink)' }}>{text}</div>
     </div>
   );
 }
@@ -161,7 +203,7 @@ export function PlaceScreen({ place: p, closing }: PlaceScreenProps) {
       style={{
         position: 'absolute',
         inset: 0,
-        background: '#FFFFFF',
+        background: 'var(--surface)',
         zIndex: 7,
         display: 'flex',
         flexDirection: 'column',
@@ -177,70 +219,36 @@ export function PlaceScreen({ place: p, closing }: PlaceScreenProps) {
             height: 272,
             background: resolvedImageUrl
               ? `linear-gradient(rgba(16,12,10,.42) 0%, rgba(16,12,10,.06) 45%, rgba(16,12,10,.40) 100%), url(${resolvedImageUrl}) center/cover`
-              : '#F3EFEB',
+              : 'var(--bg-app)',
             flexShrink: 0,
           }}
         >
-          <button
-            onClick={() => selectPlace(null)}
-            aria-label="Back"
-            style={{
-              position: 'absolute',
-              top: 'calc(env(safe-area-inset-top, 0px) + 14px)',
-              left: 16,
-              width: 40,
-              height: 40,
-              borderRadius: '50%',
-              background: 'rgba(16,12,10,.42)',
-              backdropFilter: 'blur(8px)',
-              border: 'none',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-            }}
-          >
+          <button onClick={() => selectPlace(null)} aria-label="Back" style={circleIconButtonStyle('left', 'var(--white)')}>
             <ChevronLeftIcon width={20} height={20} />
           </button>
           <button
             onClick={() => toggleSaved(p.id)}
             aria-label={isSaved ? 'Remove from saved' : 'Save'}
-            style={{
-              position: 'absolute',
-              top: 'calc(env(safe-area-inset-top, 0px) + 14px)',
-              right: 16,
-              width: 40,
-              height: 40,
-              borderRadius: '50%',
-              background: 'rgba(16,12,10,.42)',
-              backdropFilter: 'blur(8px)',
-              border: 'none',
-              color: isSaved ? '#FF0033' : '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-            }}
+            style={circleIconButtonStyle('right', isSaved ? 'var(--red)' : 'var(--white)')}
           >
             <HeartIcon width={20} height={20} filled={isSaved} />
           </button>
         </div>
 
         <div style={{ padding: '26px 28px 24px' }}>
-          <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: '#6E645F', marginBottom: 6 }}>
+          <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 6 }}>
             {meta.label}
             {p.area ? ` · ${p.area}` : ''}
           </div>
-          <div style={{ fontFamily: 'var(--display)', fontSize: '1.75rem', fontWeight: 700, lineHeight: 1.14, letterSpacing: '-0.01em', color: '#1A1614', marginBottom: p.rating != null ? 8 : 18 }}>
+          <div style={{ fontFamily: 'var(--display)', fontSize: '1.75rem', fontWeight: 700, lineHeight: 1.14, letterSpacing: '-0.01em', color: 'var(--ink)', marginBottom: p.rating != null ? 8 : 18 }}>
             {p.name}
           </div>
 
           {p.rating != null && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 18, fontSize: '0.92rem' }}>
               <StarIcon width={14} height={14} style={{ color: 'var(--red)', flexShrink: 0 }} />
-              <span style={{ fontWeight: 700, color: '#1A1614' }}>{p.rating.toFixed(1)}</span>
-              {p.ratingCount != null && <span style={{ color: '#8C7F79' }}>({p.ratingCount.toLocaleString()})</span>}
+              <span style={{ fontWeight: 700, color: 'var(--ink)' }}>{p.rating.toFixed(1)}</span>
+              {p.ratingCount != null && <span style={{ color: 'var(--stone)' }}>({p.ratingCount.toLocaleString()})</span>}
             </div>
           )}
 
@@ -249,8 +257,8 @@ export function PlaceScreen({ place: p, closing }: PlaceScreenProps) {
               style={{
                 display: 'flex',
                 gap: 14,
-                borderTop: '1px solid rgba(26,22,20,.09)',
-                borderBottom: '1px solid rgba(26,22,20,.09)',
+                borderTop: '1px solid var(--line)',
+                borderBottom: '1px solid var(--line)',
                 padding: '14px 0 16px',
                 marginBottom: 18,
               }}
@@ -261,14 +269,14 @@ export function PlaceScreen({ place: p, closing }: PlaceScreenProps) {
             </div>
           )}
 
-          {whyWeLoveIt && <div style={{ fontSize: '1.05rem', lineHeight: 1.6, color: '#443A33', marginBottom: 18 }}>{whyWeLoveIt}</div>}
+          {whyWeLoveIt && <div style={{ fontSize: '1.05rem', lineHeight: 1.6, color: 'var(--ink)', marginBottom: 18 }}>{whyWeLoveIt}</div>}
 
           {insiderTip && (
-            <div style={{ background: '#F3EFEB', borderRadius: 14, padding: '16px 18px', marginBottom: 18 }}>
-              <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: '#8C7F79', marginBottom: 6 }}>
+            <div style={{ background: 'var(--surface-2)', borderRadius: 14, padding: '16px 18px', marginBottom: 18 }}>
+              <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 6 }}>
                 Insider tip
               </div>
-              <div style={{ fontSize: '0.95rem', lineHeight: 1.5, color: '#1A1614' }}>{insiderTip}</div>
+              <div style={{ fontSize: '0.95rem', lineHeight: 1.5, color: 'var(--ink)' }}>{insiderTip}</div>
             </div>
           )}
 
@@ -277,7 +285,7 @@ export function PlaceScreen({ place: p, closing }: PlaceScreenProps) {
           <EditorialBlock label="Nearby" text={p.nearbyRecommendations} />
 
           <div style={{ marginTop: 8 }}>
-            <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: '#8C7F79', marginBottom: 6 }}>
+            <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 6 }}>
               Arrival note
             </div>
             <textarea
@@ -288,12 +296,12 @@ export function PlaceScreen({ place: p, closing }: PlaceScreenProps) {
               rows={2}
               style={{
                 width: '100%',
-                border: '1px solid rgba(26,22,20,.12)',
-                borderRadius: 12,
+                border: '1px solid var(--line)',
+                borderRadius: 'var(--radius-sm)',
                 padding: '10px 12px',
                 fontSize: '0.9rem',
                 fontFamily: 'inherit',
-                color: '#1A1614',
+                color: 'var(--ink)',
                 resize: 'none',
                 boxSizing: 'border-box',
               }}
@@ -304,7 +312,7 @@ export function PlaceScreen({ place: p, closing }: PlaceScreenProps) {
 
       <div
         style={{
-          background: '#FAF8F6',
+          background: 'var(--bg-app)',
           padding: '16px 20px max(16px, env(safe-area-inset-bottom, 0px))',
           display: 'flex',
           flexDirection: 'column',
@@ -312,54 +320,11 @@ export function PlaceScreen({ place: p, closing }: PlaceScreenProps) {
         }}
       >
         {p.bookingUrl && (
-          <button
-            onClick={() => setBookingItem({ id: p.id, name: p.name, bookingUrl: p.bookingUrl! })}
-            style={{
-              width: '100%',
-              height: 54,
-              borderRadius: 16,
-              background: '#CC0029',
-              color: '#fff',
-              fontSize: '1.05rem',
-              fontWeight: 600,
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
-          >
+          <button onClick={() => setBookingItem({ id: p.id, name: p.name, bookingUrl: p.bookingUrl! })} style={primaryCtaStyle()}>
             Book this tour
           </button>
         )}
-        <button
-          onClick={() => startWalkingDirections(p)}
-          style={
-            p.bookingUrl
-              ? {
-                  width: '100%',
-                  height: 54,
-                  borderRadius: 16,
-                  background: 'transparent',
-                  color: '#CC0029',
-                  fontSize: '1.05rem',
-                  fontWeight: 600,
-                  border: '1.5px solid #CC0029',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }
-              : {
-                  width: '100%',
-                  height: 54,
-                  borderRadius: 16,
-                  background: '#CC0029',
-                  color: '#fff',
-                  fontSize: '1.05rem',
-                  fontWeight: 600,
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }
-          }
-        >
+        <button onClick={() => startWalkingDirections(p)} style={p.bookingUrl ? secondaryCtaStyle() : primaryCtaStyle()}>
           Walk there
         </button>
       </div>

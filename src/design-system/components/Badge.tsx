@@ -7,7 +7,7 @@ import { StarIcon } from './Icons';
 
 interface BadgeProps {
   children: ReactNode;
-  variant?: 'red' | 'black' | 'neutral';
+  variant?: 'red' | 'black';
 }
 
 const VARIANT_STYLES: Record<NonNullable<BadgeProps['variant']>, { bg: string; color: string; border: string }> = {
@@ -16,11 +16,6 @@ const VARIANT_STYLES: Record<NonNullable<BadgeProps['variant']>, { bg: string; c
   // letterale stonato dopo il cambio token.
   red: { bg: 'rgba(227,6,19,0.08)', color: 'var(--red)', border: 'rgba(227,6,19,0.25)' },
   black: { bg: 'rgba(0,0,0,0.06)', color: 'var(--ink)', border: 'rgba(0,0,0,0.15)' },
-  // Mai usata oggi (verificato) — il suo sfondo puntava a --surface-2, che la
-  // Fase 2 del brand ha spostato da beige neutro a Roman Blush (rosa). Non
-  // toccata qui: quale colore renda davvero "neutral" post-rebrand è una
-  // decisione della Fase 5 (sweep token più ampio), non da improvvisare qui.
-  neutral: { bg: 'var(--surface-2)', color: 'var(--stone)', border: 'var(--line)' },
 };
 
 export function Badge({ children, variant = 'red' }: BadgeProps) {

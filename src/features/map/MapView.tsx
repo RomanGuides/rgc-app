@@ -147,7 +147,15 @@ export function MapView({ places, onSelectPlace, userLocation, activeRoute, sele
         source: 'places',
         filter: ['has', 'point_count'],
         paint: {
-          'circle-color': ['step', ['get', 'point_count'], '#ff6b85', 10, '#ff0033', 30, '#cc0029'],
+          // Espressione di paint MapLibre GL — non supporta var(), quindi
+          // resta un letterale hex anche dopo l'audit token della Fase 5.
+          // Rampa aggiornata dal vecchio rosso (#ff0033) al nuovo brand:
+          // #e30613 = --red, #b8050f = --red-dk (tinta scura invariata,
+          // coincide quasi esattamente con la vecchia #cc0029 scalata),
+          // #ef6f76 = tinta chiara di --red calcolata con lo stesso rapporto
+          // di schiarimento della vecchia rampa (#ff0033 -> #ff6b85, ~42%
+          // verso il bianco) applicato al nuovo rosso.
+          'circle-color': ['step', ['get', 'point_count'], '#ef6f76', 10, '#e30613', 30, '#b8050f'],
           'circle-radius': ['step', ['get', 'point_count'], 16, 10, 20, 30, 26],
           'circle-stroke-width': 2,
           'circle-stroke-color': '#ffffff',
@@ -195,7 +203,9 @@ export function MapView({ places, onSelectPlace, userLocation, activeRoute, sele
         source: 'active-route',
         layout: { 'line-join': 'round', 'line-cap': 'round' },
         paint: {
-          'line-color': '#ff0033',
+          // Espressione di paint MapLibre GL — non supporta var(); #e30613 =
+          // --red, aggiornato dal vecchio #ff0033 (audit token Fase 5).
+          'line-color': '#e30613',
           'line-width': 5,
           'line-opacity': 0.85,
         },
@@ -349,7 +359,10 @@ export function MapView({ places, onSelectPlace, userLocation, activeRoute, sele
         el.style.width = isSelected ? '36px' : '30px';
         el.style.height = isSelected ? '36px' : '30px';
         el.style.boxShadow = isSelected
-          ? '0 0 0 5px rgba(204,0,41,0.28), 0 2px 6px rgba(0,0,0,0.35)'
+          // rgb(184,5,15) = --red-dk (#b8050f) — stesso pattern già usato in
+          // Button.tsx per un rgba che ha bisogno dell'RGB decimale di un
+          // token (audit token Fase 5, era il vecchio rosso rgb(204,0,41)).
+          ? '0 0 0 5px rgba(184,5,15,0.28), 0 2px 6px rgba(0,0,0,0.35)'
           : '0 2px 6px rgba(0,0,0,0.35)';
         el.style.zIndex = isSelected ? '1' : '0';
         el.style.transition = 'width 0.2s ease, height 0.2s ease, box-shadow 0.2s ease';

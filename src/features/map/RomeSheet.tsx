@@ -68,6 +68,47 @@ function TonightTapTarget({ href, children }: { href?: string | null; children: 
   );
 }
 
+// Etichetta maiuscola di sezione ("Tonight"/eyebrow di area/"Nearest to
+// you") — stesso oggetto ripetuto 3 volte con solo marginBottom diverso
+// (audit token Fase 5).
+const SECTION_LABEL_BASE = {
+  fontSize: '0.72rem',
+  fontWeight: 600,
+  letterSpacing: '.09em',
+  textTransform: 'uppercase' as const,
+  color: 'var(--stone)',
+};
+
+// Bottone "solo testo" (Show nearest places/Clear filters/Legal & About) —
+// stesso reset di bottone ripetuto 3 volte, solo colore/dimensione diversi
+// (audit token Fase 5).
+function textButtonStyle(color: string, fontSize = '1.0625rem') {
+  return {
+    border: 'none',
+    background: 'none',
+    padding: 0,
+    textAlign: 'left' as const,
+    color,
+    fontWeight: 600,
+    fontSize,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+  };
+}
+
+// Get Around/Emergency — stesso blocco eyebrow+corpo copiato due volte
+// (audit token Fase 5).
+function InfoBlock({ title, body }: { title: string; body: string }) {
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--stone)', marginBottom: 4 }}>
+        {title}
+      </div>
+      <div style={{ fontSize: '0.82rem', color: 'var(--ink)', lineHeight: 1.5 }}>{body}</div>
+    </div>
+  );
+}
+
 export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDetentChange, onOpenLegal }: RomeSheetProps) {
   const places = usePlacesStore((s) => s.places);
   const activeCategories = usePlacesStore((s) => s.activeCategories);
@@ -376,9 +417,9 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
           right: 0,
           bottom: 0,
           height: heightPx ?? getDetentPx('resting'),
-          background: '#FFFFFF',
+          background: 'var(--surface)',
           borderRadius: '22px 22px 0 0',
-          boxShadow: '0 -14px 44px rgba(26,22,20,.14)',
+          boxShadow: '0 -14px 44px var(--shadow-color)',
           pointerEvents: 'auto',
           display: 'flex',
           flexDirection: 'column',
@@ -409,13 +450,13 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
                 minWidth: 0,
                 height: 48,
                 borderRadius: 14,
-                background: '#F3EFEB',
+                background: 'var(--bg-app)',
                 border: 'none',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
                 padding: '0 14px',
-                color: '#8C7F79',
+                color: 'var(--stone)',
                 fontSize: '0.95rem',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
@@ -434,7 +475,7 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
                 height: 32,
                 alignSelf: 'center',
                 borderRadius: '50%',
-                background: '#E4DED7',
+                background: 'var(--bg-app)',
                 border: 'none',
                 display: 'flex',
                 alignItems: 'center',
@@ -456,7 +497,7 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
                     height: 9,
                     borderRadius: '50%',
                     background: 'var(--red)',
-                    border: '1.5px solid #FFFFFF',
+                    border: '1.5px solid var(--white)',
                   }}
                 />
               )}
@@ -475,9 +516,7 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
         >
           {tonight && (
             <div style={{ marginBottom: 24 }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: '#6E645F', marginBottom: 8 }}>
-                Tonight
-              </div>
+              <div style={{ ...SECTION_LABEL_BASE, marginBottom: 8 }}>Tonight</div>
               <TonightTapTarget href={tonight.ctaUrl}>
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                   {tonight.imageUrl && (
@@ -492,10 +531,10 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
                     />
                   )}
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontFamily: 'var(--display)', fontSize: '1.2rem', fontWeight: 700, color: '#1A1614', marginBottom: 2 }}>
+                    <div style={{ fontFamily: 'var(--display)', fontSize: '1.2rem', fontWeight: 700, color: 'var(--ink)', marginBottom: 2 }}>
                       {tonight.title}
                     </div>
-                    {tonight.subtitle && <div style={{ fontSize: '0.85rem', color: '#6E645F', lineHeight: 1.35 }}>{tonight.subtitle}</div>}
+                    {tonight.subtitle && <div style={{ fontSize: '0.85rem', color: 'var(--stone)', lineHeight: 1.35 }}>{tonight.subtitle}</div>}
                   </div>
                 </div>
               </TonightTapTarget>
@@ -509,17 +548,11 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
                 action={
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                     {userLocation && (
-                      <button
-                        onClick={handleShowNearestPlaces}
-                        style={{ border: 'none', background: 'none', padding: 0, textAlign: 'left', color: 'var(--red)', fontWeight: 600, fontSize: '1.0625rem', cursor: 'pointer', fontFamily: 'inherit' }}
-                      >
+                      <button onClick={handleShowNearestPlaces} style={textButtonStyle('var(--red)')}>
                         Show nearest places
                       </button>
                     )}
-                    <button
-                      onClick={handleClearFilters}
-                      style={{ border: 'none', background: 'none', padding: 0, textAlign: 'left', color: '#6E645F', fontSize: '1.0625rem', cursor: 'pointer', fontFamily: 'inherit' }}
-                    >
+                    <button onClick={handleClearFilters} style={textButtonStyle('var(--stone)')}>
                       Clear filters
                     </button>
                   </div>
@@ -531,20 +564,9 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
           {visiblePlaces.length > 0 && (locationStatus === 'denied' || isOutsideRome
             ? areaGroups.map((g) => (
                 <div key={g.area} style={{ marginBottom: 24 }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      fontSize: '0.72rem',
-                      fontWeight: 600,
-                      letterSpacing: '.09em',
-                      textTransform: 'uppercase',
-                      color: '#6E645F',
-                      marginBottom: 10,
-                    }}
-                  >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', ...SECTION_LABEL_BASE, marginBottom: 10 }}>
                     <span>{g.area}</span>
-                    <span style={{ color: '#8C7F79' }}>
+                    <span style={{ color: 'var(--stone)' }}>
                       {g.places.length} place{g.places.length === 1 ? '' : 's'}
                     </span>
                   </div>
@@ -562,7 +584,7 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
                         textAlign: 'left',
                         fontFamily: 'inherit',
                         fontSize: '1rem',
-                        color: '#1A1614',
+                        color: 'var(--ink)',
                       }}
                     >
                       {p.name}
@@ -572,9 +594,7 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
               ))
             : nearest.length > 0 && (
                 <div style={{ marginBottom: 24 }}>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: '#6E645F', marginBottom: 10 }}>
-                    Nearest to you
-                  </div>
+                  <div style={{ ...SECTION_LABEL_BASE, marginBottom: 10 }}>Nearest to you</div>
                   {nearest.map((p) => (
                     <button
                       key={p.id}
@@ -592,8 +612,8 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
                         fontFamily: 'inherit',
                       }}
                     >
-                      <span style={{ fontSize: '1rem', color: '#1A1614' }}>{p.name}</span>
-                      <span style={{ fontSize: '0.85rem', color: '#8C7F79', flexShrink: 0, marginLeft: 12 }}>
+                      <span style={{ fontSize: '1rem', color: 'var(--ink)' }}>{p.name}</span>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--stone)', flexShrink: 0, marginLeft: 12 }}>
                         {formatDistance(p.distanceMeters)}
                       </span>
                     </button>
@@ -602,23 +622,9 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
               ))}
 
           {detent === 'full' && (getAround || emergency) && (
-            <div style={{ borderTop: '1px solid rgba(26,22,20,.10)', paddingTop: 16, marginTop: 8 }}>
-              {getAround && (
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: '#8C7F79', marginBottom: 4 }}>
-                    {getAround.title}
-                  </div>
-                  <div style={{ fontSize: '0.82rem', color: '#443A33', lineHeight: 1.5 }}>{getAround.body}</div>
-                </div>
-              )}
-              {emergency && (
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: '#8C7F79', marginBottom: 4 }}>
-                    {emergency.title}
-                  </div>
-                  <div style={{ fontSize: '0.82rem', color: '#443A33', lineHeight: 1.5 }}>{emergency.body}</div>
-                </div>
-              )}
+            <div style={{ borderTop: '1px solid var(--line)', paddingTop: 16, marginTop: 8 }}>
+              {getAround && <InfoBlock title={getAround.title} body={getAround.body} />}
+              {emergency && <InfoBlock title={emergency.title} body={emergency.body} />}
               <a
                 href={buildWaterFountainSearchUrl(userLocation)}
                 target="_blank"
@@ -628,10 +634,7 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
                 🚰 Find Water Nearby
               </a>
               {onOpenLegal && (
-                <button
-                  onClick={onOpenLegal}
-                  style={{ border: 'none', background: 'none', padding: 0, fontSize: '0.82rem', color: '#8C7F79', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
-                >
+                <button onClick={onOpenLegal} style={textButtonStyle('var(--stone)', '0.82rem')}>
                   Legal &amp; About
                 </button>
               )}
@@ -655,9 +658,9 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
               ...(popoverAnchor.top !== undefined ? { top: popoverAnchor.top } : { bottom: popoverAnchor.bottom }),
               right: popoverAnchor.right,
               zIndex: 31,
-              background: '#FFFFFF',
+              background: 'var(--surface)',
               borderRadius: 16,
-              boxShadow: '0 8px 28px rgba(26,22,20,.16)',
+              boxShadow: '0 8px 28px var(--shadow-color)',
               padding: 10,
               display: 'flex',
               flexDirection: 'column',
@@ -680,8 +683,8 @@ export function RomeSheet({ onOpenSearch, locationStatus, forceFullDetent, onDet
                     padding: '8px 10px',
                     borderRadius: 10,
                     border: 'none',
-                    background: active ? '#F3EFEB' : 'transparent',
-                    color: active ? '#CC0029' : '#6E645F',
+                    background: active ? 'var(--bg-app)' : 'transparent',
+                    color: active ? 'var(--red)' : 'var(--stone)',
                     fontSize: '0.85rem',
                     fontWeight: active ? 700 : 500,
                     cursor: 'pointer',

@@ -132,7 +132,7 @@ export function SearchScreen({ onClose }: SearchScreenProps) {
   }
 
   return (
-    <div style={{ position: 'absolute', inset: 0, background: '#FFFFFF', zIndex: 8, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ position: 'absolute', inset: 0, background: 'var(--surface)', zIndex: 8, display: 'flex', flexDirection: 'column' }}>
       <div
         style={{
           display: 'flex',
@@ -154,15 +154,15 @@ export function SearchScreen({ onClose }: SearchScreenProps) {
             minWidth: 0,
             height: 48,
             borderRadius: 14,
-            background: '#F3EFEB',
-            border: q ? '1.5px solid #CC0029' : 'none',
+            background: 'var(--bg-app)',
+            border: q ? '1.5px solid var(--red)' : 'none',
             display: 'flex',
             alignItems: 'center',
             gap: 8,
             padding: '0 14px',
           }}
         >
-          <SearchIcon width={19} height={19} color="#8C7F79" />
+          <SearchIcon width={19} height={19} color="var(--stone)" />
           <input
             autoFocus
             value={query}
@@ -188,19 +188,19 @@ export function SearchScreen({ onClose }: SearchScreenProps) {
         </button>
       </div>
 
-      <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: '#6E645F', padding: '0 20px 8px' }}>
+      <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: 'var(--stone)', padding: '0 20px 8px' }}>
         {q ? `${results.length} result${results.length === 1 ? '' : 's'}` : userLocation ? 'Nearest to you' : 'All places'}
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px' }}>
         {results.length === 0 && (
           <div style={{ padding: '24px 0' }}>
-            <div style={{ fontSize: '1.0625rem', lineHeight: 1.55, color: '#443A33' }}>
-              Nothing in our list matches <strong style={{ color: '#1A1614' }}>{query}</strong>. We only carry the eighty-nine places our guides stand behind.
+            <div style={{ fontSize: '1.0625rem', lineHeight: 1.55, color: 'var(--ink)' }}>
+              Nothing in our list matches <strong style={{ color: 'var(--ink)' }}>{query}</strong>. We only carry the eighty-nine places our guides stand behind.
             </div>
             {suggestionPills.length > 0 && (
               <div style={{ marginTop: 26 }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: '#8C7F79', paddingBottom: 12 }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: 'var(--stone)', paddingBottom: 12 }}>
                   Try instead
                 </div>
                 <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -213,11 +213,11 @@ export function SearchScreen({ onClose }: SearchScreenProps) {
                         display: 'flex',
                         alignItems: 'center',
                         padding: '0 16px',
-                        borderRadius: 99,
-                        background: '#F3EFEB',
+                        borderRadius: 'var(--radius-pill)',
+                        background: 'var(--bg-app)',
                         border: 'none',
                         fontSize: '0.94rem',
-                        color: '#1A1614',
+                        color: 'var(--ink)',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}
@@ -244,7 +244,7 @@ export function SearchScreen({ onClose }: SearchScreenProps) {
                 width: '100%',
                 padding: '12px 0',
                 border: 'none',
-                borderBottom: '1px solid rgba(26,22,20,.07)',
+                borderBottom: '1px solid var(--line)',
                 background: 'none',
                 cursor: 'pointer',
                 textAlign: 'left',
@@ -270,11 +270,11 @@ export function SearchScreen({ onClose }: SearchScreenProps) {
                 <div style={{ fontSize: '1.05rem', color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {p.name}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: '#6E645F' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: 'var(--stone)' }}>
                   {p.rating != null && (
                     <>
                       <StarIcon width={11} height={11} style={{ color: 'var(--red)', flexShrink: 0 }} />
-                      <span style={{ color: '#443A33', fontWeight: 600 }}>{p.rating.toFixed(1)}</span>
+                      <span style={{ color: 'var(--ink)', fontWeight: 600 }}>{p.rating.toFixed(1)}</span>
                       <span>·</span>
                     </>
                   )}

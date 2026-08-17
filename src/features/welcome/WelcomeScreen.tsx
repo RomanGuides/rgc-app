@@ -50,14 +50,14 @@ export function WelcomeScreen({ onDone }: WelcomeScreenProps) {
       <div
         style={{
           position: 'absolute',
-          top: 'calc(env(safe-area-inset-top, 0px) + 20px)',
-          left: 24,
+          top: 'calc(env(safe-area-inset-top, 0px) + var(--space-5))',
+          left: 'var(--space-6)',
           fontFamily: 'var(--display)',
           fontSize: '0.78rem',
           fontWeight: 700,
           letterSpacing: '.14em',
           textTransform: 'uppercase',
-          color: '#FFFFFF',
+          color: 'var(--white)',
         }}
       >
         Roman Guides
@@ -68,11 +68,11 @@ export function WelcomeScreen({ onDone }: WelcomeScreenProps) {
           position: 'absolute',
           left: 0,
           right: 0,
-          bottom: 'calc(env(safe-area-inset-bottom, 0px) + 32px)',
-          padding: '0 24px',
+          bottom: 'calc(env(safe-area-inset-bottom, 0px) + var(--space-8))',
+          padding: '0 var(--space-6)',
         }}
       >
-        <div style={{ fontFamily: 'var(--display)', fontSize: '2.1rem', fontWeight: 700, lineHeight: 1.15, color: '#FFFFFF', marginBottom: 14 }}>
+        <div style={{ fontFamily: 'var(--display)', fontSize: '2.1rem', fontWeight: 700, lineHeight: 1.15, color: 'var(--white)', marginBottom: 14 }}>
           {OUR_STORY_MASTHEAD}
         </div>
         <div style={{ fontSize: '1.0625rem', lineHeight: 1.5, color: 'rgba(255,255,255,.88)', marginBottom: 28 }}>
@@ -83,9 +83,9 @@ export function WelcomeScreen({ onDone }: WelcomeScreenProps) {
           style={{
             width: '100%',
             height: 54,
-            borderRadius: 16,
-            background: '#CC0029',
-            color: '#fff',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--red)',
+            color: 'var(--white)',
             fontSize: '1.05rem',
             fontWeight: 600,
             border: 'none',
