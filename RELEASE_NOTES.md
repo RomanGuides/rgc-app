@@ -32,6 +32,15 @@ A substantial redesign since the v1.0.0 baseline below — nav shell, screens, a
 ### Saved (was My Rome)
 - Reduced to just the shortlist: title, count, and the saved-places list, now sorted by distance instead of save order.
 - Meet the Guides, Our Story, testimonials, and review links moved to Experiences (above); a WhatsApp-per-guide button and a second (TripAdvisor) review link were retired for now rather than carried over — see `docs/parked-content.md`.
+- **Repeat-booking discount (`ROME10`, 10% off) restored** on Experiences, below the masthead — temporarily parked during the restructure above, not carried over until now. Also surfaced as a one-time popup on Home (2026-08-17), so it's visible from the tab most people open first, not only to someone who scrolls into Experiences; generic wording there since the app has no way to tell a first-time visitor from a past customer.
+
+### Visual identity (brand evolution, 2026-08-17)
+A six-phase pass across the whole app, done in the open with the founder (each phase reviewed and approved before the next started — see `CHANGELOG.md` for the full per-phase breakdown):
+- New palette and typography: Roman Red (`#E30613`), a warmer Charcoal/Warm Grey/Warm Ivory neutral set, Roman Blush for secondary surfaces, and Playfair Display for headings — replacing the original brand kit's values and Vollkorn. A real conflict between the founder's official historical brand kit and the new direction he shared was surfaced and resolved explicitly, not silently picked.
+- The real Roman Guides logo now appears at the top of Home, Experiences, and Saved — deliberately not on Rome, to keep the map full-bleed.
+- Shared design-system components (`Button`, `Badge`, the tab bar's icons) deduplicated onto one shared set; 5 confirmed-dead files removed.
+- Every remaining hardcoded pre-rebrand color/font literal replaced with the new design tokens across the 11 screens not already covered by the phases above.
+- A final visual QA pass across every screen found and fixed a real, previously invisible bug: leftover CSS boilerplate from the original project scaffold, still imported at the app's entry point, had been silently centering text app-wide since the very first commit — invisible almost everywhere except one broken bullet list, which is how it was actually caught.
 
 ### Fixed (found only through real-device testing)
 - Safe-area padding for the tab bar and map header on edge-to-edge Android devices.
@@ -41,7 +50,7 @@ A substantial redesign since the v1.0.0 baseline below — nav shell, screens, a
 
 ### Known issues / caveats
 - Full native Bokun checkout (own UI, live pricing/availability, in-app payment) was researched and architected in depth but deliberately not built — the in-app widget above already avoids the external-browser handoff at zero backend/PCI cost, and the added UI control wasn't judged worth taking on a backend and payment compliance burden for at current volume. See `docs/BokunIntegration.md`.
-- **App Store screenshots are now out of date.** Any reference mockups predate this redesign (new nav shell, new Place/Experiences/Saved screens, in-app booking) — fresh real-device captures are needed before any store submission, tracked in `ROADMAP.md`.
+- **App Store screenshots are now out of date.** Any reference mockups predate this redesign (new nav shell, new Place/Experiences/Saved screens, in-app booking) and the brand evolution above (new palette/typography/logo, completed 2026-08-17) — fresh real-device captures are needed before any store submission, tracked in `ROADMAP.md`.
 - Caveats already listed under v1.0.0 below that are still true: no CI/CD or hosting configured, the `Collection` data model entity still has no UI, and the two independent `UserLocation` interfaces still haven't been unified.
 
 ## v1.0.0 — 2026-08-01
