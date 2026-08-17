@@ -25,6 +25,7 @@ import { getExperiences } from '../../services/experiencesService';
 import { getAppContentSection } from '../../services/appContentService';
 import { Card } from '../../design-system/components/Card';
 import { SectionHeader } from '../../design-system/components/SectionHeader';
+import logoUrl from '../../assets/brand/roman-guides-logo.png';
 import { LINKS } from '../../config/links';
 import {
   ClockIcon,
@@ -202,6 +203,11 @@ export function HomeScreen({ onNavigate, onNavigateToSection }: HomeScreenProps)
               : 'linear-gradient(160deg, var(--red), var(--red-dk))',
           }}
         >
+          {/* Logo direttamente sulla foto, nessuno sfondo dietro — richiesto
+              esplicitamente al posto della barra usata su Experiences/Saved. */}
+          <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 12px)', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+            <img src={logoUrl} alt="Roman Guides" style={{ height: 96, width: 'auto' }} />
+          </div>
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 24px 22px' }}>
             <div
               style={{

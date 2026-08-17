@@ -228,6 +228,19 @@ test('Experiences tab renders (tours, guides, story)', async ({ page }) => {
   await expect(page.getByText('Our Story')).toBeVisible();
 });
 
+// Restored from docs/parked-content.md (2026-08-17) — real copy that existed
+// before the five-section restructure, parked rather than deleted at the time.
+test('Experiences: repeat-booking discount banner shows the real code and links out', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Experiences/ }).last().click();
+  await expect(page.getByText('10% off your next experience', { exact: true })).toBeVisible();
+  await expect(page.getByText('CODE: ROME10')).toBeVisible();
+  await expect(page.getByRole('link', { name: /Book Your Next Experience/ })).toHaveAttribute(
+    'href',
+    'https://romanguides.com/our-tours/'
+  );
+});
+
 test('Experiences: tapping a guide opens their full bio, back closes it', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /Experiences/ }).last().click();

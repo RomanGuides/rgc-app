@@ -7,6 +7,7 @@
 import { usePlacesStore } from '../../store/usePlacesStore';
 import { SavedPlacesList } from './SavedPlacesList';
 import { SectionHeader } from '../../design-system/components/SectionHeader';
+import { BrandMark } from '../../design-system/components/BrandMark';
 import type { TabKey } from '../../design-system/components/TabBar';
 
 interface MyRomeScreenProps {
@@ -18,6 +19,7 @@ export function MyRomeScreen({ onNavigate }: MyRomeScreenProps) {
 
   return (
     <div style={{ padding: 'var(--space-5) var(--space-4)', height: '100%', overflowY: 'auto', background: 'var(--bg-app)' }}>
+      <BrandMark />
       <SectionHeader title="Saved" subtitle={savedCount === 0 ? 'Nothing yet' : `${savedCount} place${savedCount === 1 ? '' : 's'}`} />
       <SavedPlacesList onSelect={() => onNavigate('rome')} onBrowseMap={() => onNavigate('rome')} />
     </div>

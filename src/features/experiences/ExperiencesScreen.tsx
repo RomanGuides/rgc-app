@@ -22,6 +22,7 @@ import { getExperiences } from '../../services/experiencesService';
 import { getGuides } from '../../services/guidesService';
 import { getTestimonials } from '../../services/testimonialsService';
 import { Card } from '../../design-system/components/Card';
+import { BrandMark } from '../../design-system/components/BrandMark';
 import { Badge } from '../../design-system/components/Badge';
 import { Button } from '../../design-system/components/Button';
 import { SectionHeader } from '../../design-system/components/SectionHeader';
@@ -272,6 +273,7 @@ export function ExperiencesScreen({ scrollTarget, onScrollTargetHandled }: Exper
   return (
     <>
     <div ref={containerRef} style={{ padding: 'var(--space-5) var(--space-4)', height: '100%', overflowY: 'auto', background: 'var(--bg-app)' }}>
+      <BrandMark />
       {/* ---------- Masthead ---------- */}
       <div style={{ marginBottom: 'var(--space-6)' }}>
         <div
@@ -291,6 +293,26 @@ export function ExperiencesScreen({ scrollTarget, onScrollTargetHandled }: Exper
           {OUR_STORY_MASTHEAD}
         </div>
       </div>
+
+      {/* ---------- Repeat-booking discount ---------- */}
+      {/* Restored from docs/parked-content.md — parked (not deleted) during
+          the five-section Experiences restructure since it didn't fit that
+          spec. Same copy/code/link as before, placed at the top of the tab
+          as it was originally. */}
+      <Card showMedia={false} style={{ marginBottom: 'var(--space-6)' }}>
+        <div style={{ fontFamily: 'var(--display)', fontSize: '1.05rem', fontWeight: 700, marginBottom: 4 }}>
+          10% off your next experience
+        </div>
+        <div style={{ fontSize: '0.82rem', color: 'var(--stone)', lineHeight: 1.5, marginBottom: 'var(--space-3)' }}>
+          Thank you for touring with Roman Guides. Enjoy 10% off your next experience when booking directly with us.
+        </div>
+        <div style={{ marginBottom: 'var(--space-3)' }}>
+          <Badge variant="black">CODE: ROME10</Badge>
+        </div>
+        <Button variant="ghost" href={LINKS.TOURS} target="_blank" rel="noopener noreferrer">
+          Book Your Next Experience →
+        </Button>
+      </Card>
 
       {/* ---------- Tours, grouped by type ---------- */}
       <div style={{ marginBottom: 'var(--space-5)' }}>
