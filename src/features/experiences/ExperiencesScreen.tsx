@@ -28,6 +28,7 @@ import { Button } from '../../design-system/components/Button';
 import { SectionHeader } from '../../design-system/components/SectionHeader';
 import { OUR_STORY_MASTHEAD, OUR_STORY_PARAGRAPHS } from '../../config/story';
 import { LINKS } from '../../config/links';
+import { REPEAT_BOOKING_DISCOUNT_CODE } from '../../config/promotions';
 import { BookingWidgetModal, type BookableItem } from './BookingWidgetModal';
 import { GuideDetailScreen } from './GuideDetailScreen';
 import { TourDetailScreen } from './TourDetailScreen';
@@ -283,7 +284,7 @@ export function ExperiencesScreen({ scrollTarget, onScrollTargetHandled }: Exper
           Thank you for touring with Roman Guides. Enjoy 10% off your next experience when booking directly with us.
         </div>
         <div style={{ marginBottom: 'var(--space-3)' }}>
-          <Badge variant="black">CODE: ROME10</Badge>
+          <Badge variant="black">CODE: {REPEAT_BOOKING_DISCOUNT_CODE}</Badge>
         </div>
         <Button variant="ghost" href={LINKS.TOURS} target="_blank" rel="noopener noreferrer">
           Book Your Next Experience →

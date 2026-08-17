@@ -36,16 +36,20 @@ async function goToRome(page: Page) {
   await page.getByRole('button', { name: /Rome/ }).last().click();
 }
 
-// WelcomeScreen (shown once per install, before any tab) would otherwise
-// block every test below it — seed the same persisted flag the real app
-// writes after a genuine first run, so these tests exercise the normal app
-// exactly like a returning user would see it. The one test that actually
-// covers WelcomeScreen (below) clears this itself.
+// WelcomeScreen (shown once per install, before any tab) and the Home
+// discount popup (same "once per install" pattern, added 2026-08-17) would
+// otherwise block every test below them — seed the same persisted flags the
+// real app writes after a genuine first run/first popup dismissal, so these
+// tests exercise the normal app exactly like a returning user would see it.
+// The dedicated tests for each of those (below) clear/override this themselves.
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem(
       'rgc_saved_places',
-      JSON.stringify({ state: { hasSeenWelcome: true, savedPlaceIds: [], arrivalNotes: {} }, version: 0 })
+      JSON.stringify({
+        state: { hasSeenWelcome: true, hasSeenDiscountPopup: true, savedPlaceIds: [], arrivalNotes: {} },
+        version: 0,
+      })
     );
   });
 });
@@ -63,6 +67,25 @@ test('WelcomeScreen: shown on first run, "Not now" dismisses into the app (Home,
   await expect(page.getByText('Top Experiences')).toBeVisible();
 });
 
+test('Home: discount popup shows once, "See Tours" closes it and switches to Experiences', async ({ page }) => {
+  // Overrides the file-level beforeEach's seeding: this test needs
+  // hasSeenDiscountPopup left at its real first-run default (false/absent).
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'rgc_saved_places',
+      JSON.stringify({ state: { hasSeenWelcome: true, savedPlaceIds: [], arrivalNotes: {} }, version: 0 })
+    );
+  });
+  await page.goto('/');
+
+  await expect(page.getByText('Save 10% on your Roman Guides experience')).toBeVisible();
+  await expect(page.getByText('CODE: ROME10')).toBeVisible();
+
+  await page.getByRole('button', { name: 'See Tours →' }).click();
+  await expect(page.getByText('Save 10% on your Roman Guides experience')).not.toBeVisible();
+  await expect(page.getByText('Rome, from people who live here.')).toBeVisible();
+});
+
 test('RomeSheet: a location far from Rome shows the by-neighbourhood list, not "Nearest to you"', async ({ browser }) => {
   // Own context, not the shared `page` fixture: needs a different
   // `geolocation` than playwright.config.ts's default (Trevi Fountain), so
@@ -72,7 +95,10 @@ test('RomeSheet: a location far from Rome shows the by-neighbourhood list, not "
   await page.addInitScript(() => {
     localStorage.setItem(
       'rgc_saved_places',
-      JSON.stringify({ state: { hasSeenWelcome: true, savedPlaceIds: [], arrivalNotes: {} }, version: 0 })
+      JSON.stringify({
+        state: { hasSeenWelcome: true, hasSeenDiscountPopup: true, savedPlaceIds: [], arrivalNotes: {} },
+        version: 0,
+      })
     );
   });
   await page.goto('/');
@@ -98,7 +124,10 @@ test('LocateButton: first tap primes with an explanation while permission is und
   await page.addInitScript(() => {
     localStorage.setItem(
       'rgc_saved_places',
-      JSON.stringify({ state: { hasSeenWelcome: true, savedPlaceIds: [], arrivalNotes: {} }, version: 0 })
+      JSON.stringify({
+        state: { hasSeenWelcome: true, hasSeenDiscountPopup: true, savedPlaceIds: [], arrivalNotes: {} },
+        version: 0,
+      })
     );
     // @ts-expect-error — stubbing a browser API for the test, not real app code
     navigator.permissions.query = async () => ({ state: 'prompt' });

@@ -25,8 +25,10 @@ import { getExperiences } from '../../services/experiencesService';
 import { getAppContentSection } from '../../services/appContentService';
 import { Card } from '../../design-system/components/Card';
 import { SectionHeader } from '../../design-system/components/SectionHeader';
+import { Button } from '../../design-system/components/Button';
 import logoUrl from '../../assets/brand/roman-guides-logo.png';
 import { LINKS } from '../../config/links';
+import { REPEAT_BOOKING_DISCOUNT_CODE } from '../../config/promotions';
 import {
   ClockIcon,
   TagIcon,
@@ -36,13 +38,15 @@ import {
   ShieldCheckIcon,
   HeartIcon,
   StarIcon,
+  CloseIcon,
 } from '../../design-system/components/Icons';
 import { formatDuration } from '../../utils/formatDuration';
 import { TOUR_TYPE_LABELS, TOUR_TYPE_ORDER, GIFT_CARD_ITEM } from '../experiences/ExperiencesScreen';
-import { BestSellerBadge } from '../../design-system/components/Badge';
+import { Badge, BestSellerBadge } from '../../design-system/components/Badge';
 import { BookingWidgetModal, type BookableItem } from '../experiences/BookingWidgetModal';
 import { TourDetailScreen } from '../experiences/TourDetailScreen';
 import type { TabKey } from '../../design-system/components/TabBar';
+import { usePlacesStore } from '../../store/usePlacesStore';
 
 interface HomeScreenProps {
   onNavigate: (tab: TabKey) => void;
@@ -167,6 +171,63 @@ function CategoryPill({ label, onClick }: { label: string; onClick: () => void }
   );
 }
 
+// Popup sconto, mostrato una sola volta per installazione (2026-08-17).
+// Testo generico ("Save 10%..."), non "thank you for touring" come il
+// banner in ExperiencesScreen — quel banner presuppone un tour già fatto,
+// ma qui il popup compare a chiunque apra l'app, anche a chi non ha ancora
+// prenotato nulla (l'app non ha account/prenotazioni collegate, quindi non
+// c'è modo di distinguere i due casi).
+function DiscountPopup({ onClose, onSeeTours }: { onClose: () => void; onSeeTours: () => void }) {
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(26,26,26,.5)',
+        zIndex: 20,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 'var(--space-5)',
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: 'relative',
+          width: '100%',
+          maxWidth: 360,
+          background: 'var(--surface)',
+          borderRadius: 'var(--radius-lg)',
+          padding: 'var(--space-6)',
+          boxShadow: 'var(--shadow-card-hover)',
+        }}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          style={{ position: 'absolute', top: 'var(--space-3)', right: 'var(--space-3)', border: 'none', background: 'none', color: 'var(--stone)', cursor: 'pointer', display: 'flex', padding: 4 }}
+        >
+          <CloseIcon width={20} height={20} />
+        </button>
+        <div style={{ fontFamily: 'var(--display)', fontSize: '1.3rem', fontWeight: 700, color: 'var(--ink)', marginBottom: 'var(--space-2)', paddingRight: 'var(--space-5)' }}>
+          Save 10% on your Roman Guides experience
+        </div>
+        <div style={{ fontSize: '0.85rem', color: 'var(--stone)', lineHeight: 1.5, marginBottom: 'var(--space-4)' }}>
+          Use this code when you book directly with us.
+        </div>
+        <div style={{ marginBottom: 'var(--space-5)' }}>
+          <Badge variant="black">CODE: {REPEAT_BOOKING_DISCOUNT_CODE}</Badge>
+        </div>
+        <Button variant="primary" fullWidth onClick={onSeeTours}>
+          See Tours →
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 const TRUST_POINTS = [
   { icon: PersonIcon, label: 'Local guides', caption: 'Passionate, certified and expert' },
   { icon: HeartIcon, label: 'Handpicked', caption: 'Only the places and tours we love' },
@@ -178,10 +239,32 @@ export function HomeScreen({ onNavigate, onNavigateToSection }: HomeScreenProps)
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [bookingItem, setBookingItem] = useState<BookableItem | null>(null);
   const [selectedTour, setSelectedTour] = useState<Experience | null>(null);
+  const hasSeenDiscountPopup = usePlacesStore((s) => s.hasSeenDiscountPopup);
+  const setHasSeenDiscountPopup = usePlacesStore((s) => s.setHasSeenDiscountPopup);
+  const [showDiscountPopup, setShowDiscountPopup] = useState(false);
 
   useEffect(() => {
     setExperiences(getExperiences());
   }, []);
+
+  // Piccolo ritardo prima di comparire — un popup che scatta nello stesso
+  // istante in cui la Home monta legge come un'interruzione più aggressiva
+  // di uno che lascia un attimo per orientarsi prima.
+  useEffect(() => {
+    if (hasSeenDiscountPopup) return;
+    const timer = setTimeout(() => setShowDiscountPopup(true), 700);
+    return () => clearTimeout(timer);
+  }, [hasSeenDiscountPopup]);
+
+  function closeDiscountPopup() {
+    setShowDiscountPopup(false);
+    setHasSeenDiscountPopup();
+  }
+
+  function seeToursFromPopup() {
+    closeDiscountPopup();
+    onNavigate('experiences');
+  }
 
   const hero = getAppContentSection('hero');
 
@@ -316,6 +399,7 @@ export function HomeScreen({ onNavigate, onNavigateToSection }: HomeScreenProps)
         />
       )}
       {bookingItem && <BookingWidgetModal item={bookingItem} onClose={() => setBookingItem(null)} />}
+      {showDiscountPopup && <DiscountPopup onClose={closeDiscountPopup} onSeeTours={seeToursFromPopup} />}
     </>
   );
 }

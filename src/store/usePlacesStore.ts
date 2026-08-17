@@ -52,6 +52,9 @@ interface PlacesStore {
   locateMeSignal: number;
   // Mostrata una sola volta per installazione — vedi WelcomeScreen.tsx.
   hasSeenWelcome: boolean;
+  // Popup sconto in Home, mostrato una sola volta per installazione — stesso
+  // pattern di hasSeenWelcome (2026-08-17).
+  hasSeenDiscountPopup: boolean;
 
   loadPlaces: () => void;
   toggleCategory: (cat: PlaceCategory) => void;
@@ -67,6 +70,7 @@ interface PlacesStore {
   hideArrivalMessage: () => void;
   bumpLocateMeSignal: () => void;
   setHasSeenWelcome: () => void;
+  setHasSeenDiscountPopup: () => void;
 }
 
 export const usePlacesStore = create<PlacesStore>()(
@@ -83,6 +87,7 @@ export const usePlacesStore = create<PlacesStore>()(
       arrivalMessageVisible: false,
       locateMeSignal: 0,
       hasSeenWelcome: false,
+      hasSeenDiscountPopup: false,
 
       loadPlaces: () => set({ places: getPlaces() }),
 
@@ -128,14 +133,16 @@ export const usePlacesStore = create<PlacesStore>()(
       hideArrivalMessage: () => set({ arrivalMessageVisible: false }),
       bumpLocateMeSignal: () => set((state) => ({ locateMeSignal: state.locateMeSignal + 1 })),
       setHasSeenWelcome: () => set({ hasSeenWelcome: true }),
+      setHasSeenDiscountPopup: () => set({ hasSeenDiscountPopup: true }),
     }),
     {
       name: SAVE_STORAGE_KEY,
-      // Solo i luoghi salvati, le note d'arrivo e il flag di Welcome sono persistiti — il resto è stato di sessione
+      // Solo i luoghi salvati, le note d'arrivo e i flag "mostrato una volta" sono persistiti — il resto è stato di sessione
       partialize: (state) => ({
         savedPlaceIds: state.savedPlaceIds,
         arrivalNotes: state.arrivalNotes,
         hasSeenWelcome: state.hasSeenWelcome,
+        hasSeenDiscountPopup: state.hasSeenDiscountPopup,
       }),
     }
   )
