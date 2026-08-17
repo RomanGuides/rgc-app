@@ -148,6 +148,37 @@ test('Home: a category pill switches to Experiences, grouped by the same tourTyp
   await expect(page.getByText('Colosseum Arena')).toBeVisible();
 });
 
+// Real bug (found via on-device testing, twice — Playwright's toBeVisible()
+// never caught it since it doesn't check WHERE on the page something is,
+// only that it exists somewhere): tapping "Meet the Guides" or a category
+// pill switched tabs correctly but never actually scrolled, landing wherever
+// the tab naturally opens (its top) rather than the target section further
+// down. A pure "is it visible" assertion can't distinguish "scrolled there"
+// from "it happens to render somewhere on this tall page" — checking the
+// target's Y position after the tap is the only way to actually prove a
+// scroll happened. "Experiences" (not "Classic Tours", the first group and
+// already near the top by default) is the meaningful case: it only sits
+// near the top of the viewport if a real scroll moved it there.
+test('Home: category pills and Meet the Guides actually scroll to their section, not just switch tabs', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Experiences', exact: true }).first().click();
+  const experiencesHeading = page.getByText('Experiences', { exact: true }).first();
+  await expect(experiencesHeading).toBeVisible();
+  await expect(async () => {
+    const box = await experiencesHeading.boundingBox();
+    expect(box?.y).toBeLessThan(300);
+  }).toPass();
+
+  await page.getByRole('button', { name: /^Home$/ }).click();
+  await page.getByRole('button', { name: 'Meet the Guides' }).click();
+  const guidesHeading = page.getByText('Meet the Guides', { exact: true });
+  await expect(guidesHeading).toBeVisible();
+  await expect(async () => {
+    const box = await guidesHeading.boundingBox();
+    expect(box?.y).toBeLessThan(300);
+  }).toPass();
+});
+
 test('Home: navigation shortcuts reach Rome and Experiences, and open the gift card widget', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Meet the Guides' }).click();

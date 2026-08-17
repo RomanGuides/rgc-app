@@ -20,7 +20,7 @@
 // No notifications, no second search — deliberately out of scope.
 
 import { useEffect, useState } from 'react';
-import type { Experience } from '../../data/types';
+import type { Experience, TourType } from '../../data/types';
 import { getExperiences } from '../../services/experiencesService';
 import { getAppContentSection } from '../../services/appContentService';
 import { Card } from '../../design-system/components/Card';
@@ -44,10 +44,11 @@ import type { TabKey } from '../../design-system/components/TabBar';
 
 interface HomeScreenProps {
   onNavigate: (tab: TabKey) => void;
-  // Separate from onNavigate: "Meet the Guides" needs to land on the guides
-  // section itself, not just switch to the Experiences tab and leave the
-  // tours/gift card above it in the way (real feedback from a device test).
-  onMeetGuides: () => void;
+  // Separate from onNavigate: "Meet the Guides" and each category pill need
+  // to land ON their own section in Experiences, not just switch to the tab
+  // and leave the user to scroll past whatever renders above it (real
+  // feedback from device testing).
+  onNavigateToSection: (target: TourType | 'guides') => void;
 }
 
 function TopExperienceCard({ exp, onSelect }: { exp: Experience; onSelect: (exp: Experience) => void }) {
@@ -171,7 +172,7 @@ const TRUST_POINTS = [
   { icon: StarIcon, label: 'Memorable', caption: 'Experiences that stay with you' },
 ];
 
-export function HomeScreen({ onNavigate, onMeetGuides }: HomeScreenProps) {
+export function HomeScreen({ onNavigate, onNavigateToSection }: HomeScreenProps) {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [bookingItem, setBookingItem] = useState<BookableItem | null>(null);
   const [selectedTour, setSelectedTour] = useState<Experience | null>(null);
@@ -238,7 +239,7 @@ export function HomeScreen({ onNavigate, onMeetGuides }: HomeScreenProps) {
             <div style={{ marginBottom: 'var(--space-6)' }}>
               <div style={{ display: 'flex', gap: 'var(--space-2)', overflowX: 'auto', paddingBottom: 4 }}>
                 {availableTourTypes.map((type) => (
-                  <CategoryPill key={type} label={TOUR_TYPE_LABELS[type]} onClick={() => onNavigate('experiences')} />
+                  <CategoryPill key={type} label={TOUR_TYPE_LABELS[type]} onClick={() => onNavigateToSection(type)} />
                 ))}
               </div>
             </div>
@@ -248,7 +249,7 @@ export function HomeScreen({ onNavigate, onMeetGuides }: HomeScreenProps) {
           <div style={{ display: 'flex', gap: 'var(--space-3)', marginBottom: 'var(--space-6)' }}>
             <ShortcutTile icon={<LocationPinIcon width={22} height={22} />} label="Browse the Map" onClick={() => onNavigate('rome')} />
             <ShortcutTile icon={<GiftIcon width={22} height={22} />} label="Gift Cards" onClick={() => setBookingItem(GIFT_CARD_ITEM)} />
-            <ShortcutTile icon={<PersonIcon width={22} height={22} />} label="Meet the Guides" onClick={onMeetGuides} />
+            <ShortcutTile icon={<PersonIcon width={22} height={22} />} label="Meet the Guides" onClick={() => onNavigateToSection('guides')} />
           </div>
 
           {/* ---------- Why travel with us ---------- */}

@@ -199,11 +199,12 @@ export const GIFT_CARD_ITEM: BookableItem = {
 };
 
 interface ExperiencesScreenProps {
-  // Tab Home (2026-08-16): la scorciatoia "Meet the Guides" deve arrivare
-  // davvero alle guide, non solo aprire il tab e lasciare che l'utente
-  // scorra oltre tour e gift card per trovarle. `undefined`/mancante = nessun
-  // scroll, comportamento invariato per l'accesso normale dalla tab bar.
-  scrollTarget?: 'guides' | null;
+  // Tab Home (2026-08-16): sia "Meet the Guides" che le tessere-categoria
+  // (Classic Tours/Experiences/...) devono arrivare davvero alla propria
+  // sezione, non solo aprire il tab e lasciare che l'utente scorra per
+  // trovarla. `undefined`/mancante = nessuno scroll, comportamento invariato
+  // per l'accesso normale dalla tab bar.
+  scrollTarget?: TourType | 'guides' | null;
   onScrollTargetHandled?: () => void;
 }
 
@@ -214,7 +215,9 @@ export function ExperiencesScreen({ scrollTarget, onScrollTargetHandled }: Exper
   const [bookingItem, setBookingItem] = useState<BookableItem | null>(null);
   const [selectedGuide, setSelectedGuide] = useState<Guide | null>(null);
   const [selectedTour, setSelectedTour] = useState<Experience | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const guidesSectionRef = useRef<HTMLDivElement>(null);
+  const tourTypeSectionRefs = useRef<Partial<Record<TourType, HTMLDivElement | null>>>({});
 
   useEffect(() => {
     setExperiences(getExperiences());
@@ -228,17 +231,47 @@ export function ExperiencesScreen({ scrollTarget, onScrollTargetHandled }: Exper
   // whatever short, still-empty layout existed at that instant, well short
   // of the guides section's real position once tours/guides actually
   // render (found via real-device testing: it only scrolled "a little").
+  //
+  // Still undershot on-device after the guides.length>0 gate AND two nested
+  // requestAnimationFrame calls (landing around "Classic Tours", the first
+  // tour-type heading) — scrollIntoView's automatic nearest-scrollable-
+  // ancestor walk is unreliable in this Android WebView on a nested
+  // overflow:auto container (this app's own root is position:fixed with an
+  // overflow:hidden tab wrapper around it, an ancestor chain scrollIntoView
+  // implementations are known to mishandle). Measuring the offset directly
+  // and setting scrollTop ourselves bypasses that resolution entirely.
   useEffect(() => {
-    if (scrollTarget === 'guides' && guides.length > 0) {
-      guidesSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      onScrollTargetHandled?.();
-    }
+    if (!scrollTarget || experiences.length === 0 || guides.length === 0) return;
+    const target = scrollTarget === 'guides' ? guidesSectionRef.current : tourTypeSectionRefs.current[scrollTarget];
+    if (!target) return;
+    let raf2 = 0;
+    // onScrollTargetHandled fires from INSIDE the second rAF, once the scroll
+    // has actually been kicked off — not synchronously up front. Calling it
+    // eagerly cleared scrollTarget in the parent (App.tsx) immediately, which
+    // re-ran this effect for its new value and fired this SAME effect's
+    // cleanup — cancelling both rAFs before either ever got a chance to run.
+    // The scroll never happened at all; this looked identical to "it doesn't
+    // scroll" from the outside, with no error to point at the real cause.
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        const container = containerRef.current;
+        if (container && target) {
+          const offset = target.getBoundingClientRect().top - container.getBoundingClientRect().top;
+          container.scrollTo({ top: container.scrollTop + offset, behavior: 'smooth' });
+        }
+        onScrollTargetHandled?.();
+      });
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      if (raf2) cancelAnimationFrame(raf2);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scrollTarget, guides]);
+  }, [scrollTarget, experiences, guides]);
 
   return (
     <>
-    <div style={{ padding: 'var(--space-5) var(--space-4)', height: '100%', overflowY: 'auto', background: 'var(--bg-app)' }}>
+    <div ref={containerRef} style={{ padding: 'var(--space-5) var(--space-4)', height: '100%', overflowY: 'auto', background: 'var(--bg-app)' }}>
       {/* ---------- Masthead ---------- */}
       <div style={{ marginBottom: 'var(--space-6)' }}>
         <div
@@ -265,7 +298,7 @@ export function ExperiencesScreen({ scrollTarget, onScrollTargetHandled }: Exper
           const group = experiences.filter((exp) => exp.tourType === type);
           if (group.length === 0) return null;
           return (
-            <div key={type} style={{ marginBottom: 'var(--space-5)' }}>
+            <div key={type} ref={(el) => { tourTypeSectionRefs.current[type] = el; }} style={{ marginBottom: 'var(--space-5)' }}>
               <TourTypeHeading>{TOUR_TYPE_LABELS[type]}</TourTypeHeading>
               {group.map((exp) => (
                 <TourCard key={exp.id} exp={exp} onSelect={setSelectedTour} />

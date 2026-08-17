@@ -8,6 +8,7 @@
 // v2, sezione 6).
 
 import { useState } from 'react';
+import type { TourType } from './data/types';
 import { HomeScreen } from './features/home/HomeScreen';
 import { MapScreen } from './features/map/MapScreen';
 import { ExperiencesScreen } from './features/experiences/ExperiencesScreen';
@@ -21,10 +22,11 @@ type Tab = TabKey;
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('home');
-  // Home's "Meet the Guides" shortcut needs to land ON the guides, not just
-  // on the Experiences tab's top (tours + gift card come first there) —
-  // one-shot signal, cleared by ExperiencesScreen once it's scrolled there.
-  const [experiencesScrollTarget, setExperiencesScrollTarget] = useState<'guides' | null>(null);
+  // Home's "Meet the Guides" shortcut and category pills (Classic Tours/
+  // Experiences/...) need to land ON their own section, not just on the
+  // Experiences tab's top — one-shot signal, cleared by ExperiencesScreen
+  // once it's scrolled there.
+  const [experiencesScrollTarget, setExperiencesScrollTarget] = useState<TourType | 'guides' | null>(null);
   const hasSeenWelcome = usePlacesStore((s) => s.hasSeenWelcome);
   const setHasSeenWelcome = usePlacesStore((s) => s.setHasSeenWelcome);
 
@@ -32,15 +34,15 @@ function App() {
     return <WelcomeScreen onDone={setHasSeenWelcome} />;
   }
 
-  function goToGuides() {
-    setExperiencesScrollTarget('guides');
+  function goToExperiencesSection(target: TourType | 'guides') {
+    setExperiencesScrollTarget(target);
     setActiveTab('experiences');
   }
 
   return (
     <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column' }}>
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-        {activeTab === 'home' && <HomeScreen onNavigate={setActiveTab} onMeetGuides={goToGuides} />}
+        {activeTab === 'home' && <HomeScreen onNavigate={setActiveTab} onNavigateToSection={goToExperiencesSection} />}
         {activeTab === 'rome' && <MapScreen />}
         {activeTab === 'experiences' && (
           <ExperiencesScreen
