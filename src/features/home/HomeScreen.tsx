@@ -200,7 +200,7 @@ export function HomeScreen({ onNavigate, onNavigateToSection }: HomeScreenProps)
             position: 'relative',
             height: 300,
             background: hero?.imageUrl
-              ? `linear-gradient(rgba(16,12,10,.15) 0%, rgba(16,12,10,.75) 100%), url(${hero.imageUrl}) center/cover`
+              ? `linear-gradient(rgba(26,26,26,.15) 0%, rgba(26,26,26,.75) 100%), url(${hero.imageUrl}) center/cover`
               : 'linear-gradient(160deg, var(--red), var(--red-dk))',
           }}
         >
@@ -210,19 +210,6 @@ export function HomeScreen({ onNavigate, onNavigateToSection }: HomeScreenProps)
             <img src={logoUrl} alt="Roman Guides" style={{ height: 96, width: 'auto' }} />
           </div>
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 24px 22px' }}>
-            <div
-              style={{
-                fontFamily: 'var(--display)',
-                fontSize: '0.72rem',
-                fontWeight: 700,
-                letterSpacing: '.14em',
-                textTransform: 'uppercase',
-                color: 'rgba(255,255,255,.85)',
-                marginBottom: 8,
-              }}
-            >
-              Roman Guides
-            </div>
             {hero?.title && (
               <div style={{ fontFamily: 'var(--display)', fontSize: '1.6rem', fontWeight: 700, lineHeight: 1.2, color: '#FFFFFF', marginBottom: 6 }}>
                 {hero.title}
@@ -260,7 +247,11 @@ export function HomeScreen({ onNavigate, onNavigateToSection }: HomeScreenProps)
           </div>
 
           {/* ---------- Why travel with us ---------- */}
-          <Card showMedia={false} style={{ marginBottom: 'var(--space-6)' }}>
+          {/* Blush tint (var(--surface-2)) instead of the default var(--surface)
+              so this reads as a distinct editorial callout, not just another
+              card in the flow — the one place on Home the new palette's warm
+              secondary surface gets used deliberately. */}
+          <Card showMedia={false} style={{ marginBottom: 'var(--space-6)', background: 'var(--surface-2)', borderColor: 'transparent' }}>
             <div style={{ fontFamily: 'var(--display)', fontSize: '1.1rem', fontWeight: 700, color: 'var(--ink)', marginBottom: 'var(--space-4)' }}>
               Why travel with us?
             </div>
