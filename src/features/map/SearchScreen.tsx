@@ -12,6 +12,7 @@ import { levenshteinDistance, normalizeForMatch } from '../../utils/levenshtein'
 import { AVERAGE_WALKING_SPEED_MPS } from '../../config/routing.config';
 import { SearchIcon, ChevronLeftIcon, StarIcon } from '../../design-system/components/Icons';
 import type { Place } from '../../data/types';
+import { useAndroidBackHandler } from '../../hooks/useAndroidBackHandler';
 
 interface SearchScreenProps {
   onClose: () => void;
@@ -98,6 +99,7 @@ function buildSuggestionPills(
 }
 
 export function SearchScreen({ onClose }: SearchScreenProps) {
+  useAndroidBackHandler(onClose);
   const places = usePlacesStore((s) => s.places);
   const userLocation = usePlacesStore((s) => s.userLocation);
   const mapBounds = usePlacesStore((s) => s.mapBounds);

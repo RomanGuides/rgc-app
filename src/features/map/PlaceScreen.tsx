@@ -23,13 +23,14 @@
 // sopra "Walk there" che diventa secondario in quel caso; per tutti gli altri
 // luoghi (senza bookingUrl) il comportamento resta identico a prima.
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Place, PlaceCategory } from '../../data/types';
 import { usePlacesStore } from '../../store/usePlacesStore';
 import { getCategoryMeta } from '../../config/categories.config';
 import { startWalkingDirections } from './startWalkingDirections';
 import { ChevronLeftIcon, HeartIcon, StarIcon } from '../../design-system/components/Icons';
 import { BookingWidgetModal, type BookableItem } from '../experiences/BookingWidgetModal';
+import { useAndroidBackHandler } from '../../hooks/useAndroidBackHandler';
 import restaurantPlaceholder from '../../assets/category/restaurant.jpg';
 import pastaPlaceholder from '../../assets/category/pasta.jpg';
 import pizzaPlaceholder from '../../assets/category/pizza.jpg';
@@ -140,6 +141,10 @@ function EditorialBlock({ label, text }: { label: string; text?: string | null }
 
 export function PlaceScreen({ place: p, closing }: PlaceScreenProps) {
   const selectPlace = usePlacesStore((s) => s.selectPlace);
+  // Stessa azione del bottone indietro visibile — riferimento stabile
+  // (useCallback) così la pila condivisa non si ri-registra a ogni render.
+  const closeThisPlace = useCallback(() => selectPlace(null), [selectPlace]);
+  useAndroidBackHandler(closeThisPlace);
   const savedPlaceIds = usePlacesStore((s) => s.savedPlaceIds);
   const toggleSaved = usePlacesStore((s) => s.toggleSaved);
   const arrivalNotes = usePlacesStore((s) => s.arrivalNotes);
@@ -313,7 +318,11 @@ export function PlaceScreen({ place: p, closing }: PlaceScreenProps) {
       <div
         style={{
           background: 'var(--bg-app)',
-          padding: '16px 20px max(16px, env(safe-area-inset-bottom, 0px))',
+          // Niente env(safe-area-inset-bottom): stesso motivo di
+          // TourDetailScreen.tsx — questa schermata è già clippata sopra la
+          // tab bar (App.tsx, overflow: hidden), che gestisce da sola lo
+          // spazio di sicurezza reale (bug identico, stessa causa, 2026-08-18).
+          padding: '16px 20px 16px',
           display: 'flex',
           flexDirection: 'column',
           gap: p.bookingUrl ? 10 : 0,

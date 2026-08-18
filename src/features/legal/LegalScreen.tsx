@@ -12,6 +12,7 @@ import { ChevronLeftIcon } from '../../design-system/components/Icons';
 import { LINKS } from '../../config/links';
 import { PRIVACY_POLICY, TERMS_OF_SERVICE, type LegalSection } from '../../config/legal';
 import pkg from '../../../package.json';
+import { useAndroidBackHandler } from '../../hooks/useAndroidBackHandler';
 
 interface LegalScreenProps {
   onClose: () => void;
@@ -41,6 +42,7 @@ function Section({ section }: { section: LegalSection }) {
 }
 
 export function LegalScreen({ onClose }: LegalScreenProps) {
+  useAndroidBackHandler(onClose);
   return (
     <div style={{ position: 'absolute', inset: 0, background: 'var(--surface)', zIndex: 8, display: 'flex', flexDirection: 'column' }}>
       <div
@@ -62,7 +64,10 @@ export function LegalScreen({ onClose }: LegalScreenProps) {
         <div style={{ fontFamily: 'var(--display)', fontSize: '1.1rem', fontWeight: 700, color: 'var(--ink)' }}>Legal &amp; About</div>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '4px 24px calc(40px + env(safe-area-inset-bottom, 0px))' }}>
+      {/* Niente env(safe-area-inset-bottom): questa schermata è già clippata
+          sopra la tab bar (App.tsx, overflow: hidden), stesso bug/causa di
+          TourDetailScreen.tsx e PlaceScreen.tsx (2026-08-18). */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '4px 24px 40px' }}>
         <div style={{ fontSize: '0.85rem', color: 'var(--stone)', marginBottom: 28 }}>Roman Guides Companion — version {pkg.version}</div>
 
         <div style={{ ...SECTION_HEADING_STYLE, marginBottom: 16 }}>Privacy Policy</div>

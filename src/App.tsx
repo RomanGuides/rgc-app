@@ -7,7 +7,8 @@
 // routing necessaria per un'app a poche tab senza URL profonde (Architettura
 // v2, sezione 6).
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { App as CapacitorApp } from '@capacitor/app';
 import type { TourType } from './data/types';
 import { HomeScreen } from './features/home/HomeScreen';
 import { MapScreen } from './features/map/MapScreen';
@@ -16,9 +17,15 @@ import { MyRomeScreen } from './features/myrome/MyRomeScreen';
 import { WelcomeScreen } from './features/welcome/WelcomeScreen';
 import { TabBar, type TabKey } from './design-system/components/TabBar';
 import { usePlacesStore } from './store/usePlacesStore';
+import { popTopBackHandler } from './hooks/useAndroidBackHandler';
 import './design-system/tokens.css';
 
 type Tab = TabKey;
+
+// Tempo massimo tra due pressioni di indietro perché la seconda conti come
+// conferma di uscita — troppo generoso e un tocco perso ore dopo sembra un
+// bug, troppo stretto e nessuno riesce a farlo in tempo.
+const EXIT_CONFIRM_WINDOW_MS = 2000;
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -29,6 +36,41 @@ function App() {
   const [experiencesScrollTarget, setExperiencesScrollTarget] = useState<TourType | 'guides' | null>(null);
   const hasSeenWelcome = usePlacesStore((s) => s.hasSeenWelcome);
   const setHasSeenWelcome = usePlacesStore((s) => s.setHasSeenWelcome);
+
+  // Il tasto indietro fisico Android, un solo posto per tutta l'app — prima
+  // (2026-08-18) solo BookingWidgetModal lo intercettava, ogni altra
+  // schermata a schermo intero (dettaglio tour/luogo/guida, ricerca, legale)
+  // lasciava il comportamento di default di Capacitor, che senza uno storico
+  // di navigazione reale (nessun router, vedi sopra) chiude l'app anche
+  // quando c'è ovviamente "qualcosa da chiudere" prima — bug reale confermato
+  // su device. Tre livelli, in ordine: (1) una schermata in useAndroidBackHandler.ts
+  // consuma la pressione se ce n'è una aperta; (2) altrimenti, se non si è
+  // già sulla tab Home, si torna lì; (3) altrimenti (già su Home, niente
+  // aperto) una seconda pressione entro EXIT_CONFIRM_WINDOW_MS esce
+  // davvero — non la prima pressione isolata.
+  const activeTabRef = useRef(activeTab);
+  activeTabRef.current = activeTab;
+  const lastBackPressRef = useRef(0);
+
+  useEffect(() => {
+    let handle: { remove: () => void } | undefined;
+    CapacitorApp.addListener('backButton', () => {
+      if (popTopBackHandler()) return;
+      if (activeTabRef.current !== 'home') {
+        setActiveTab('home');
+        return;
+      }
+      const now = Date.now();
+      if (now - lastBackPressRef.current < EXIT_CONFIRM_WINDOW_MS) {
+        CapacitorApp.exitApp();
+      } else {
+        lastBackPressRef.current = now;
+      }
+    }).then((h) => {
+      handle = h;
+    });
+    return () => handle?.remove();
+  }, []);
 
   if (!hasSeenWelcome) {
     return <WelcomeScreen onDone={setHasSeenWelcome} />;

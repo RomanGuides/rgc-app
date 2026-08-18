@@ -46,3 +46,6 @@ service-account*.json
 *.njsproj
 *.sln
 *.sw?
+
+# Screenshot/marketing assets for store listings — working files, not app source
+store-assets/

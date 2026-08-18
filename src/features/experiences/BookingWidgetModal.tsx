@@ -55,9 +55,9 @@
 // "Open in browser" nello stato di errore resta la via d'uscita reale.
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { App } from '@capacitor/app';
 import { CloseIcon, LockIcon } from '../../design-system/components/Icons';
 import { LINKS } from '../../config/links';
+import { useAndroidBackHandler } from '../../hooks/useAndroidBackHandler';
 
 // Non tipizzato su Experience: questo modale sa incorporare QUALUNQUE
 // prodotto Bokun sullo stesso canale (tour, ma anche una gift card, vedi
@@ -191,15 +191,11 @@ export function BookingWidgetModal({ item, onClose }: BookingWidgetModalProps) {
   }, [item.id, attempt]);
 
   // Back hardware Android chiude il modale — non deve navigare la cronologia
-  // interna del widget. Solo Android emette questo evento; su iOS/web il
-  // listener non si attiva mai, innocuo.
-  useEffect(() => {
-    let handle: { remove: () => void } | undefined;
-    App.addListener('backButton', onClose).then((h) => {
-      handle = h;
-    });
-    return () => handle?.remove();
-  }, [onClose]);
+  // interna del widget. Registrato tramite la pila condivisa (vedi
+  // useAndroidBackHandler.ts), non un listener autonomo: questo modale può
+  // essere aperto SOPRA TourDetailScreen/PlaceScreen, e un ascoltatore per
+  // conto proprio farebbe chiudere entrambi con una sola pressione.
+  useAndroidBackHandler(onClose);
 
   // Vedi RomanGuidesWebChromeClient.java — relay di una richiesta di nuova
   // finestra dal WebView nativo (es. un popup di pagamento). Mostriamo un

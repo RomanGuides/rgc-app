@@ -47,6 +47,7 @@ import { BookingWidgetModal, type BookableItem } from '../experiences/BookingWid
 import { TourDetailScreen } from '../experiences/TourDetailScreen';
 import type { TabKey } from '../../design-system/components/TabBar';
 import { usePlacesStore } from '../../store/usePlacesStore';
+import { useAndroidBackHandler } from '../../hooks/useAndroidBackHandler';
 
 interface HomeScreenProps {
   onNavigate: (tab: TabKey) => void;
@@ -179,6 +180,7 @@ function CategoryPill({ label, onClick }: { label: string; onClick: () => void }
 // prenotato nulla (l'app non ha account/prenotazioni collegate, quindi non
 // c'è modo di distinguere i due casi).
 function DiscountPopup({ onClose, onSeeTours }: { onClose: () => void; onSeeTours: () => void }) {
+  useAndroidBackHandler(onClose);
   return (
     <div
       onClick={onClose}

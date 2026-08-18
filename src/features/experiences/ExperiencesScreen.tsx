@@ -113,7 +113,13 @@ function TourCard({ exp, onSelect }: { exp: Experience; onSelect: (exp: Experien
   const durationLabel = exp.durationMinutes ? formatDuration(exp.durationMinutes) : null;
   const priceLabel = exp.price != null ? `From €${exp.price.toFixed(0)}` : exp.priceNote ?? null;
   return (
-    <Card showMedia imageUrl={getExperienceImageUrl(exp)} mediaHeight={140} style={{ marginBottom: 'var(--space-4)' }}>
+    <Card
+      showMedia
+      imageUrl={getExperienceImageUrl(exp)}
+      mediaHeight={140}
+      style={{ marginBottom: 'var(--space-4)' }}
+      onClick={exp.bookingUrl ? () => onSelect(exp) : undefined}
+    >
       {(exp.bestSeller || category) && (
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 'var(--space-2)' }}>
           {exp.bestSeller && <BestSellerBadge />}

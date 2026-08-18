@@ -41,6 +41,7 @@ import { BestSellerBadge } from '../../design-system/components/Badge';
 import type { Experience } from '../../data/types';
 import { formatDuration } from '../../utils/formatDuration';
 import { getExperienceImageUrl } from '../../services/experiencesService';
+import { useAndroidBackHandler } from '../../hooks/useAndroidBackHandler';
 
 interface TourDetailScreenProps {
   experience: Experience;
@@ -131,6 +132,7 @@ function GoodToKnow({ items }: { items: GoodToKnowItem[] }) {
 }
 
 export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: TourDetailScreenProps) {
+  useAndroidBackHandler(onClose);
   const imageUrl = getExperienceImageUrl(exp);
   const facts = [
     exp.durationMinutes ? { icon: ClockIcon, label: 'Duration', value: formatDuration(exp.durationMinutes) } : null,
@@ -187,7 +189,7 @@ export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: Tou
           </button>
         </div>
 
-        <div style={{ padding: '26px 28px calc(110px + env(safe-area-inset-bottom, 0px))' }}>
+        <div style={{ padding: '26px 28px 24px' }}>
           {exp.bestSeller && (
             <div style={{ marginBottom: 12 }}>
               <BestSellerBadge />
@@ -263,7 +265,13 @@ export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: Tou
 
       <div
         style={{
-          padding: '14px 28px calc(16px + env(safe-area-inset-bottom, 0px))',
+          // Niente env(safe-area-inset-bottom) qui: questa schermata vive
+          // dentro il contenitore che App.tsx clippa già sopra la tab bar
+          // (overflow: hidden) — la tab bar sotto di lei gestisce già lo
+          // spazio di sicurezza reale. Sommarlo di nuovo qui creava un vuoto
+          // sotto "Check dates" ogni volta più grande di quanto dovesse
+          // essere (bug reale segnalato su device, 2026-08-18).
+          padding: '14px 28px 16px',
           borderTop: '1px solid var(--line)',
           flexShrink: 0,
           background: 'var(--surface)',

@@ -13,6 +13,7 @@
 import { ChevronLeftIcon } from '../../design-system/components/Icons';
 import { GuidePhoto } from './ExperiencesScreen';
 import type { Guide } from '../../data/types';
+import { useAndroidBackHandler } from '../../hooks/useAndroidBackHandler';
 
 interface GuideDetailScreenProps {
   guide: Guide;
@@ -20,6 +21,7 @@ interface GuideDetailScreenProps {
 }
 
 export function GuideDetailScreen({ guide, onClose }: GuideDetailScreenProps) {
+  useAndroidBackHandler(onClose);
   return (
     <div style={{ position: 'absolute', inset: 0, background: 'var(--surface)', zIndex: 8, display: 'flex', flexDirection: 'column' }}>
       <div
@@ -39,7 +41,9 @@ export function GuideDetailScreen({ guide, onClose }: GuideDetailScreenProps) {
         </button>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '4px 24px calc(40px + env(safe-area-inset-bottom, 0px))' }}>
+      {/* Niente env(safe-area-inset-bottom): stesso motivo di
+          TourDetailScreen.tsx/PlaceScreen.tsx/LegalScreen.tsx (2026-08-18). */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '4px 24px 40px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: 28 }}>
           <GuidePhoto avatar={guide.avatar} name={guide.name} size={112} />
           <div style={{ fontFamily: 'var(--display)', fontSize: '1.5rem', fontWeight: 700, color: 'var(--ink)', marginTop: 18 }}>
