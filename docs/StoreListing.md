@@ -54,6 +54,7 @@ Google determines this via their IARC questionnaire inside Play Console (no viol
 ## Notes for whoever fills in Play Console
 
 - **Screenshots**: captured 2026-08-18 on a real Android device, post-brand-evolution — `store-assets/screenshots/` (gitignored, not in this repo): Home, Rome map, Experiences list, a Tour Detail, and a Guide Detail. 5 of Play Console's 2–8 range; add more (e.g. Saved, RomeSheet at full detent) if a fuller set is wanted later.
-- **Feature graphic** (1024×500px banner) and **app icon** (512×512px): not yet produced — check with the founder's brand assets first (`src/assets/brand/`) before designing a new one from scratch.
+- **App icon**: done (2026-08-18) — the real logo's brush-circle + wordmark, cropped and centered on a Warm Ivory (`#FAF7F3`) background, replacing Capacitor's placeholder icon across every Android density and as an adaptive icon (foreground/background layers). The 512×512 Play Store listing icon is at `store-assets/icon/play-store-icon-512.png` (gitignored, not in this repo). Confirmed legible on a real device.
+- **Feature graphic** (1024×500px banner): not yet produced.
 - **Data Safety form**: fill in based on what the app actually does — location (for distance sorting/directions), no accounts, no analytics/tracking, third parties are Bokun (booking/payment) and OpenRouteService (directions). Cross-check against `src/config/legal.ts` so the two don't drift apart.
 - **Privacy policy URL**: Play Console requires a public URL, not just an in-app screen — the current Legal & About screen is in-app only (`src/features/legal/LegalScreen.tsx`); a publicly reachable URL (e.g. a page on romanguides.com) will be needed too.
