@@ -7,13 +7,14 @@ A substantial redesign since the v1.0.0 baseline below — nav shell, screens, a
 ### App shell
 - Capacitor native wrapper for iOS and Android — the app now ships as a real native binary, not just a web page. Geolocation still uses the standard browser API, not a native plugin.
 - Tab bar cut from 5 tabs to 3: **Rome** (replaces Home + Map + Explore), **Experiences**, **Saved** (replaces My Rome). **Update, 2026-08-16:** a 4th tab, **Home**, was added back as the default/first tab — not a reversal of this cut, but a deliberately scoped exception: a "business card" first screen (hero photo, a Top Experiences carousel pushing every tour, navigation shortcuts, trust section, review links) with no content duplicated from Rome/Experiences. See `CHANGELOG.md` for the full breakdown.
+- **Discount popup on Home** (2026-08-17) — the repeat-booking `ROME10` discount (see Experiences below), surfaced once per install on the tab most people open first, with wording generic enough for a first-time visitor — the app has no accounts or booking records, so it can't actually tell them apart from a past customer. "See Tours" closes the popup and switches to Experiences in-app.
 - A one-time Welcome screen ahead of the tabs, shown only on the very first launch: full-screen photo, a short line on what the app is, and a choice to enable location now (recommended, since it drives distance sorting) or skip it for later. Never shown again after the first choice.
 
 ### Rome (was Map, plus relevant parts of Home)
 - Full-bleed map with `RomeSheet`, a persistent bottom sheet with three detents, dragged via a real spring-physics simulation (not a fixed-duration CSS transition).
 - Search, real-time, full-screen — with suggestion pills when a query matches nothing (nearest-matching category and area, computed from the bundle).
 - Category filter popover with outline icons (no more emoji) and a fixed z-index/clipping bug that let `LocateButton` cover it.
-- "Tonight" (was Tip of the Day), "Nearest to you" — replaced by a by-neighbourhood grouped list when location access is explicitly denied, rather than just going blank.
+- "Tonight" (was Tip of the Day), "Nearest to you" — replaced by a by-neighbourhood grouped list when location access is explicitly denied, or resolves to somewhere more than 50km from Rome (e.g. still at home before the trip), rather than showing nonsensical distances or just going blank.
 - "Around Me" radius filter removed entirely — sorting is always by walking distance now, category filters remain.
 - Get Around, Emergency, and Find Water Nearby, migrated here from the old Home tab (visible at the sheet's full detent).
 - Legal & About — privacy policy, terms of service, version, and contact — reachable from a plain text link next to Find Water Nearby (same full-detent footer), not a tab or a Settings screen. Required for store submission (both stores require an in-app-reachable privacy policy for an app that uses location).
@@ -23,16 +24,18 @@ A substantial redesign since the v1.0.0 baseline below — nav shell, screens, a
 - Full-screen "push" instead of a bottom-sheet popup, one template for every place instead of separate premium/utility card types.
 - Save toggle (heart icon, fills red when saved) and a free-text arrival note ("ring the left bell"), local-only.
 - Header photo falls back to a category-specific placeholder photo (for gastronomic categories) or a plain neutral background — never the category's marker color, which for pasta/restaurant read as a red error state.
+- The Colosseum (the one place with a real Roman Guides tour linked) shows a primary "Book this tour" CTA, using the same in-app booking widget as Experiences — every other place is unchanged.
+- ★ Rating and review count now shown here (and in Search results) wherever a place has one on file — real data that existed since the original Data Model but was never surfaced in the UI until now.
 
 ### Experiences (restructured; now also "who we are")
 - New order: a short masthead, all seven bookable tours immediately, Meet the Guides, guest quotes, and Our Story — absorbing content that used to live on My Rome.
 - Guide names/bios and Our Story are the founder's real copy, not placeholder text — corrected 2026-08-16 (two names shipped as placeholders through an earlier pass; real roster is Eni, Arjan, Giovanni, Realda, Said). Tapping a guide now opens their full bio, photo, and quote (previously only a one-line summary was shown anywhere).
 - **Booking now happens inside the app.** "Discover Experience" opens a new Tour Detail screen first — duration, price ("From €X"), who it's for, what's included/not included, a "Good to know" section (wheelchair accessibility, ID/passport requirement, health advisories), meeting point, cancellation policy, and a Best Seller badge on a few tours — then "Check dates" opens Bokun's checkout in a full-screen in-app view instead of handing off to the system browser. Bokun still handles the entire booking and payment flow (see `docs/BokunIntegration.md`). A gift card can be purchased the same way.
+- **Repeat-booking discount (`ROME10`, 10% off) restored**, below the masthead — temporarily parked during the restructure above, not carried over until now. Also surfaced on Home as a popup (see App shell above).
 
 ### Saved (was My Rome)
 - Reduced to just the shortlist: title, count, and the saved-places list, now sorted by distance instead of save order.
 - Meet the Guides, Our Story, testimonials, and review links moved to Experiences (above); a WhatsApp-per-guide button and a second (TripAdvisor) review link were retired for now rather than carried over — see `docs/parked-content.md`.
-- **Repeat-booking discount (`ROME10`, 10% off) restored** on Experiences, below the masthead — temporarily parked during the restructure above, not carried over until now. Also surfaced as a one-time popup on Home (2026-08-17), so it's visible from the tab most people open first, not only to someone who scrolls into Experiences; generic wording there since the app has no way to tell a first-time visitor from a past customer.
 
 ### Visual identity (brand evolution, 2026-08-17)
 A six-phase pass across the whole app, done in the open with the founder (each phase reviewed and approved before the next started — see `CHANGELOG.md` for the full per-phase breakdown):
