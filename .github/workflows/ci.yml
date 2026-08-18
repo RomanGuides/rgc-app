@@ -28,14 +28,16 @@ jobs:
       - name: Install Playwright's browser
         run: npx playwright install --with-deps chromium
 
-      # VITE_ORS_API_KEY is baked in at build time (Vite env vars are
-      # resolved when the bundle is built, not when it's served) — must be
-      # set as a repository secret for this step, or the Directions e2e
-      # test below will fail (see .env.example).
+      # VITE_ORS_PROXY_URL is baked in at build time (Vite env vars are
+      # resolved when the bundle is built, not when it's served) — must
+      # point at the real deployed Netlify function (netlify/functions/route.ts)
+      # or the Directions e2e test below will fail (see .env.example and
+      # docs/Routing.md). Not a secret itself (just a URL), but still set as
+      # a repo variable/secret so it's not hardcoded here.
       - name: Build
         run: npm run build
         env:
-          VITE_ORS_API_KEY: ${{ secrets.VITE_ORS_API_KEY }}
+          VITE_ORS_PROXY_URL: ${{ secrets.VITE_ORS_PROXY_URL }}
 
       # workers: 1 / fullyParallel: false in playwright.config.ts (MapLibre's
       # real WebGL rendering starves across parallel workers) — same

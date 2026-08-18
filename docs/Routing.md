@@ -4,13 +4,19 @@ This document describes the current implementation of the "Walking Directions" f
 
 ## Provider
 
-Directions are computed by **OpenRouteService (ORS)**, specifically its walking-directions endpoint. Configuration lives in `src/config/routing.config.ts`: the ORS endpoint URL, the API key (read from an environment variable, never hardcoded), and constants for average walking speed and the arrival-detection threshold.
+Directions are computed by **OpenRouteService (ORS)**, specifically its walking-directions endpoint — but the app no longer calls ORS directly (see "Why a proxy" below). Configuration lives in `src/config/routing.config.ts`: `ORS_WALKING_URL` now points at a Netlify serverless function, not ORS itself, plus constants for average walking speed and the arrival-detection threshold.
+
+## Why a proxy (2026-08-18)
+
+Until this change, the raw ORS API key lived in the client bundle (`VITE_ORS_API_KEY`, sent directly in the `Authorization` header) — fine for local-only testing, but once shipped inside a published APK/IPA, anyone could extract the key by unzipping the package. `netlify/functions/route.ts` now holds the real key as a server-side environment variable (`ORS_API_KEY`, set in Netlify's dashboard, never committed) and forwards the request to ORS on the app's behalf. The client sends the exact same request body as before, just to the proxy instead of ORS directly — see `netlify.toml` for the Netlify site config.
+
+**Consequence**: the Directions feature requires the Netlify function to actually be deployed and configured with a real `ORS_API_KEY` — it does not work purely offline-from-Netlify the way the rest of this app (a static bundle with no other backend) does. If `VITE_ORS_PROXY_URL` isn't set, or the deployed function has no `ORS_API_KEY`, walking directions fail with a clear error rather than falling back to any client-side key — there is deliberately no insecure fallback, since that would defeat the point of this change.
 
 ## Request
 
 Triggered from `src/features/map/DirectionsBar.tsx` via `startWalkingDirections.ts`, which:
 1. Reads the user's current location (from the store, populated by `useGeolocation`) and the selected place's `lat`/`lng`.
-2. Sends a `POST` request to `https://api.openrouteservice.org/v2/directions/foot-walking/geojson`, with the raw API key in the `Authorization` header and a body of `{ coordinates: [[userLng, userLat], [placeLng, placeLat]] }` — ORS expects `[lng, lat]` order, not `[lat, lng]`.
+2. Sends a `POST` request to `VITE_ORS_PROXY_URL` (the deployed Netlify function) with a body of `{ coordinates: [[userLng, userLat], [placeLng, placeLat]] }` — ORS expects `[lng, lat]` order, not `[lat, lng]`. The function adds the real `Authorization` header server-side and forwards the exact same request to ORS's real endpoint.
 
 ## Response
 
@@ -36,4 +42,4 @@ The "Stop Route" control (and the automatic arrival-clear above) both just clear
 
 ## Error handling
 
-If the ORS request fails (network error, non-2xx response, missing API key), `startWalkingDirections.ts` surfaces a failure state without setting `activeRoute`, so the map and markers remain in their normal (non-route) state — there is no retry logic or offline queueing.
+If the request fails (network error, non-2xx response, missing `VITE_ORS_PROXY_URL`, or the Netlify function itself returning an error because `ORS_API_KEY` isn't configured there), `startWalkingDirections.ts` surfaces a failure state without setting `activeRoute`, so the map and markers remain in their normal (non-route) state — there is no retry logic or offline queueing.

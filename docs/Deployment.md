@@ -2,13 +2,11 @@
 
 This document describes the current state of building, running, and testing the app — and honestly states what is not yet set up.
 
-## Current state: no CI/CD, no hosting configured, no store submission yet
+## Current state: CI exists, hosting chosen but not yet deployed, no store submission yet
 
-There is no `.github/workflows`, `netlify.toml`, `vercel.json`, `Dockerfile`, or any other CI/deployment configuration anywhere in this repository. `README.md` is the unmodified default Vite template and contains no project-specific deployment instructions. Building and deploying the web app today is a fully manual process: run the build locally (or on whatever CI a future integration adds), and manually publish the resulting `dist/` folder to hosting of choice.
+`.github/workflows/ci.yml` runs the build + full Playwright suite on every push/PR to `master` (see `ROADMAP.md`'s former CI/CD gap, now closed). **Netlify** has been chosen as the hosting target (`netlify.toml`) — both for the static `dist/` build and for a serverless function (`netlify/functions/route.ts`) that proxies OpenRouteService requests so the real API key never ships inside the client bundle (see `docs/Routing.md`). As of this writing, no Netlify site has actually been created/connected yet — the config exists, but there is no live deployment. `README.md` is still the unmodified default Vite template and contains no project-specific deployment instructions.
 
-The app also has native iOS (`ios/`) and Android (`android/`) projects, generated via Capacitor (see below), but as of this writing neither has been submitted to the App Store or Play Store — no Apple Developer / Google Play Developer account work, signing, or store listing has been done yet. This is deliberate, tracked scope, not an oversight — see `ROADMAP.md`.
-
-This is a deliberate gap being tracked, not an oversight — see the "CI/CD" item in `ROADMAP.md`.
+The app also has native iOS (`ios/`) and Android (`android/`) projects, generated via Capacitor (see below), but as of this writing neither has been submitted to the App Store or Play Store — an Android signing keystore and Play Store listing copy/screenshots/icon exist (`docs/StoreListing.md`), but the Google Play Developer account itself is still pending, and iOS work hasn't started (no Mac available yet). This is deliberate, tracked scope, not an oversight — see `ROADMAP.md`.
 
 ## Local development
 

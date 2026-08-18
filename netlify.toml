@@ -1,0 +1,9 @@
+# Roman Guides Companion — Netlify config
+# Ospita il sito statico (dist/) e la funzione serverless che protegge la
+# chiave OpenRouteService (netlify/functions/route.ts) — vedi CHANGELOG.md
+# e docs/Routing.md per il perché.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
