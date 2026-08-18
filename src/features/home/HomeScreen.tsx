@@ -26,7 +26,7 @@ import { getAppContentSection } from '../../services/appContentService';
 import { Card } from '../../design-system/components/Card';
 import { SectionHeader } from '../../design-system/components/SectionHeader';
 import { Button } from '../../design-system/components/Button';
-import logoUrl from '../../assets/brand/roman-guides-logo.png';
+import heroWordmarkUrl from '../../assets/brand/roman-guides-wordmark.png';
 import { LINKS } from '../../config/links';
 import { REPEAT_BOOKING_DISCOUNT_CODE } from '../../config/promotions';
 import {
@@ -284,16 +284,23 @@ export function HomeScreen({ onNavigate, onNavigateToSection }: HomeScreenProps)
         <div
           style={{
             position: 'relative',
-            height: 300,
+            // Aspect-locked to hero.jpg's own crop (1000×1279) instead of a
+            // fixed pixel height — with `cover`, a fixed height cropped
+            // unpredictably depending on device width, at times clipping off
+            // the pavement margin left under the group specifically so the
+            // headline wouldn't land on faces/shoulders. Locking the ratio
+            // means the same amount of that margin always survives.
+            aspectRatio: '1000 / 1279',
             background: hero?.imageUrl
-              ? `linear-gradient(rgba(26,26,26,.15) 0%, rgba(26,26,26,.75) 100%), url(${hero.imageUrl}) center/cover`
+              ? `linear-gradient(rgba(26,26,26,.10) 0%, rgba(26,26,26,.12) 42%, rgba(26,26,26,.55) 68%, rgba(26,26,26,.88) 100%), url(${hero.imageUrl}) center top/cover`
               : 'linear-gradient(160deg, var(--red), var(--red-dk))',
           }}
         >
-          {/* Logo direttamente sulla foto, nessuno sfondo dietro — richiesto
-              esplicitamente al posto della barra usata su Experiences/Saved. */}
-          <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 12px)', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-            <img src={logoUrl} alt="Roman Guides" style={{ height: 96, width: 'auto' }} />
+          {/* Wordmark only (no brush-circle) directly on the photo's sky area
+              — the circular BrandMark used on Experiences/Saved would sit
+              too close to the group's heads at this crop. */}
+          <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 28px)', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+            <img src={heroWordmarkUrl} alt="Roman Guides" style={{ height: 46, width: 'auto' }} />
           </div>
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 24px 22px' }}>
             {hero?.title && (
