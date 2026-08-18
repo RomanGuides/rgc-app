@@ -1,0 +1,44 @@
+name: CI
+
+# Runs on every push and pull request against master — build + the full
+# Playwright suite, so a broken build or a failing test can't reach master
+# unnoticed (see ROADMAP.md). Intentionally minimal: just the two checks
+# already run manually before every commit in this project.
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Only chromium: the only browser playwright.config.ts configures.
+      - name: Install Playwright's browser
+        run: npx playwright install --with-deps chromium
+
+      # VITE_ORS_API_KEY is baked in at build time (Vite env vars are
+      # resolved when the bundle is built, not when it's served) — must be
+      # set as a repository secret for this step, or the Directions e2e
+      # test below will fail (see .env.example).
+      - name: Build
+        run: npm run build
+        env:
+          VITE_ORS_API_KEY: ${{ secrets.VITE_ORS_API_KEY }}
+
+      # workers: 1 / fullyParallel: false in playwright.config.ts (MapLibre's
+      # real WebGL rendering starves across parallel workers) — same
+      # single-worker run as local, just slower on a shared CI runner.
+      - name: Run Playwright e2e suite
+        run: npm run test:e2e
