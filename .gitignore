@@ -30,6 +30,12 @@ blob-report
 credentials.json
 service-account*.json
 
+# Chiave di firma Android (upload key per Play App Signing, 2026-08-18) —
+# CHANGELOG.md dichiarava queste due regole già presenti, ma non lo erano
+# davvero: trovato e corretto prima di generare la chiave reale, non dopo.
+*.jks
+*.keystore
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
