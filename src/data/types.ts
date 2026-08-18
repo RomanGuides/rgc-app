@@ -53,7 +53,7 @@ export interface Place {
 // il founder sta per aggiungere 6 nuove tour, incluse le prime food-tour/
 // cooking-class del catalogo — senza un campo per distinguerle, "le sette
 // tour" sarebbe presto un elenco piatto di 13 prodotti molto diversi tra loro.
-export type TourType = 'classic-tour' | 'experience' | 'food-tour' | 'cooking-class';
+export type TourType = 'classic-tour' | 'experience' | 'food-tour' | 'cooking-class' | 'day-trip';
 
 export interface Experience {
   id: string;

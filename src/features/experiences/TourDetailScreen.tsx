@@ -40,6 +40,7 @@ import {
 import { BestSellerBadge } from '../../design-system/components/Badge';
 import type { Experience } from '../../data/types';
 import { formatDuration } from '../../utils/formatDuration';
+import { getExperienceImageUrl } from '../../services/experiencesService';
 
 interface TourDetailScreenProps {
   experience: Experience;
@@ -130,6 +131,7 @@ function GoodToKnow({ items }: { items: GoodToKnowItem[] }) {
 }
 
 export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: TourDetailScreenProps) {
+  const imageUrl = getExperienceImageUrl(exp);
   const facts = [
     exp.durationMinutes ? { icon: ClockIcon, label: 'Duration', value: formatDuration(exp.durationMinutes) } : null,
     exp.price != null
@@ -155,8 +157,8 @@ export function TourDetailScreen({ experience: exp, onClose, onCheckDates }: Tou
           style={{
             position: 'relative',
             height: 272,
-            background: exp.imageUrl
-              ? `linear-gradient(rgba(16,12,10,.42) 0%, rgba(16,12,10,.06) 45%, rgba(16,12,10,.40) 100%), url(${exp.imageUrl}) center/cover`
+            background: imageUrl
+              ? `linear-gradient(rgba(16,12,10,.42) 0%, rgba(16,12,10,.06) 45%, rgba(16,12,10,.40) 100%), url(${imageUrl}) center/cover`
               : 'var(--bg-app)',
             flexShrink: 0,
           }}

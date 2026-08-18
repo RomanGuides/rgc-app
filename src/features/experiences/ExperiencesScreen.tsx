@@ -18,7 +18,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { Experience, Guide, TourType, Testimonial } from '../../data/types';
-import { getExperiences } from '../../services/experiencesService';
+import { getExperiences, getExperienceImageUrl } from '../../services/experiencesService';
 import { getGuides } from '../../services/guidesService';
 import { getTestimonials } from '../../services/testimonialsService';
 import { Card } from '../../design-system/components/Card';
@@ -56,8 +56,9 @@ export const TOUR_TYPE_LABELS: Record<TourType, string> = {
   experience: 'Experiences',
   'food-tour': 'Food Tours',
   'cooking-class': 'Cooking Classes',
+  'day-trip': 'Day Trips',
 };
-export const TOUR_TYPE_ORDER: TourType[] = ['classic-tour', 'experience', 'food-tour', 'cooking-class'];
+export const TOUR_TYPE_ORDER: TourType[] = ['classic-tour', 'experience', 'food-tour', 'cooking-class', 'day-trip'];
 
 function TourTypeHeading({ children }: { children: string }) {
   return (
@@ -112,7 +113,7 @@ function TourCard({ exp, onSelect }: { exp: Experience; onSelect: (exp: Experien
   const durationLabel = exp.durationMinutes ? formatDuration(exp.durationMinutes) : null;
   const priceLabel = exp.price != null ? `From €${exp.price.toFixed(0)}` : exp.priceNote ?? null;
   return (
-    <Card showMedia imageUrl={exp.imageUrl} mediaHeight={140} style={{ marginBottom: 'var(--space-4)' }}>
+    <Card showMedia imageUrl={getExperienceImageUrl(exp)} mediaHeight={140} style={{ marginBottom: 'var(--space-4)' }}>
       {(exp.bestSeller || category) && (
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 'var(--space-2)' }}>
           {exp.bestSeller && <BestSellerBadge />}

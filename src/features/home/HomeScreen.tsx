@@ -21,7 +21,7 @@
 
 import { useEffect, useState } from 'react';
 import type { Experience, TourType } from '../../data/types';
-import { getExperiences } from '../../services/experiencesService';
+import { getExperiences, getExperienceImageUrl } from '../../services/experiencesService';
 import { getAppContentSection } from '../../services/appContentService';
 import { Card } from '../../design-system/components/Card';
 import { SectionHeader } from '../../design-system/components/SectionHeader';
@@ -60,6 +60,7 @@ interface HomeScreenProps {
 function TopExperienceCard({ exp, onSelect }: { exp: Experience; onSelect: (exp: Experience) => void }) {
   const durationLabel = exp.durationMinutes ? formatDuration(exp.durationMinutes) : null;
   const priceLabel = exp.price != null ? `From €${exp.price.toFixed(0)}` : (exp.priceNote ?? null);
+  const imageUrl = getExperienceImageUrl(exp);
   return (
     <button
       onClick={() => onSelect(exp)}
@@ -80,7 +81,7 @@ function TopExperienceCard({ exp, onSelect }: { exp: Experience; onSelect: (exp:
       <div
         style={{
           height: 110,
-          background: exp.imageUrl ? `url(${exp.imageUrl}) center/cover` : 'linear-gradient(160deg, var(--red), var(--red-dk))',
+          background: imageUrl ? `url(${imageUrl}) center/cover` : 'linear-gradient(160deg, var(--red), var(--red-dk))',
         }}
       />
       <div style={{ padding: 'var(--space-3)' }}>

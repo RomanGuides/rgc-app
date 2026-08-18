@@ -265,5 +265,219 @@
     ],
     "bestSeller": false,
     "tourType": "classic-tour"
+  },
+  {
+    "id": "pasta-tiramisu-cooking-class",
+    "name": "Pasta and Tiramisu Cooking Class with Prosecco",
+    "videoUrl": null,
+    "videoDuration": null,
+    "guideIds": [],
+    "relatedPlaceIds": [],
+    "imageUrl": null,
+    "reviewUrl": null,
+    "reviewEmoji": null,
+    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1261835",
+    "durationMinutes": 180,
+    "price": 39,
+    "priceNote": null,
+    "currency": "EUR",
+    "ageRequirement": "Minimum age 18 to book; children welcome when accompanied by an adult",
+    "meetingPoint": "Piazza in Campo Marzio, 6, 00186 Roma RM",
+    "description": "A hands-on Roman cooking class: make fresh fettuccine and classic sauces like carbonara or cacio e pepe with a local chef, plus a tiramisù you make yourself. Starts with a welcome glass of prosecco, ends with dinner around the table.",
+    "inclusions": [
+      "Prosecco welcome drink",
+      "Tiramisù-making session",
+      "Pasta-making session",
+      "Dinner with your handmade pasta",
+      "Local wine",
+      "Ingredients, equipment & aprons provided"
+    ],
+    "exclusions": [
+      "Transport/pickup"
+    ],
+    "cancellationPolicy": "Free cancellation up to 48 hours before the class, for a full refund.",
+    "wheelchairAccessible": true,
+    "idRequired": null,
+    "healthAdvisories": null,
+    "bestSeller": false,
+    "tourType": "cooking-class"
+  },
+  {
+    "id": "monti-food-tour",
+    "name": "Monti Neighborhood Lunch or Dinner Food Tour",
+    "videoUrl": null,
+    "videoDuration": null,
+    "guideIds": [],
+    "relatedPlaceIds": [],
+    "imageUrl": null,
+    "reviewUrl": null,
+    "reviewEmoji": null,
+    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1261798",
+    "durationMinutes": 180,
+    "price": 69,
+    "priceNote": null,
+    "currency": "EUR",
+    "ageRequirement": "Minimum age 18 to book; children welcome when accompanied by an adult",
+    "meetingPoint": "00184 Rome, Metropolitan City of Rome Capital",
+    "description": "A guided tasting walk through Monti, one of Rome's best food neighbourhoods — supplì, pizza, pasta, artisan cheese and gelato, paired with Italian wine, local beer or alcohol-free drinks, at family-run spots most tourists never find.",
+    "inclusions": [
+      "Guided food walking tour of Monti",
+      "Tastings: supplì, pizza, pasta, cheese, gelato",
+      "Italian wine, local beer, or alcohol-free drinks",
+      "Vegetarian options at every stop"
+    ],
+    "exclusions": [
+      "Transport/pickup"
+    ],
+    "cancellationPolicy": "Free cancellation up to 24 hours before the tour, for a full refund.",
+    "wheelchairAccessible": true,
+    "idRequired": null,
+    "healthAdvisories": [
+      "Guests with gluten intolerance are advised to book a private, fully gluten-free version of this tour instead"
+    ],
+    "bestSeller": false,
+    "tourType": "food-tour"
+  },
+  {
+    "id": "underground-catacombs-tour",
+    "name": "Rome Underground Tour: Catacombs, Crypts & Secrets with Transfers",
+    "videoUrl": null,
+    "videoDuration": null,
+    "guideIds": [],
+    "relatedPlaceIds": [],
+    "imageUrl": null,
+    "reviewUrl": null,
+    "reviewEmoji": null,
+    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1261859",
+    "durationMinutes": 150,
+    "price": 59,
+    "priceNote": null,
+    "currency": "EUR",
+    "ageRequirement": "Minimum age 18 to book; children welcome when accompanied by an adult; infants may sit on laps",
+    "meetingPoint": "Via dei Serpenti, 114, 00184 Roma RM, Italy",
+    "description": "Go beneath Rome's streets into the Catacombe di Domitilla and Vicus Caprarius, two underground sites most visitors never find on their own, with a live guide and round-trip transport included.",
+    "inclusions": [
+      "Transport to the catacombs and drop-off near the office",
+      "Enhanced listening devices",
+      "Live guide",
+      "Catacomb entrance tickets"
+    ],
+    "exclusions": [
+      "Food and drinks"
+    ],
+    "cancellationPolicy": "Free cancellation up to 24 hours before the tour, for a full refund.",
+    "wheelchairAccessible": false,
+    "idRequired": null,
+    "healthAdvisories": [
+      "May not be suitable for travelers with claustrophobia"
+    ],
+    "bestSeller": false,
+    "tourType": "classic-tour"
+  },
+  {
+    "id": "pompeii-only-day-experience",
+    "name": "Pompeii Only Day Experience",
+    "videoUrl": null,
+    "videoDuration": null,
+    "guideIds": [],
+    "relatedPlaceIds": [],
+    "imageUrl": null,
+    "reviewUrl": null,
+    "reviewEmoji": null,
+    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1261874",
+    "durationMinutes": 600,
+    "price": 79,
+    "priceNote": null,
+    "currency": "EUR",
+    "ageRequirement": "Minimum age 18 to book; children welcome when accompanied by an adult",
+    "meetingPoint": "Piazzale Ostiense 5A, near Piramide station",
+    "description": "A full day at Pompeii, the ancient city buried by Vesuvius in 79 AD — the Forum, baths, House of the Faun, and the plaster casts of its final residents — with a licensed guide and round-trip transport from Rome.",
+    "inclusions": [
+      "Round-trip transportation from Rome",
+      "Expert licensed guide",
+      "Pompeii archaeological site entry tickets",
+      "Free time to explore on your own",
+      "A complimentary drink"
+    ],
+    "exclusions": [
+      "Hotel pickup and drop-off"
+    ],
+    "cancellationPolicy": "Free cancellation up to 24 hours before the tour, for a full refund.",
+    "wheelchairAccessible": false,
+    "idRequired": null,
+    "healthAdvisories": null,
+    "bestSeller": false,
+    "tourType": "day-trip"
+  },
+  {
+    "id": "pompeii-reggia-caserta-day-trip",
+    "name": "Pompeii & Reggia di Caserta Guided Day Trip",
+    "videoUrl": null,
+    "videoDuration": null,
+    "guideIds": [],
+    "relatedPlaceIds": [],
+    "imageUrl": null,
+    "reviewUrl": null,
+    "reviewEmoji": null,
+    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1264803",
+    "durationMinutes": 720,
+    "price": 99,
+    "priceNote": null,
+    "currency": "EUR",
+    "ageRequirement": "Minimum age 18 to book; children welcome when accompanied by an adult",
+    "meetingPoint": "Piazzale Ostiense 5A, near Piramide station",
+    "description": "Two UNESCO sites in one day: a guided walk through Pompeii's preserved streets and villas, then the Reggia di Caserta, the \"Versailles of Italy\" — one of Europe's largest royal palaces, with opulent rooms and sweeping gardens.",
+    "inclusions": [
+      "Licensed guide",
+      "Pompeii Archaeological Park entry tickets",
+      "Reggia di Caserta entry tickets",
+      "Round-trip transportation from Rome"
+    ],
+    "exclusions": [
+      "Hotel pickup and drop-off",
+      "Drinks and personal expenses"
+    ],
+    "cancellationPolicy": "Free cancellation up to 24 hours before the tour, for a full refund.",
+    "wheelchairAccessible": false,
+    "idRequired": null,
+    "healthAdvisories": null,
+    "bestSeller": false,
+    "tourType": "day-trip"
+  },
+  {
+    "id": "pompeii-vesuvius-winery-day-trip",
+    "name": "Pompeii & Vesuvius Winery Day Trip",
+    "videoUrl": null,
+    "videoDuration": null,
+    "guideIds": [],
+    "relatedPlaceIds": [],
+    "imageUrl": null,
+    "reviewUrl": null,
+    "reviewEmoji": null,
+    "bookingUrl": "https://widgets.bokun.io/online-sales/e84e743d-24a5-432e-bd4e-5dff09c6fb34/experience/1264806",
+    "durationMinutes": 720,
+    "price": 109,
+    "priceNote": null,
+    "currency": "EUR",
+    "ageRequirement": "Minimum age 18 to book; children welcome when accompanied by an adult",
+    "meetingPoint": "Piazzale Ostiense 5A, near Piramide station",
+    "description": "A full day combining ancient history and wine: a guided tour of Pompeii's ruins, then a golf-cart vineyard tour and wine tasting at a nearby winery, with lunch and a classic Italian dessert included.",
+    "inclusions": [
+      "Guided Pompeii tour (2 hours)",
+      "Pompeii entry ticket (skip the line)",
+      "Lunch, with vegetarian options",
+      "Wine tasting at a nearby winery",
+      "Golf-cart vineyard tour",
+      "Round-trip transportation from Rome"
+    ],
+    "exclusions": [
+      "Hotel pickup and drop-off"
+    ],
+    "cancellationPolicy": "Free cancellation up to 24 hours before the tour, for a full refund.",
+    "wheelchairAccessible": false,
+    "idRequired": null,
+    "healthAdvisories": null,
+    "bestSeller": false,
+    "tourType": "day-trip"
   }
 ]
