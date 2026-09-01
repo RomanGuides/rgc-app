@@ -67,7 +67,19 @@ export function GuideDetailScreen({ guide, onClose }: GuideDetailScreenProps) {
           </div>
         )}
 
-        <p style={{ fontSize: '1.0625rem', lineHeight: 1.6, color: 'var(--ink)', margin: 0 }}>{guide.bio}</p>
+        {/* La bio arriva da guides.json come stringa unica, con i paragrafi
+            separati da una riga vuota (\n\n). In HTML un newline collassa in uno
+            spazio, quindi senza questo split le bio lunghe (Realda: tre paragrafi,
+            ~1.100 caratteri) si leggevano come un unico muro di testo. Le bio senza
+            \n\n restano un solo paragrafo: nessun cambiamento per le altre guide. */}
+        {guide.bio.split('\n\n').map((paragraph, i) => (
+          <p
+            key={i}
+            style={{ fontSize: '1.0625rem', lineHeight: 1.6, color: 'var(--ink)', margin: i === 0 ? 0 : '1em 0 0' }}
+          >
+            {paragraph}
+          </p>
+        ))}
       </div>
     </div>
   );

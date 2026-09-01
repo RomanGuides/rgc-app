@@ -106,7 +106,7 @@ export interface Guide {
   name: string;
   displayTitle: string;
   quote?: string; // non tutte le guide hanno una citazione scritta — mai inventarne una quando manca
-  bio: string;
+  bio: string; // paragrafi separati da una riga vuota (\n\n) — GuideDetailScreen li rende come <p> distinti
   avatar: string; // stringa vuota se non c'è ancora una foto reale — GuidePhoto mostra un cerchio con l'iniziale
   whatsappUrl: string;
 }
