@@ -51,11 +51,12 @@ import { useAndroidBackHandler } from '../../hooks/useAndroidBackHandler';
 
 interface HomeScreenProps {
   onNavigate: (tab: TabKey) => void;
-  // Separate from onNavigate: "Meet the Guides" and each category pill need
-  // to land ON their own section in Experiences, not just switch to the tab
-  // and leave the user to scroll past whatever renders above it (real
-  // feedback from device testing).
-  onNavigateToSection: (target: TourType | 'guides') => void;
+  // Separate from onNavigate: each category pill needs to land ON its own
+  // section in Experiences, not just switch to the tab and leave the user to
+  // scroll past whatever renders above it (real feedback from device testing).
+  // "Meet the Guides" passava da qui finché le guide erano una sezione di
+  // Experiences; dal 2026-09-01 sono una tab e la tessera usa onNavigate.
+  onNavigateToSection: (target: TourType) => void;
 }
 
 function TopExperienceCard({ exp, onSelect }: { exp: Experience; onSelect: (exp: Experience) => void }) {
@@ -336,7 +337,7 @@ export function HomeScreen({ onNavigate, onNavigateToSection }: HomeScreenProps)
           <div style={{ display: 'flex', gap: 'var(--space-3)', marginBottom: 'var(--space-6)' }}>
             <ShortcutTile icon={<LocationPinIcon width={22} height={22} />} label="Browse the Map" onClick={() => onNavigate('rome')} />
             <ShortcutTile icon={<GiftIcon width={22} height={22} />} label="Gift Cards" onClick={() => setBookingItem(GIFT_CARD_ITEM)} />
-            <ShortcutTile icon={<PersonIcon width={22} height={22} />} label="Meet the Guides" onClick={() => onNavigateToSection('guides')} />
+            <ShortcutTile icon={<PersonIcon width={22} height={22} />} label="Meet the Guides" onClick={() => onNavigate('guides')} />
           </div>
 
           {/* ---------- Why travel with us ---------- */}

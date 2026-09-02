@@ -1,25 +1,30 @@
 // Roman Guides Companion — ExperiencesScreen
 //
-// Ristrutturata (redesign v1): questo tab ora è anche "chi siamo e cosa puoi
-// fare con noi" — assorbe Meet the Guides / What Guests Say / Our Story,
-// spostati qui da MyRomeScreen (ora ridotta alla sola shortlist "Saved").
-// Restano 3 tab, nessun quarto tab.
+// Ristrutturata (redesign v1): questo tab è anche "chi siamo e cosa puoi
+// fare con noi" — assorbì What Guests Say / Our Story, spostati qui da
+// MyRomeScreen (ora ridotta alla sola shortlist "Saved").
 //
-// Ordine (dall'alto): masthead breve → le sette tour (subito, non più in
-// basso del secondo scroll: chi apre per prenotare le trova immediatamente)
-// → Meet the Guides → What guests say → Our Story (chi vuole conoscerci
-// continua a scorrere). Nessuno dei due percorsi paga per l'altro.
+// Ordine (dall'alto): masthead breve → banner sconto → i tour raggruppati
+// per tipo (subito, non più in basso del secondo scroll: chi apre per
+// prenotare li trova immediatamente) → gift card → What guests say → Our
+// Story (chi vuole conoscerci continua a scorrere).
 //
-// Testi definitivi del founder (agosto 2026) per masthead/Our Story/bio guide
-// in config/story.ts e data/guides.json — non più placeholder. Contenuto che
-// non trovava posto nelle 5 sezioni sopra (banner sconto, copy "notturna"
-// delle stesse 2 tour, bottone WhatsApp/TripAdvisor per guida, card "video in
-// arrivo") è stato spostato in docs/parked-content.md, non cancellato.
+// Meet the Guides stava qui, quinta di sette sezioni. Misurata a 5.657px
+// dall'inizio su viewport 390x844 — 7,3 schermate di scorrimento, l'85% di
+// profondità del tab, e nessun indizio sopra la piega che le guide
+// esistessero. Promossa a tab propria il 2026-09-01 (features/guides/):
+// contenuto identico, solo spostato. Da qui è quindi sparito anche il
+// bersaglio di scroll "guides" — vedi il commento sull'effetto più sotto.
+//
+// Testi definitivi del founder (agosto 2026) per masthead/Our Story in
+// config/story.ts — non più placeholder. Contenuto che non trovava posto
+// nelle sezioni sopra (copy "notturna" delle stesse 2 tour, bottone
+// WhatsApp/TripAdvisor per guida, card "video in arrivo") è stato spostato
+// in docs/parked-content.md, non cancellato.
 
 import { useEffect, useRef, useState } from 'react';
-import type { Experience, Guide, TourType, Testimonial } from '../../data/types';
+import type { Experience, TourType, Testimonial } from '../../data/types';
 import { getExperiences, getExperienceImageUrl } from '../../services/experiencesService';
-import { getGuides } from '../../services/guidesService';
 import { getTestimonials } from '../../services/testimonialsService';
 import { Card } from '../../design-system/components/Card';
 import { BrandMark } from '../../design-system/components/BrandMark';
@@ -30,7 +35,6 @@ import { OUR_STORY_MASTHEAD, OUR_STORY_PARAGRAPHS } from '../../config/story';
 import { LINKS } from '../../config/links';
 import { REPEAT_BOOKING_DISCOUNT_CODE } from '../../config/promotions';
 import { BookingWidgetModal, type BookableItem } from './BookingWidgetModal';
-import { GuideDetailScreen } from './GuideDetailScreen';
 import { TourDetailScreen } from './TourDetailScreen';
 import { ClockIcon, TagIcon } from '../../design-system/components/Icons';
 import { formatDuration } from '../../utils/formatDuration';
@@ -73,30 +77,6 @@ function TourTypeHeading({ children }: { children: string }) {
       }}
     >
       {children}
-    </div>
-  );
-}
-
-export function GuidePhoto({ avatar, name, size = 52 }: { avatar: string; name: string; size?: number }) {
-  const isRealUrl = avatar.startsWith('http');
-  return (
-    <div
-      style={{
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        flexShrink: 0,
-        background: isRealUrl ? `url(${avatar}) center/cover` : 'linear-gradient(160deg, var(--red), var(--red-dk))',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#fff',
-        fontFamily: 'var(--display)',
-        fontWeight: 700,
-        fontSize: size * 0.38,
-      }}
-    >
-      {!isRealUrl && name.charAt(0)}
     </div>
   );
 }
@@ -184,40 +164,44 @@ export const GIFT_CARD_ITEM: BookableItem = {
 };
 
 interface ExperiencesScreenProps {
-  // Tab Home (2026-08-16): sia "Meet the Guides" che le tessere-categoria
-  // (Classic Tours/Experiences/...) devono arrivare davvero alla propria
-  // sezione, non solo aprire il tab e lasciare che l'utente scorra per
-  // trovarla. `undefined`/mancante = nessuno scroll, comportamento invariato
-  // per l'accesso normale dalla tab bar.
-  scrollTarget?: TourType | 'guides' | null;
+  // Tab Home (2026-08-16): le tessere-categoria (Classic Tours/Experiences/
+  // ...) devono arrivare davvero alla propria sezione, non solo aprire il tab
+  // e lasciare che l'utente scorra per trovarla. `undefined`/mancante =
+  // nessuno scroll, comportamento invariato per l'accesso normale dalla tab
+  // bar.
+  //
+  // La scorciatoia "Meet the Guides" della Home passava anche da qui, con
+  // target 'guides'. Dal 2026-09-01 le guide sono una tab e la Home ci va
+  // direttamente con setActiveTab: nessuno scroll da orchestrare.
+  scrollTarget?: TourType | null;
   onScrollTargetHandled?: () => void;
 }
 
 export function ExperiencesScreen({ scrollTarget, onScrollTargetHandled }: ExperiencesScreenProps = {}) {
   const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [guides, setGuides] = useState<Guide[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [bookingItem, setBookingItem] = useState<BookableItem | null>(null);
-  const [selectedGuide, setSelectedGuide] = useState<Guide | null>(null);
   const [selectedTour, setSelectedTour] = useState<Experience | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const guidesSectionRef = useRef<HTMLDivElement>(null);
   const tourTypeSectionRefs = useRef<Partial<Record<TourType, HTMLDivElement | null>>>({});
 
   useEffect(() => {
     setExperiences(getExperiences());
-    setGuides(getGuides());
     setTestimonials(getTestimonials());
   }, []);
 
-  // Guarded on guides.length > 0, not just scrollTarget: on first mount,
-  // experiences/guides are still [] (populated by the effect above, which
-  // only takes effect on the NEXT commit) — scrolling before that landed on
-  // whatever short, still-empty layout existed at that instant, well short
-  // of the guides section's real position once tours/guides actually
-  // render (found via real-device testing: it only scrolled "a little").
+  // Guarded on experiences.length > 0, not just scrollTarget: on first mount
+  // experiences is still [] (populated by the effect above, which only takes
+  // effect on the NEXT commit) — scrolling before that landed on whatever
+  // short, still-empty layout existed at that instant, well short of the
+  // target section's real position once the tours actually render (found via
+  // real-device testing: it only scrolled "a little").
   //
-  // Still undershot on-device after the guides.length>0 gate AND two nested
+  // Il gate guardava anche guides.length finché le guide erano una sezione di
+  // questa tab. Dal 2026-09-01 sono una tab propria (features/guides/) e non
+  // sono più un bersaglio di scroll: qui resta solo il salto ai tipi di tour.
+  //
+  // Still undershot on-device after that gate AND two nested
   // requestAnimationFrame calls (landing around "Classic Tours", the first
   // tour-type heading) — scrollIntoView's automatic nearest-scrollable-
   // ancestor walk is unreliable in this Android WebView on a nested
@@ -226,8 +210,8 @@ export function ExperiencesScreen({ scrollTarget, onScrollTargetHandled }: Exper
   // implementations are known to mishandle). Measuring the offset directly
   // and setting scrollTop ourselves bypasses that resolution entirely.
   useEffect(() => {
-    if (!scrollTarget || experiences.length === 0 || guides.length === 0) return;
-    const target = scrollTarget === 'guides' ? guidesSectionRef.current : tourTypeSectionRefs.current[scrollTarget];
+    if (!scrollTarget || experiences.length === 0) return;
+    const target = tourTypeSectionRefs.current[scrollTarget];
     if (!target) return;
     let raf2 = 0;
     // onScrollTargetHandled fires from INSIDE the second rAF, once the scroll
@@ -252,7 +236,7 @@ export function ExperiencesScreen({ scrollTarget, onScrollTargetHandled }: Exper
       if (raf2) cancelAnimationFrame(raf2);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scrollTarget, experiences, guides]);
+  }, [scrollTarget, experiences]);
 
   return (
     <>
@@ -327,49 +311,6 @@ export function ExperiencesScreen({ scrollTarget, onScrollTargetHandled }: Exper
         </Button>
       </Card>
 
-      {/* ---------- Meet the Guides ---------- */}
-      <div ref={guidesSectionRef}>
-        <SectionHeader eyebrow="Your local experts" title="Meet the Guides" />
-      </div>
-      <div style={{ marginTop: 'var(--space-3)', marginBottom: 'var(--space-8)' }}>
-        {guides.map((g) => (
-          <button
-            key={g.id}
-            onClick={() => setSelectedGuide(g)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-3)',
-              width: '100%',
-              marginBottom: 'var(--space-4)',
-              border: 'none',
-              background: 'none',
-              padding: 0,
-              textAlign: 'left',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
-          >
-            <GuidePhoto avatar={g.avatar} name={g.name} />
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontFamily: 'var(--display)', fontSize: '0.95rem', fontWeight: 700, color: 'var(--ink)' }}>{g.name}</div>
-              <div
-                style={{
-                  fontSize: '0.82rem',
-                  color: 'var(--stone)',
-                  lineHeight: 1.4,
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                }}
-              >
-                {g.bio}
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
 
       {/* ---------- What guests say ---------- */}
       {testimonials.length > 0 && (
@@ -417,9 +358,6 @@ export function ExperiencesScreen({ scrollTarget, onScrollTargetHandled }: Exper
     )}
     {bookingItem && (
       <BookingWidgetModal item={bookingItem} onClose={() => setBookingItem(null)} />
-    )}
-    {selectedGuide && (
-      <GuideDetailScreen guide={selectedGuide} onClose={() => setSelectedGuide(null)} />
     )}
     </>
   );

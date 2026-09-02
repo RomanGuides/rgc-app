@@ -188,7 +188,7 @@ test('Home: a category pill switches to Experiences, grouped by the same tourTyp
 // scroll happened. "Experiences" (not "Classic Tours", the first group and
 // already near the top by default) is the meaningful case: it only sits
 // near the top of the viewport if a real scroll moved it there.
-test('Home: category pills and Meet the Guides actually scroll to their section, not just switch tabs', async ({ page }) => {
+test('Home: a category pill actually scrolls to its section, not just switches tabs', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Experiences', exact: true }).first().click();
   const experiencesHeading = page.getByText('Experiences', { exact: true }).first();
@@ -197,21 +197,16 @@ test('Home: category pills and Meet the Guides actually scroll to their section,
     const box = await experiencesHeading.boundingBox();
     expect(box?.y).toBeLessThan(300);
   }).toPass();
-
-  await page.getByRole('button', { name: /^Home$/ }).click();
-  await page.getByRole('button', { name: 'Meet the Guides' }).click();
-  const guidesHeading = page.getByText('Meet the Guides', { exact: true });
-  await expect(guidesHeading).toBeVisible();
-  await expect(async () => {
-    const box = await guidesHeading.boundingBox();
-    expect(box?.y).toBeLessThan(300);
-  }).toPass();
 });
 
-test('Home: navigation shortcuts reach Rome and Experiences, and open the gift card widget', async ({ page }) => {
+test('Home: navigation shortcuts reach Guides, Rome and Experiences, and open the gift card widget', async ({ page }) => {
   await page.goto('/');
+  // Dal 2026-09-01 questa tessera non scorre più dentro Experiences: apre la
+  // tab Guides. aria-current sul pulsante della tab bar è l'unica prova che
+  // siamo davvero su quella tab e non su una sezione omonima altrove.
   await page.getByRole('button', { name: 'Meet the Guides' }).click();
   await expect(page.getByText('Meet the Guides')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Guides', exact: true })).toHaveAttribute('aria-current', 'page');
 
   await page.getByRole('button', { name: /^Home$/ }).click();
   await page.getByRole('button', { name: 'Browse the Map' }).click();
@@ -250,11 +245,14 @@ test('Saved tab renders (shortlist only, empty state)', async ({ page }) => {
   await expect(page.getByText('Browse the map')).toBeVisible();
 });
 
-test('Experiences tab renders (tours, guides, story)', async ({ page }) => {
+test('Experiences tab renders (tours, story) and no longer carries the guides', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /Experiences/ }).last().click();
-  await expect(page.getByText('Meet the Guides')).toBeVisible();
   await expect(page.getByText('Our Story')).toBeVisible();
+  // Asserzione in negativo deliberata: le guide sono uscite da questo tab il
+  // 2026-09-01. Senza questa riga un futuro reinserimento accidentale della
+  // sezione non farebbe fallire nulla.
+  await expect(page.getByText('Meet the Guides')).not.toBeVisible();
 });
 
 // Restored from docs/parked-content.md (2026-08-17) — real copy that existed
@@ -270,9 +268,29 @@ test('Experiences: repeat-booking discount banner shows the real code and links 
   );
 });
 
-test('Experiences: tapping a guide opens their full bio, back closes it', async ({ page }) => {
+
+// La tab Guides esiste dal 2026-09-01: le bio stavano quinte di sette sezioni
+// dentro Experiences, a 5.657px dall'inizio (7,3 schermate su 390x844). Questo
+// test copre ciò che prima non aveva copertura: che il tab si apra già sulla
+// lista, senza scorrimenti, con tutte le guide reali.
+test('Guides tab: opens straight onto the full roster, no scrolling needed', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: /Experiences/ }).last().click();
+  await page.getByRole('button', { name: 'Guides', exact: true }).click();
+  await expect(page.getByText('Meet the Guides', { exact: true })).toBeVisible();
+
+  for (const name of ['Eni', 'Arjan', 'Giovanni', 'Realda', 'Said']) {
+    await expect(page.getByRole('button', { name: new RegExp(name) })).toBeVisible();
+  }
+
+  // Il punto della promozione a tab: la lista è visibile all'apertura, non
+  // dopo 7 schermate. La prima riga deve stare nella prima schermata.
+  const first = page.getByRole('button', { name: /^Eni/ });
+  const box = await first.boundingBox();
+  expect(box?.y).toBeLessThan(400);
+});
+test('Guides tab: tapping a guide opens their full bio, back closes it', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Guides', exact: true }).click();
 
   // The list row's accessible name is the guide's short name + the (visually
   // 2-line-clamped, but fully present in the DOM) bio text — match on the

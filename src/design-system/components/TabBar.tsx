@@ -9,10 +9,10 @@
 // stroke-2/round-cap/no-fill in un secondo oggetto ICON_PROPS, la "seconda
 // famiglia icone" che il design system dice esplicitamente di non avere.
 
-import { HomeIcon, LocationPinIcon, TicketIcon, HeartIcon } from './Icons';
+import { HomeIcon, LocationPinIcon, TicketIcon, PersonIcon, HeartIcon } from './Icons';
 import type { ReactNode } from 'react';
 
-export type TabKey = 'home' | 'rome' | 'experiences' | 'saved';
+export type TabKey = 'home' | 'rome' | 'experiences' | 'guides' | 'saved';
 
 interface TabDef {
   key: TabKey;
@@ -24,6 +24,12 @@ const TABS: TabDef[] = [
   { key: 'home', label: 'Home', icon: <HomeIcon width={19} height={19} /> },
   { key: 'rome', label: 'Rome', icon: <LocationPinIcon width={19} height={19} /> },
   { key: 'experiences', label: 'Experiences', icon: <TicketIcon width={19} height={19} /> },
+  // Le guide erano la quinta di sette sezioni dentro Experiences, a 7,3
+  // schermate di scorrimento. Promosse a tab il 2026-09-01. PersonIcon e' gia'
+  // l'icona canonica delle guide in questo design system (la scorciatoia della
+  // Home e la riga "Local guides" la usano da agosto): nessuna icona nuova,
+  // come chiede la regola no-duplication di CONTRIBUTING.md.
+  { key: 'guides', label: 'Guides', icon: <PersonIcon width={19} height={19} /> },
   { key: 'saved', label: 'Saved', icon: <HeartIcon width={19} height={19} /> },
 ];
 

@@ -11,7 +11,7 @@
 // un flusso esterno come il checkout; tornare indietro è il gesto giusto.
 
 import { ChevronLeftIcon } from '../../design-system/components/Icons';
-import { GuidePhoto } from './ExperiencesScreen';
+import { GuidePhoto } from './GuidePhoto';
 import type { Guide } from '../../data/types';
 import { useAndroidBackHandler } from '../../hooks/useAndroidBackHandler';
 

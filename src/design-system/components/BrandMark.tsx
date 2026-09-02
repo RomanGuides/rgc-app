@@ -1,11 +1,11 @@
 // Roman Guides Companion — BrandMark
-// Piccolo marchio in cima a Home/Experiences/Saved (2026-08-17, evoluzione
-// brand) — il logo reale (cerchio pennellato rosso + wordmark), non solo
-// testo. Rome resta senza: è a mappa piena, una barra qui ridurrebbe l'area
-// mappa — decisione esplicita del founder, non un'omissione.
+// Piccolo marchio in cima a Home/Experiences/Guides/Saved (2026-08-17,
+// evoluzione brand) — il logo reale (cerchio pennellato rosso + wordmark),
+// non solo testo. Rome resta senza: è a mappa piena, una barra qui ridurrebbe
+// l'area mappa — decisione esplicita del founder, non un'omissione.
 //
-// Un solo componente condiviso invece di tre inserimenti indipendenti, così
-// dimensione/spaziatura restano identiche sulle tre tab che lo mostrano.
+// Un solo componente condiviso invece di quattro inserimenti indipendenti,
+// così dimensione/spaziatura restano identiche sulle tab che lo mostrano.
 
 import logoUrl from '../../assets/brand/roman-guides-logo.png';
 

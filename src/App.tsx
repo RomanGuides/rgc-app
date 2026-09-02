@@ -13,6 +13,7 @@ import type { TourType } from './data/types';
 import { HomeScreen } from './features/home/HomeScreen';
 import { MapScreen } from './features/map/MapScreen';
 import { ExperiencesScreen } from './features/experiences/ExperiencesScreen';
+import { GuidesScreen } from './features/guides/GuidesScreen';
 import { MyRomeScreen } from './features/myrome/MyRomeScreen';
 import { WelcomeScreen } from './features/welcome/WelcomeScreen';
 import { TabBar, type TabKey } from './design-system/components/TabBar';
@@ -33,7 +34,7 @@ function App() {
   // Experiences/...) need to land ON their own section, not just on the
   // Experiences tab's top — one-shot signal, cleared by ExperiencesScreen
   // once it's scrolled there.
-  const [experiencesScrollTarget, setExperiencesScrollTarget] = useState<TourType | 'guides' | null>(null);
+  const [experiencesScrollTarget, setExperiencesScrollTarget] = useState<TourType | null>(null);
   const hasSeenWelcome = usePlacesStore((s) => s.hasSeenWelcome);
   const setHasSeenWelcome = usePlacesStore((s) => s.setHasSeenWelcome);
 
@@ -76,7 +77,7 @@ function App() {
     return <WelcomeScreen onDone={setHasSeenWelcome} />;
   }
 
-  function goToExperiencesSection(target: TourType | 'guides') {
+  function goToExperiencesSection(target: TourType) {
     setExperiencesScrollTarget(target);
     setActiveTab('experiences');
   }
@@ -92,6 +93,7 @@ function App() {
             onScrollTargetHandled={() => setExperiencesScrollTarget(null)}
           />
         )}
+        {activeTab === 'guides' && <GuidesScreen />}
         {activeTab === 'saved' && <MyRomeScreen onNavigate={setActiveTab} />}
       </div>
 
