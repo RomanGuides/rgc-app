@@ -86,6 +86,16 @@ export function TabBar({ activeTab, onChange }: TabBarProps) {
             aria-current={isActive ? 'page' : undefined}
             style={{
               flex: 1,
+              // Senza minWidth: 0 la dimensione minima automatica di un flex
+              // item e' il suo contenuto: l'etichetta piu' lunga ('Experiences')
+              // non poteva comprimersi sotto la propria larghezza di testo e le
+              // altre tab assorbivano la differenza. Misurato su viewport 320px:
+              // a scala del font di sistema ~2,00 la somma dei pulsanti arrivava
+              // a 323,2px contro 320 disponibili e l'ultima tab usciva dallo
+              // schermo. Peggiora con ogni tab in piu'. Ora l'etichetta si
+              // comprime in ellipsis e il pavimento diventa l'icona (36px + 8px
+              // di padding), non il testo.
+              minWidth: 0,
               padding: '12px 4px 10px',
               border: 'none',
               background: 'none',
@@ -118,6 +128,12 @@ export function TabBar({ activeTab, onChange }: TabBarProps) {
                 color: isActive ? 'var(--red)' : 'var(--stone)',
                 fontWeight: isActive ? 700 : 500,
                 transition: 'color 0.2s ease',
+                // Vedi minWidth: 0 sopra. nowrap perche una seconda riga
+                // alzerebbe la barra solo per una tab, disallineando le altre.
+                maxWidth: '100%',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
             >
               {tab.label}
